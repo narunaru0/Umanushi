@@ -1,0 +1,734 @@
+Option Explicit
+'//-----------------------------------------------------------------------------
+'// 説明
+'//-----------------------------------------------------------------------------
+'// 2013/06/23  : (naruo)   Initial revision.
+'//-----------------------------------------------------------------------------
+
+'// JRAレース結果入力シート
+Global Const G_RACE_INPUT_SHEET As String = "JRAレース結果入力"
+
+'// 落札結果入力シート
+Global Const G_SUCESS_BID_INPUT_SHEET As String = "落札結果入力"
+
+'// 手放結果入力シート
+Global Const G_RELEASE_INPUT_SHEET As String = "手放し結果入力"
+
+'// その他入力シート
+Global Const G_OTHER_INPUT_SHEET As String = "その他入力"
+
+'// 実行シート
+Global Const G_EXEC_SHEET As String = "★実行"
+
+'// 今週明細シート
+Global Const G_THIS_WEEK_SHEET As String = "今週明細"
+
+'// 累積明細シート
+Global Const G_TOTAL_SHEET As String = "累積明細"
+
+'// ポイントランキングシート
+Global Const G_RANKING_SHEET As String = "■ポイントランキング"
+
+'// うまぬし一覧シート
+Global Const G_NAME_SHEET As String = "うまぬし一覧"
+
+'// 集計構造体
+Private Type defTypSummary
+    sDate As String
+    sName As String
+    sGroup As String
+    nMoney As Long
+    nPoint As Double
+    nOwnHorse As Integer
+    sComment As String
+End Type
+
+'//-----------------------------------------------------------------------------
+'// ポイントランキングの作成
+'//-----------------------------------------------------------------------------
+Sub MakeRankingSheet()
+
+    Dim sheet As Worksheet
+    Dim sNames() As String
+    Dim sName As Variant
+    Dim dicSummary As Object
+    Dim dicKey As String
+    Dim dicItem As Variant
+    Dim typSummary As defTypSummary
+    Dim typInitSummary As defTypSummary
+    Dim objRange As Range
+    Dim nRowCount As Integer
+    Dim nTotalRowCount As Integer
+    Dim nRowStartCount As Integer
+    Dim nRowEndCount As Integer
+    Dim sRaceComment As String
+
+    Dim sFromDate As String
+    Dim sToDate As String
+    Dim sDate As String
+    Dim sSuccessBidDate As String
+
+    '// 集計範囲の確認
+    sFromDate = Worksheets(G_EXEC_SHEET).Range("F2").Value
+    If IsDate(sFromDate) = False Then
+        Call MsgBox("集計範囲(開始)が正しく設定されていません。[" & sFromDate & "]" & vbCrLf & "中断します。", vbCritical)
+        Exit Sub
+    End If
+    sToDate = Worksheets(G_EXEC_SHEET).Range("I2").Value
+    If IsDate(sToDate) = False Then
+        Call MsgBox("集計範囲(終了)が正しく設定されていません。[" & sToDate & "]" & vbCrLf & "中断します。", vbCritical)
+        Exit Sub
+    End If
+    If DateDiff("d", CDate(sFromDate), CDate(sToDate)) < 0 Then
+        Call MsgBox("集計範囲が正しく設定されていません。[" & sFromDate & "]～[" & sToDate & "]" & vbCrLf & "中断します。", vbCritical)
+        Exit Sub
+    End If
+
+    '// 落札日の確認
+    sSuccessBidDate = Worksheets(G_EXEC_SHEET).Range("F3").Value
+    If IsDate(sSuccessBidDate) = False Then
+        Call MsgBox("落札日が正しく設定されていません。[" & sSuccessBidDate & "]" & vbCrLf & "中断します。", vbCritical)
+        Exit Sub
+    End If
+    If DateDiff("d", CDate(sFromDate), CDate(sSuccessBidDate)) < 0 Then
+        Call MsgBox("落札日が集計範囲外です。[" & sSuccessBidDate & "]" & vbCrLf & "中断します。", vbCritical)
+        Exit Sub
+    End If
+    If DateDiff("d", CDate(sSuccessBidDate), CDate(sToDate)) < 0 Then
+        Call MsgBox("落札日が集計範囲外です。[" & sSuccessBidDate & "]" & vbCrLf & "中断します。", vbCritical)
+        Exit Sub
+    End If
+
+    '// 集計Dictionary
+    Set dicSummary = CreateObject("Scripting.Dictionary")
+
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+
+    '//---------------------------------------------------------
+    '// うまぬし一覧の読込
+    '//---------------------------------------------------------
+    Worksheets(G_NAME_SHEET).Select
+    '// 読込
+    For nRowCount = 1 To 10000
+        If Worksheets(G_NAME_SHEET).Range("A" & nRowCount).Value = "" Then
+            '// データなしレコードに到達した場合、読込終了
+            Exit For
+        End If
+
+        ReDim Preserve sNames(nRowCount - 1)
+        sNames(nRowCount - 1) = Worksheets(G_NAME_SHEET).Range("A" & nRowCount).Value
+    Next
+
+    '//---------------------------------------------------------
+    '// JRAレース結果の取得
+    '//---------------------------------------------------------
+    Worksheets(G_RACE_INPUT_SHEET).Select
+
+    '// 並び替え(うまぬし名、日付、レースKey)
+    Worksheets(G_RACE_INPUT_SHEET).Range("A1:W1").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Sort Key1:=Range("Q2"), Order1:=xlAscending, Key2:=Range("B2") _
+        , Order2:=xlAscending, Key3:=Range("A2"), Order3:=xlAscending _
+        , Header:=xlYes, OrderCustom:=1, MatchCase:=False _
+        , Orientation:=xlTopToBottom, SortMethod:=xlPinYin
+
+    '// 読込
+    For nRowCount = 2 To 30000
+        If Worksheets(G_RACE_INPUT_SHEET).Range("Q" & nRowCount).Value = "" Then
+            '// うまぬし名の無いレコードに到達した場合、読込終了
+            Exit For
+        End If
+
+        '// 日付整備
+        sDate = Worksheets(G_RACE_INPUT_SHEET).Range("B" & nRowCount).Value
+
+        '// 集計Dictionary読込
+        dicKey = sDate & "_" & _
+            Worksheets(G_RACE_INPUT_SHEET).Range("Q" & nRowCount).Value & "_" & _
+            "JRAレース結果"
+
+        If dicSummary.Exists(dicKey) = False Then
+            typSummary = typInitSummary
+            typSummary.sDate = sDate
+            typSummary.sName = Worksheets(G_RACE_INPUT_SHEET).Range("Q" & nRowCount).Value
+            typSummary.sGroup = "JRAレース結果"
+            Call dicSummary.Add(dicKey, ConvTypeToString(typSummary))
+        Else
+            typSummary = ConvStringToType(dicSummary.Item(dicKey))
+        End If
+
+        sRaceComment = ""
+
+        '// ポイント加算
+        If IsNumeric(Worksheets(G_RACE_INPUT_SHEET).Range("T" & nRowCount).Value) = True Then
+            typSummary.nPoint = typSummary.nPoint + Worksheets(G_RACE_INPUT_SHEET).Range("T" & nRowCount).Value
+            
+            '// 1P以上加算時、備考欄出力
+            If Worksheets(G_RACE_INPUT_SHEET).Range("T" & nRowCount).Value >= 1 Then
+                sRaceComment = Worksheets(G_RACE_INPUT_SHEET).Range("E" & nRowCount).Value & _
+                    Worksheets(G_RACE_INPUT_SHEET).Range("R" & nRowCount).Value & "着" & _
+                    Worksheets(G_RACE_INPUT_SHEET).Range("L" & nRowCount).Value & _
+                    "(" & Worksheets(G_RACE_INPUT_SHEET).Range("T" & nRowCount).Value & "P)"
+            End If
+        End If
+
+        '// 獲得金加算
+        If IsNumeric(Worksheets(G_RACE_INPUT_SHEET).Range("U" & nRowCount).Value) = True Then
+            typSummary.nMoney = typSummary.nMoney + Worksheets(G_RACE_INPUT_SHEET).Range("U" & nRowCount).Value
+        End If
+
+        '// 高齢ボ加算
+        If IsNumeric(Worksheets(G_RACE_INPUT_SHEET).Range("V" & nRowCount).Value) = True Then
+            typSummary.nMoney = typSummary.nMoney + Worksheets(G_RACE_INPUT_SHEET).Range("V" & nRowCount).Value
+        End If
+
+        '// レコボ加算
+        If IsNumeric(Worksheets(G_RACE_INPUT_SHEET).Range("W" & nRowCount).Value) = True Then
+            typSummary.nMoney = typSummary.nMoney + Worksheets(G_RACE_INPUT_SHEET).Range("W" & nRowCount).Value
+        End If
+
+        '// 備考
+        If sRaceComment <> "" Then
+            If typSummary.sComment <> "" Then
+                typSummary.sComment = typSummary.sComment & " / "
+            End If
+            typSummary.sComment = typSummary.sComment & sRaceComment
+        End If
+
+        '// 集計Dictionary書き戻し
+        dicSummary.Item(dicKey) = ConvTypeToString(typSummary)
+    Next
+
+
+    '//---------------------------------------------------------
+    '// 落札結果の取得
+    '//---------------------------------------------------------
+    Worksheets(G_SUCESS_BID_INPUT_SHEET).Select
+
+    '// 読込
+    For nRowCount = 2 To 30000
+        If Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("A" & nRowCount).Value = "" Then
+            '// データなしレコードに到達した場合、読込終了
+            Exit For
+        End If
+
+        '// 日付整備
+        sDate = sSuccessBidDate
+
+        '// 集計Dictionary読込
+        dicKey = sDate & "_" & _
+            Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("D" & nRowCount).Value & "_" & _
+            "落札結果"
+
+        If dicSummary.Exists(dicKey) = False Then
+            typSummary = typInitSummary
+            typSummary.sDate = sDate
+            typSummary.sName = Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("D" & nRowCount).Value
+            typSummary.sGroup = "落札結果"
+            Call dicSummary.Add(dicKey, ConvTypeToString(typSummary))
+        Else
+            typSummary = ConvStringToType(dicSummary.Item(dicKey))
+        End If
+
+        '// 落札価格引き落とし
+        If IsNumeric(Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("E" & nRowCount).Value) = True Then
+            typSummary.nMoney = typSummary.nMoney - Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("E" & nRowCount).Value
+        End If
+
+        '// 所有馬加算
+        typSummary.nOwnHorse = typSummary.nOwnHorse + 1
+
+        '// 備考
+        If typSummary.sComment <> "" Then
+            typSummary.sComment = typSummary.sComment & " / "
+        End If
+        typSummary.sComment = typSummary.sComment & Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("A" & nRowCount).Value
+
+        '// 集計Dictionary書き戻し
+        dicSummary.Item(dicKey) = ConvTypeToString(typSummary)
+    Next
+
+
+    '//---------------------------------------------------------
+    '// 手放結果の取得
+    '//---------------------------------------------------------
+    Worksheets(G_RELEASE_INPUT_SHEET).Select
+
+    '// 読込
+    For nRowCount = 2 To 30000
+        If Worksheets(G_RELEASE_INPUT_SHEET).Range("A" & nRowCount).Value = "" Then
+            '// データなしレコードに到達した場合、読込終了
+            Exit For
+        End If
+
+        '// 日付整備
+        sDate = Worksheets(G_RELEASE_INPUT_SHEET).Range("A" & nRowCount).Value
+        If (Hour(sDate) = 22 And Minute(sDate) >= 1) Or _
+            Hour(sDate) > 22 Then
+            '// 22:01を過ぎているため翌日扱いとする
+
+            sDate = DateAdd("d", 1, DateValue(sDate))
+        Else
+            sDate = DateValue(sDate)
+        End If
+
+        '// 集計Dictionary読込
+        dicKey = sDate & "_" & _
+            Worksheets(G_RELEASE_INPUT_SHEET).Range("F" & nRowCount).Value & "_" & _
+            "手放し結果"
+
+        If dicSummary.Exists(dicKey) = False Then
+            typSummary = typInitSummary
+            typSummary.sDate = sDate
+            typSummary.sName = Worksheets(G_RELEASE_INPUT_SHEET).Range("F" & nRowCount).Value
+            typSummary.sGroup = "手放し結果"
+            Call dicSummary.Add(dicKey, ConvTypeToString(typSummary))
+        Else
+            typSummary = ConvStringToType(dicSummary.Item(dicKey))
+        End If
+
+        '// 返済額加算
+        If IsNumeric(Replace(Worksheets(G_RELEASE_INPUT_SHEET).Range("H" & nRowCount).Value, "万円", "")) = True Then
+            typSummary.nMoney = typSummary.nMoney + Replace(Worksheets(G_RELEASE_INPUT_SHEET).Range("H" & nRowCount).Value, "万円", "")
+        End If
+
+        '// 所有馬減算
+        typSummary.nOwnHorse = typSummary.nOwnHorse - 1
+
+        '// 備考
+        If typSummary.sComment <> "" Then
+            typSummary.sComment = typSummary.sComment & " / "
+        End If
+        typSummary.sComment = typSummary.sComment & Worksheets(G_RELEASE_INPUT_SHEET).Range("C" & nRowCount).Value
+
+        '// 集計Dictionary書き戻し
+        dicSummary.Item(dicKey) = ConvTypeToString(typSummary)
+    Next
+
+
+    '//---------------------------------------------------------
+    '// その他の取得
+    '//---------------------------------------------------------
+    Worksheets(G_OTHER_INPUT_SHEET).Select
+
+    '// 読込
+    For nRowCount = 2 To 30000
+        If Worksheets(G_OTHER_INPUT_SHEET).Range("A" & nRowCount).Value = "" Then
+            '// データなしレコードに到達した場合、読込終了
+            Exit For
+        End If
+
+        '// 日付整備
+        sDate = Worksheets(G_OTHER_INPUT_SHEET).Range("A" & nRowCount).Value
+        If (Hour(sDate) = 22 And Minute(sDate) >= 1) Or _
+            Hour(sDate) > 22 Then
+            '// 22:01を過ぎているため翌日扱いとする
+
+            sDate = DateAdd("d", 1, DateValue(sDate))
+        Else
+            sDate = DateValue(sDate)
+        End If
+
+        '// 集計Dictionary読込
+        dicKey = sDate & "_" & _
+            Worksheets(G_OTHER_INPUT_SHEET).Range("B" & nRowCount).Value & "_" & _
+            Worksheets(G_OTHER_INPUT_SHEET).Range("C" & nRowCount).Value
+
+        If dicSummary.Exists(dicKey) = False Then
+            typSummary = typInitSummary
+            typSummary.sDate = sDate
+            typSummary.sName = Worksheets(G_OTHER_INPUT_SHEET).Range("B" & nRowCount).Value
+            typSummary.sGroup = Worksheets(G_OTHER_INPUT_SHEET).Range("C" & nRowCount).Value
+            Call dicSummary.Add(dicKey, ConvTypeToString(typSummary))
+        Else
+            typSummary = ConvStringToType(dicSummary.Item(dicKey))
+        End If
+
+        '// 所持金計算
+        If IsNumeric(Worksheets(G_OTHER_INPUT_SHEET).Range("D" & nRowCount).Value) = True Then
+            typSummary.nMoney = typSummary.nMoney + Worksheets(G_OTHER_INPUT_SHEET).Range("D" & nRowCount).Value
+        End If
+
+        '// ポイント計算
+        If IsNumeric(Worksheets(G_OTHER_INPUT_SHEET).Range("E" & nRowCount).Value) = True Then
+            typSummary.nPoint = typSummary.nPoint + Worksheets(G_OTHER_INPUT_SHEET).Range("E" & nRowCount).Value
+        End If
+
+        '// 所有馬計算
+        If IsNumeric(Worksheets(G_OTHER_INPUT_SHEET).Range("F" & nRowCount).Value) = True Then
+            typSummary.nOwnHorse = typSummary.nOwnHorse + Worksheets(G_OTHER_INPUT_SHEET).Range("F" & nRowCount).Value
+        End If
+
+        '// 備考
+        If Worksheets(G_OTHER_INPUT_SHEET).Range("G" & nRowCount).Value <> "" Then
+            If InStr(Worksheets(G_OTHER_INPUT_SHEET).Range("G" & nRowCount).Value, ",") > 0 Then
+                Call MsgBox("備考に[,]は入力しないでください。[" & Worksheets(G_OTHER_INPUT_SHEET).Range("G" & nRowCount).Value & "]" & vbCrLf & "中断します。", vbCritical)
+                Exit Sub
+            End If
+
+            If typSummary.sComment <> "" Then
+                typSummary.sComment = typSummary.sComment & " / "
+            End If
+            typSummary.sComment = typSummary.sComment & Worksheets(G_OTHER_INPUT_SHEET).Range("G" & nRowCount).Value
+        End If
+
+        '// 集計Dictionary書き戻し
+        dicSummary.Item(dicKey) = ConvTypeToString(typSummary)
+    Next
+
+
+    '//---------------------------------------------------------
+    '// 明細シートの作成
+    '//---------------------------------------------------------
+    Worksheets(G_THIS_WEEK_SHEET).Select
+    Worksheets(G_THIS_WEEK_SHEET).Rows("2").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Delete Shift:=xlUp
+
+    '// 集計Dictionaryから明細出力
+    nRowCount = 2
+    For Each dicItem In dicSummary.Items
+        typSummary = ConvStringToType(CStr(dicItem))
+
+        '// うまぬし名のチェック
+        If UBound(Filter(sNames, typSummary.sName, , vbTextCompare)) < 0 Then
+            Call MsgBox("うまぬし名が正しく設定されていません。[" & typSummary.sName & "]" & _
+                "[" & typSummary.sDate & "]" & "[" & typSummary.sGroup & "]" & vbCrLf & "中断します。", vbCritical)
+
+            If typSummary.sGroup = "JRAレース結果" Then
+                Worksheets(G_RACE_INPUT_SHEET).Select
+            ElseIf typSummary.sGroup = "落札結果" Then
+                Worksheets(G_SUCESS_BID_INPUT_SHEET).Select
+            ElseIf typSummary.sGroup = "手放し結果" Then
+                Worksheets(G_RELEASE_INPUT_SHEET).Select
+            Else
+                Worksheets(G_OTHER_INPUT_SHEET).Select
+            End If
+            Exit Sub
+        End If
+
+        '// 日付のチェック
+        If DateDiff("d", CDate(sFromDate), CDate(typSummary.sDate)) < 0 Or _
+            DateDiff("d", CDate(typSummary.sDate), CDate(sToDate)) < 0 Then
+
+            Call MsgBox("日付が集計対象範囲外です。[" & typSummary.sName & "]" & _
+                "[" & typSummary.sDate & "]" & "[" & typSummary.sGroup & "]" & vbCrLf & "中断します。", vbCritical)
+
+            If typSummary.sGroup = "JRAレース結果" Then
+                Worksheets(G_RACE_INPUT_SHEET).Select
+            ElseIf typSummary.sGroup = "落札結果" Then
+                Worksheets(G_SUCESS_BID_INPUT_SHEET).Select
+            ElseIf typSummary.sGroup = "手放し結果" Then
+                Worksheets(G_RELEASE_INPUT_SHEET).Select
+            Else
+                Worksheets(G_OTHER_INPUT_SHEET).Select
+            End If
+            Exit Sub
+        End If
+
+        Worksheets(G_THIS_WEEK_SHEET).Range("A" & nRowCount).Value = typSummary.sDate
+        Worksheets(G_THIS_WEEK_SHEET).Range("B" & nRowCount).Value = typSummary.sName
+        Worksheets(G_THIS_WEEK_SHEET).Range("C" & nRowCount).Value = typSummary.sGroup
+        Worksheets(G_THIS_WEEK_SHEET).Range("D" & nRowCount).Value = typSummary.nMoney
+        Worksheets(G_THIS_WEEK_SHEET).Range("E" & nRowCount).Value = typSummary.nPoint
+        Worksheets(G_THIS_WEEK_SHEET).Range("F" & nRowCount).Value = typSummary.nOwnHorse
+        Worksheets(G_THIS_WEEK_SHEET).Range("G" & nRowCount).Value = typSummary.sComment
+        nRowCount = nRowCount + 1
+    Next
+
+    '//---------------------------------------------------------
+    '// 退避シートの削除
+    '//---------------------------------------------------------
+    Application.DisplayAlerts = False
+    For Each sheet In ActiveWorkbook.Sheets
+        If sheet.Name = Replace(sToDate, "/", "-") & "退避" Then
+            '// シート削除
+            Sheets(sheet.Name).Delete
+        End If
+    Next
+    Application.DisplayAlerts = True
+
+    '//---------------------------------------------------------
+    '// 退避シートの作成
+    '//---------------------------------------------------------
+    Set sheet = Worksheets.Add(After:=Sheets(Sheets.Count))
+    sheet.Name = Replace(sToDate, "/", "-") & "退避"
+
+    nTotalRowCount = 1
+    sheet.Range("A" & nTotalRowCount).Value = "退避日時：" & Now
+    nTotalRowCount = nTotalRowCount + 1
+
+    sheet.Range("A" & nTotalRowCount).Value = "■その他入力シート退避"
+    nTotalRowCount = nTotalRowCount + 1
+
+    '// その他入力シート退避
+    nRowCount = 2
+    If Worksheets(G_OTHER_INPUT_SHEET).Range("A" & nRowCount).Value <> "" Then
+        nRowStartCount = nRowCount
+        nRowEndCount = nRowCount
+
+        Do Until Worksheets(G_OTHER_INPUT_SHEET).Range("A" & nRowEndCount).Value = ""
+            nRowEndCount = nRowEndCount + 1
+        Loop
+        nRowEndCount = nRowEndCount - 1
+
+        Worksheets(G_OTHER_INPUT_SHEET).Rows(nRowStartCount & ":" & nRowEndCount).Copy
+        sheet.Range("A" & nTotalRowCount).PasteSpecial _
+            Paste:=xlAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+
+        nTotalRowCount = nTotalRowCount + (nRowEndCount - nRowStartCount + 1)
+    End If
+
+    sheet.Range("A" & nTotalRowCount).Value = "■手放し結果入力シート退避"
+    nTotalRowCount = nTotalRowCount + 1
+
+    '// 手放し結果入力シート退避
+    nRowCount = 2
+    If Worksheets(G_RELEASE_INPUT_SHEET).Range("A" & nRowCount).Value <> "" Then
+        nRowStartCount = nRowCount
+        nRowEndCount = nRowCount
+
+        Do Until Worksheets(G_RELEASE_INPUT_SHEET).Range("A" & nRowEndCount).Value = ""
+            nRowEndCount = nRowEndCount + 1
+        Loop
+        nRowEndCount = nRowEndCount - 1
+
+        Worksheets(G_RELEASE_INPUT_SHEET).Rows(nRowStartCount & ":" & nRowEndCount).Copy
+        sheet.Range("A" & nTotalRowCount).PasteSpecial _
+            Paste:=xlAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+
+        nTotalRowCount = nTotalRowCount + (nRowEndCount - nRowStartCount + 1)
+    End If
+
+    sheet.Range("A" & nTotalRowCount).Value = "■落札結果入力シート退避"
+    nTotalRowCount = nTotalRowCount + 1
+
+    '// 落札結果入力シート退避
+    nRowCount = 2
+    If Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("A" & nRowCount).Value <> "" Then
+        nRowStartCount = nRowCount
+        nRowEndCount = nRowCount
+
+        Do Until Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("A" & nRowEndCount).Value = ""
+            nRowEndCount = nRowEndCount + 1
+        Loop
+        nRowEndCount = nRowEndCount - 1
+
+        Worksheets(G_SUCESS_BID_INPUT_SHEET).Rows(nRowStartCount & ":" & nRowEndCount).Copy
+        sheet.Range("A" & nTotalRowCount).PasteSpecial _
+            Paste:=xlAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+
+        nTotalRowCount = nTotalRowCount + (nRowEndCount - nRowStartCount + 1)
+    End If
+
+    sheet.Range("A" & nTotalRowCount).Value = "■JRAレース結果入力シート退避"
+    nTotalRowCount = nTotalRowCount + 1
+
+    '// JRAレース結果入力シート退避
+    nRowCount = 2
+    If Worksheets(G_RACE_INPUT_SHEET).Range("A" & nRowCount).Value <> "" Then
+        nRowStartCount = nRowCount
+        nRowEndCount = nRowCount
+
+        Do Until Worksheets(G_RACE_INPUT_SHEET).Range("A" & nRowEndCount).Value = ""
+            nRowEndCount = nRowEndCount + 1
+        Loop
+        nRowEndCount = nRowEndCount - 1
+
+        Worksheets(G_RACE_INPUT_SHEET).Rows(nRowStartCount & ":" & nRowEndCount).Copy
+        sheet.Range("A" & nTotalRowCount).PasteSpecial _
+            Paste:=xlAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+
+        nTotalRowCount = nTotalRowCount + (nRowEndCount - nRowStartCount + 1)
+    End If
+
+
+    '//---------------------------------------------------------
+    '// 累積明細シートの準備
+    '//---------------------------------------------------------
+    Worksheets(G_TOTAL_SHEET).Select
+
+    '// 並び替え(日付)
+    Worksheets(G_TOTAL_SHEET).Range("A1:G1").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Sort Key1:=Range("A2"), Order1:=xlAscending _
+        , Header:=xlYes, OrderCustom:=1, MatchCase:=False _
+        , Orientation:=xlTopToBottom, SortMethod:=xlPinYin
+
+    '// 読込
+    For nTotalRowCount = 2 To 10000
+        If Worksheets(G_TOTAL_SHEET).Range("A" & nTotalRowCount).Value = "" Then
+            '// データなしレコードに到達した場合、読込終了
+            Exit For
+        End If
+
+        '// 今週集計対象日付行の削除
+        sDate = Worksheets(G_TOTAL_SHEET).Range("A" & nTotalRowCount).Value
+        If DateDiff("d", CDate(sFromDate), CDate(sDate)) >= 0 And _
+            DateDiff("d", CDate(sDate), CDate(sToDate)) >= 0 Then
+
+            '// 削除
+            Worksheets(G_TOTAL_SHEET).Rows(nTotalRowCount).Delete Shift:=xlUp
+
+            '// 行削除後、上に繰り上がるため行番号を１つ戻す
+            nTotalRowCount = nTotalRowCount - 1
+        End If
+    Next
+
+    '//---------------------------------------------------------
+    '// 今週明細シートから累積明細シートへ転記
+    '//---------------------------------------------------------
+    nRowCount = 2
+    If Worksheets(G_THIS_WEEK_SHEET).Range("A" & nRowCount).Value <> "" Then
+        nRowStartCount = nRowCount
+        nRowEndCount = nRowCount
+
+        Do Until Worksheets(G_THIS_WEEK_SHEET).Range("A" & nRowEndCount).Value = ""
+            nRowEndCount = nRowEndCount + 1
+        Loop
+        nRowEndCount = nRowEndCount - 1
+
+        Worksheets(G_THIS_WEEK_SHEET).Range("A" & nRowStartCount & ":G" & nRowEndCount).Copy
+        Worksheets(G_TOTAL_SHEET).Range("A" & nTotalRowCount).PasteSpecial _
+            Paste:=xlAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+    End If
+
+    '// 並び替え(うまぬし名、日付、分類)
+    Worksheets(G_TOTAL_SHEET).Range("A1:G1").Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Sort Key1:=Range("B2"), Order1:=xlAscending, Key2:=Range("A2") _
+        , Order2:=xlAscending, Key3:=Range("C2"), Order3:=xlAscending _
+        , Header:=xlYes, OrderCustom:=1, MatchCase:=False _
+        , Orientation:=xlTopToBottom, SortMethod:=xlPinYin
+
+    '//---------------------------------------------------------
+    '// うまぬし毎シートの削除
+    '//---------------------------------------------------------
+    Application.DisplayAlerts = False
+    For Each sheet In ActiveWorkbook.Sheets
+        If UBound(Filter(sNames, sheet.Name, , vbTextCompare)) >= 0 Then
+            '// シート削除
+            Sheets(sheet.Name).Delete
+        End If
+    Next
+    Application.DisplayAlerts = True
+
+    '//---------------------------------------------------------
+    '// うまぬし毎シートの作成
+    '//---------------------------------------------------------
+    For Each sName In sNames
+        Set sheet = Worksheets.Add(After:=Worksheets(G_NAME_SHEET))
+        sheet.Name = sName
+
+        nRowCount = 1
+        sheet.Range("G" & nRowCount).Value = "作成日時：" & Now
+        nRowCount = nRowCount + 1
+
+        '// 見出し転記
+        nTotalRowCount = 1
+        Worksheets(G_TOTAL_SHEET).Range("A" & nTotalRowCount & ":G" & nTotalRowCount).Copy
+        sheet.Range("A" & nRowCount).PasteSpecial _
+            Paste:=xlAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        sheet.Range("H" & nRowCount).Value = "所持金推移"
+        sheet.Range("I" & nRowCount).Value = "ポイント推移"
+        sheet.Range("J" & nRowCount).Value = "所有馬推移"
+        nRowCount = nRowCount + 1
+
+        '// 累積明細シート位置設定
+        Worksheets(G_TOTAL_SHEET).Select
+        Worksheets(G_TOTAL_SHEET).Columns("B:B").Select
+        Set objRange = Selection.Find(What:=sName, After:=ActiveCell, LookIn:=xlFormulas, _
+            LookAt:=xlWhole, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+            MatchCase:=False, MatchByte:=False, SearchFormat:=False)
+
+        If (objRange Is Nothing) = False Then
+            nRowStartCount = objRange.Row
+            nRowEndCount = objRange.Row
+
+            Do Until Worksheets(G_TOTAL_SHEET).Range("B" & nRowEndCount).Value <> sName
+                nRowEndCount = nRowEndCount + 1
+            Loop
+            nRowEndCount = nRowEndCount - 1
+
+            '// うまぬし毎シートに転記
+            Worksheets(G_TOTAL_SHEET).Range("A" & nRowStartCount & ":G" & nRowEndCount).Copy
+            sheet.Range("A" & nRowCount).PasteSpecial _
+                Paste:=xlAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+
+            '// 推移計算式設定
+            Do Until sheet.Range("A" & nRowCount).Value = ""
+                sheet.Range("H" & nRowCount).Formula = "=SUM(D$2:D" & nRowCount & ")"
+                sheet.Range("I" & nRowCount).Formula = "=SUM(E$2:E" & nRowCount & ")"
+                sheet.Range("J" & nRowCount).Formula = "=SUM(F$2:F" & nRowCount & ")"
+                nRowCount = nRowCount + 1
+            Loop
+        End If
+
+        '// 列幅調整
+        sheet.Columns("A:A").AutoFit
+        sheet.Columns("B:B").ColumnWidth = 2
+        sheet.Columns("C:F").AutoFit
+    Next
+
+    '//---------------------------------------------------------
+    '// うまぬし一覧のハイパーリンク設定
+    '//---------------------------------------------------------
+    Worksheets(G_NAME_SHEET).Select
+    '// 読込
+    For nRowCount = 1 To 10000
+        If Worksheets(G_NAME_SHEET).Range("A" & nRowCount).Value = "" Then
+            '// データなしレコードに到達した場合、読込終了
+            Exit For
+        End If
+
+        Worksheets(G_NAME_SHEET).Hyperlinks.Add _
+            Anchor:=Worksheets(G_NAME_SHEET).Range("A" & nRowCount), Address:="", _
+            SubAddress:="'" & Worksheets(G_NAME_SHEET).Range("A" & nRowCount).Value & "'!A1", _
+            TextToDisplay:=Worksheets(G_NAME_SHEET).Range("A" & nRowCount).Value
+    Next
+
+
+    '// ポイントランキングシート選択
+    Worksheets(G_RANKING_SHEET).Select
+
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+
+    Call MsgBox("正常に処理が終了しました。", vbInformation)
+
+End Sub
+
+'//-----------------------------------------------------------------------------
+'// 集計構造体から文字列への変換
+'//-----------------------------------------------------------------------------
+Public Function ConvTypeToString(typSummary As defTypSummary) As String
+    Dim sRet As String
+    sRet = sRet & typSummary.sDate & ","
+    sRet = sRet & typSummary.sName & ","
+    sRet = sRet & typSummary.sGroup & ","
+    sRet = sRet & CStr(typSummary.nMoney) & ","
+    sRet = sRet & CStr(typSummary.nPoint) & ","
+    sRet = sRet & CStr(typSummary.nOwnHorse) & ","
+    sRet = sRet & typSummary.sComment
+    ConvTypeToString = sRet
+End Function
+
+'//-----------------------------------------------------------------------------
+'// 文字列から集計構造体への変換
+'//-----------------------------------------------------------------------------
+Public Function ConvStringToType(strSummary As String) As defTypSummary
+    Dim typSummary As defTypSummary
+    Dim sSummary() As String
+    sSummary = Split(strSummary, ",")
+    typSummary.sDate = sSummary(0)
+    typSummary.sName = sSummary(1)
+    typSummary.sGroup = sSummary(2)
+    typSummary.nMoney = CLng(sSummary(3))
+    typSummary.nPoint = CDbl(sSummary(4))
+    typSummary.nOwnHorse = CInt(sSummary(5))
+    typSummary.sComment = sSummary(6)
+    ConvStringToType = typSummary
+End Function
+
+
