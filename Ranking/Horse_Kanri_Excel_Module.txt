@@ -4,7 +4,7 @@ Option Explicit
 '//-----------------------------------------------------------------------------
 '// 2007/01/01  : (naruo)   Initial revision.
 '// 2007/01/02  : (naruo)   手放し判定・トレードうまぬし判定の不具合を修正
-'// 2013/06/29  : (naruo)   落札結果シートの拡張
+'// 2013/07/04  : (naruo)   落札結果シートの拡張等
 '//-----------------------------------------------------------------------------
 
 '// 参照シート
@@ -299,32 +299,26 @@ Sub UpdateTempSheet()
             sWorkStable = Replace(sWorkStable, "(栗)", "栗･")
             sWorkStable = Replace(sWorkStable, "(美)", "美･")
 
-            '// 状態
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 8).Value = _
-                Worksheets(G_HORSE_SHEET).Cells(rHorse.Row, nStatusCol).Value
+            '// 血統登録番号
+            sBlood = Worksheets(G_HORSE_SHEET).Cells(rHorse.Row, nBloodCol).Value
+            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 7).Value = sBlood
 
-            '// 性齢
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 9).Value = sSexAge
+            '// 状態
+            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 9).Value = _
+                Worksheets(G_HORSE_SHEET).Cells(rHorse.Row, nStatusCol).Value
 
             '// 収得賞金
             Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 10).Value = _
                 Worksheets(G_HORSE_SHEET).Cells(rHorse.Row, nRankBaseCol).Value
 
             '// 厩舎
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 11).Value = sStable
+            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 11).Value = sWorkStable
+
+            '// 性齢
+            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 12).Value = sAge & "･" & sSex
 
             '// 馬記号
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 12).Value = sHorseMark
-
-            '// 血統登録番号
-            sBlood = Worksheets(G_HORSE_SHEET).Cells(rHorse.Row, nBloodCol).Value
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 13).Value = sBlood
-
-            '// 厩舎(加工)
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 14).Value = sWorkStable
-
-            '// 性齢(加工)
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 15).Value = sAge & "･" & sSex
+            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 13).Value = sHorseMark
 
 
             '// 既所有馬チェック
@@ -365,11 +359,11 @@ Sub UpdateTempSheet()
         Set rHorseList = Nothing
 
         '// 備考
-        Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 7).Value = sComment
+        Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 8).Value = sComment
         If sComment <> "" And sComment <> "自所有済" Then
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 7).Interior.ColorIndex = 38
+            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 8).Interior.ColorIndex = 38
         Else
-            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 7).Interior.ColorIndex = xlNone
+            Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 8).Interior.ColorIndex = xlNone
         End If
 
     Next
@@ -564,18 +558,18 @@ Sub UpdateOwnSheet()
             sWorkStable = Replace(sWorkStable, "(美)", "美･")
 
             '// 状態
-            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 8).Value = _
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 9).Value = _
                 Worksheets(G_OWN_HORSE_SHEET).Cells(rHorse.Row, nStatusCol).Value
 
             '// 収得賞金
-            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 9).Value = _
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 10).Value = _
                 Worksheets(G_OWN_HORSE_SHEET).Cells(rHorse.Row, nRankBaseCol).Value
 
-            '// 性齢
-            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 10).Value = sSexAge
-
             '// 厩舎
-            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 11).Value = sStable
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 11).Value = sWorkStable
+
+            '// 性齢
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 12).Value = sAge & "･" & sSex
 
             '// 馬名チェック
             If sOwnHorse <> sHorse Then
@@ -605,12 +599,12 @@ Sub UpdateOwnSheet()
         Set rHorse = Nothing
         Set rHorseList = Nothing
 
-        '//
-        Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 12).Value = sComment
+        '// 備考
+        Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 8).Value = sComment
         If sComment <> "" Then
-            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 12).Interior.ColorIndex = 38
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 8).Interior.ColorIndex = 38
         Else
-            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 12).Interior.ColorIndex = xlNone
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 8).Interior.ColorIndex = xlNone
         End If
 
     Next
@@ -1026,3 +1020,5 @@ Sub UpdateTrade()
     Call MsgBox("トレード情報を更新しました。", vbInformation)
 
 End Sub
+
+
