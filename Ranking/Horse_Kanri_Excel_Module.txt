@@ -56,21 +56,13 @@ Sub ProcessTempSheet()
     nTempRowCount = 1
     nRefRowCount = 1
 
-    Worksheets(G_TEMP_SHEET).Range("A" & nTempRowCount & ":F" & nTempRowCount).Select
+    Worksheets(G_TEMP_SHEET).Range("A" & nTempRowCount & ":E" & nTempRowCount).Select
     Selection.ClearContents
     With Selection
         .HorizontalAlignment = xlCenter
         .MergeCells = True
     End With
     ActiveCell.FormulaR1C1 = "入札ステーション"
-
-    Worksheets(G_TEMP_SHEET).Range("G" & nTempRowCount & ":L" & nTempRowCount).Select
-    Selection.ClearContents
-    With Selection
-        .HorizontalAlignment = xlCenter
-        .MergeCells = True
-    End With
-    ActiveCell.FormulaR1C1 = "JRA-VAN"
 
     nTempRowCount = nTempRowCount + 1
 
@@ -79,14 +71,14 @@ Sub ProcessTempSheet()
     Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 3).Value = "齢・性"
     Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 4).Value = "うまぬし名"
     Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 5).Value = "入札価格"
-    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 6).Value = "備考"
-
-    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 7).Value = "状態"
-    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 8).Value = "性齢"
-    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 9).Value = "収得賞金" & vbLf & "(平地)"
-    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 10).Value = "厩舎"
-    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 11).Value = "馬記号"
-    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 12).Value = "血統登録番号"
+    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 6).Value = "手放し解禁日"
+    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 7).Value = "血統登録番号"
+    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 8).Value = "備考"
+    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 9).Value = "状態"
+    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 10).Value = "収得賞金" & vbLf & "(平地)"
+    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 11).Value = "厩舎"
+    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 12).Value = "性齢"
+    Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 13).Value = "馬記号"
     nTempRowCount = nTempRowCount + 1
 
     For nRefRowCount = 3 To 10000
@@ -630,9 +622,6 @@ End Sub
 Sub UpdateRelease()
 
     '// 出力補助項目
-    Dim nTempRowCount As Long       '// 一次加工シート行カウント
-    Dim nTempMaxRowCount As Long    '// 一次加工シート行最大カウント
-
     Dim sHorse As String            '// 馬名
     Dim sSerchHorse As String       '// 検索馬名
 
@@ -659,11 +648,6 @@ Sub UpdateRelease()
     If Worksheets(G_RELEASE_SHEET).Range("A3").Value = "" Then
         Call MsgBox("[" & Worksheets(G_RELEASE_SHEET).Name & "]シートに手放し馬がありません。" & vbCrLf & "中断します。")
         Exit Sub
-    End If
-    If Worksheets(G_RELEASE_SHEET).Range("A3").Value <> "" Then
-        nTempMaxRowCount = Selection.End(xlDown).Row
-    Else
-        nTempMaxRowCount = 1
     End If
 
 
@@ -730,14 +714,11 @@ Sub UpdateRelease()
     Set rHeaderList = Nothing
 
 
-    '// 手放し更新(リストの下から３行目まで)
-    For nTempRowCount = nTempMaxRowCount To 3 Step -1
-        If Worksheets(G_RELEASE_SHEET).Cells(nTempRowCount, 1).Value = "" Then
-            Exit For
-        End If
-
+    '// 手放し更新
+    Do Until Worksheets(G_RELEASE_SHEET).Cells(3, 1).Value = ""
+        
         '// 手放し馬名の取得
-        sReleaseHorse = Worksheets(G_RELEASE_SHEET).Cells(nTempRowCount, 3).Value
+        sReleaseHorse = Worksheets(G_RELEASE_SHEET).Cells(3, 3).Value
 
         '// 所有馬の検索
         Set rOwnHorseList = Worksheets(G_OWN_SHEET).Columns(nHorseCol)
@@ -756,13 +737,13 @@ Sub UpdateRelease()
         If Not rOwnHorse Is Nothing Then
 
             Worksheets(G_RELEASE_RESULT_SHEET).Rows("3:3").Insert Shift:=xlDown
-            Worksheets(G_RELEASE_SHEET).Range("A" & nTempRowCount & ":I" & nTempRowCount).Copy
+            Worksheets(G_RELEASE_SHEET).Range("A" & 3 & ":I" & 3).Copy
             Worksheets(G_RELEASE_RESULT_SHEET).Cells(3, 10).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
             Worksheets(G_OWN_SHEET).Range("A" & rOwnHorse.Row & ":I" & rOwnHorse.Row).Copy
             Worksheets(G_RELEASE_RESULT_SHEET).Cells(3, 1).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
 
             '// 手放しシートのレコードをクリア
-            Worksheets(G_RELEASE_SHEET).Rows(nTempRowCount).Delete Shift:=xlUp
+            Worksheets(G_RELEASE_SHEET).Rows(3).Delete Shift:=xlUp
 
             '// 所有馬シートのレコードをクリア
             Worksheets(G_OWN_SHEET).Rows(rOwnHorse.Row).Delete Shift:=xlUp
@@ -775,9 +756,10 @@ Sub UpdateRelease()
         End If
         Set rOwnHorse = Nothing
         Set rOwnHorseList = Nothing
-
-    Next
-
+    
+    
+    Loop
+    
     Worksheets(G_RELEASE_RESULT_SHEET).Select
 
     Application.ScreenUpdating = True
