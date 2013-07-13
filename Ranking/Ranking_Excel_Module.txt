@@ -3,6 +3,7 @@ Option Explicit
 '// 説明
 '//-----------------------------------------------------------------------------
 '// 2013/06/23  : (naruo)   Initial revision.
+'// 2013/07/13  : (naruo)   退避シートに集計範囲・落札日付を追加
 '//-----------------------------------------------------------------------------
 
 '// JRAレース結果入力シート
@@ -458,6 +459,16 @@ Sub MakeRankingSheet()
     nTotalRowCount = 1
     sheet.Range("A" & nTotalRowCount).Value = "退避日時：" & Now
     nTotalRowCount = nTotalRowCount + 1
+
+    sheet.Range("A" & nTotalRowCount).Value = "集計範囲（開始）：" & sFromDate
+    nTotalRowCount = nTotalRowCount + 1
+
+    sheet.Range("A" & nTotalRowCount).Value = "集計範囲（終了）：" & sToDate
+    nTotalRowCount = nTotalRowCount + 1
+
+    sheet.Range("A" & nTotalRowCount).Value = "落札日：" & sSuccessBidDate
+    nTotalRowCount = nTotalRowCount + 1
+
 
     sheet.Range("A" & nTotalRowCount).Value = "■その他入力シート退避"
     nTotalRowCount = nTotalRowCount + 1
