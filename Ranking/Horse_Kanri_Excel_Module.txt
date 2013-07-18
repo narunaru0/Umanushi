@@ -736,11 +736,14 @@ Sub UpdateRelease()
         '// 馬処理
         If Not rOwnHorse Is Nothing Then
 
-            Worksheets(G_RELEASE_RESULT_SHEET).Rows("3:3").Insert Shift:=xlDown
-            Worksheets(G_RELEASE_SHEET).Range("A" & 3 & ":I" & 3).Copy
-            Worksheets(G_RELEASE_RESULT_SHEET).Cells(3, 10).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
-            Worksheets(G_OWN_SHEET).Range("A" & rOwnHorse.Row & ":I" & rOwnHorse.Row).Copy
-            Worksheets(G_RELEASE_RESULT_SHEET).Cells(3, 1).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").Copy
+            Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").Insert Shift:=xlDown
+            Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").ClearContents
+            
+            Worksheets(G_RELEASE_SHEET).Range("A" & 3 & ":H" & 3).Copy
+            Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 11).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            Worksheets(G_OWN_SHEET).Range("A" & rOwnHorse.Row & ":J" & rOwnHorse.Row).Copy
+            Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 1).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
 
             '// 手放しシートのレコードをクリア
             Worksheets(G_RELEASE_SHEET).Rows(3).Delete Shift:=xlUp
@@ -761,6 +764,13 @@ Sub UpdateRelease()
     Loop
     
     Worksheets(G_RELEASE_RESULT_SHEET).Select
+    
+    '// 並び替え(日付)
+    Worksheets(G_RELEASE_RESULT_SHEET).Range("A1:A1").Select
+    Selection.Sort Key1:=Range("K2"), Order1:=xlDescending _
+        , Header:=xlYes, OrderCustom:=1, MatchCase:=False _
+        , Orientation:=xlTopToBottom, SortMethod:=xlPinYin
+    
 
     Application.ScreenUpdating = True
     Application.Calculation = xlCalculationAutomatic
@@ -967,14 +977,17 @@ Sub UpdateTrade()
             Set rOwner = Nothing
             Set rOwnerList = Nothing
 
-
-            Worksheets(G_TRADE_RESULT_SHEET).Rows("3:3").Insert Shift:=xlDown
+            Worksheets(G_TRADE_RESULT_SHEET).Rows("2:2").Copy
+            Worksheets(G_TRADE_RESULT_SHEET).Rows("2:2").Insert Shift:=xlDown
+            Worksheets(G_TRADE_RESULT_SHEET).Rows("2:2").ClearContents
+            
             Worksheets(G_TRADE_SHEET).Range("A3:E3").Copy
-            Worksheets(G_TRADE_RESULT_SHEET).Cells(3, 1).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            Worksheets(G_TRADE_RESULT_SHEET).Cells(2, 1).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
 
             Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nOwnerCol).Value = sTradeBuyer
             Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nPriceCol).Value = sTradePrice
             Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nDateCol).Value = sTradeComent
+            
             '// トレードシートのレコードをクリア
             Worksheets(G_TRADE_SHEET).Rows(3).Delete Shift:=xlUp
 
