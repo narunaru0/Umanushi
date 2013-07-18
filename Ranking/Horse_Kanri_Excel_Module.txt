@@ -81,10 +81,11 @@ Sub ProcessTempSheet()
     Worksheets(G_TEMP_SHEET).Cells(nTempRowCount, 13).Value = "馬記号"
     nTempRowCount = nTempRowCount + 1
 
+    nBid = 0
     For nRefRowCount = 3 To 10000
-        If Worksheets(G_REF_SHEET).Cells(nRefRowCount, 1).Value = "" Then
+        If Trim(Worksheets(G_REF_SHEET).Cells(nRefRowCount, 1).Value) = "" Then
             '// ２行続けて空白の場合は終了
-            If Worksheets(G_REF_SHEET).Cells(nRefRowCount + 1, 1).Value = "" Then
+            If Trim(Worksheets(G_REF_SHEET).Cells(nRefRowCount + 1, 1).Value) = "" Then
                 Exit For
             End If
             '// 次の馬
@@ -1015,5 +1016,3 @@ Sub UpdateTrade()
     Call MsgBox("トレード情報を更新しました。", vbInformation)
 
 End Sub
-
-
