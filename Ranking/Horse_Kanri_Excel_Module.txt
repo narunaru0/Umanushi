@@ -5,6 +5,7 @@ Option Explicit
 '// 2007/01/01  : (naruo)   Initial revision.
 '// 2007/01/02  : (naruo)   手放し判定・トレードうまぬし判定の不具合を修正
 '// 2013/07/04  : (naruo)   落札結果シートの拡張等
+'// 2013/07/28  : (naruo)   手放し日付チェックを追加
 '//-----------------------------------------------------------------------------
 
 '// 参照シート
@@ -164,6 +165,11 @@ Sub UpdateTempSheet()
     Dim rOwnHorse As Range          '// 所有馬Range
     Dim rHeaderList As Range        '// 馬名リストRange
     Dim rHeader As Range            '// 馬名Range
+    Dim rReleaseResultList As Range '// 馬名リストRange
+    Dim rReleaseResult As Range     '// 馬名Range
+
+    Dim sBidDate As Date            '// 落札日付
+    Dim sReleaseDate As Date        '// 手放日付
 
     Application.ScreenUpdating = False
     Application.Calculation = xlCalculationManual
@@ -349,7 +355,38 @@ Sub UpdateTempSheet()
             If InStr(sBidStable, sWorkStable) = 0 Then
                 sComment = sComment & "厩舎"
             End If
-
+            
+            Set rReleaseResultList = Worksheets(G_RELEASE_RESULT_SHEET).Columns("G:G")
+            Set rReleaseResult = rReleaseResultList.Find(What:=sBlood, LookIn:=xlValues, LookAt:=xlWhole)
+            If Not rReleaseResult Is Nothing Then
+                '// 手放日付
+                sReleaseDate = Worksheets(G_RELEASE_RESULT_SHEET).Cells(rReleaseResult.Row, 11).Value
+                If (Hour(sReleaseDate) = 22 And Minute(sReleaseDate) >= 1) Or _
+                    Hour(sReleaseDate) > 22 Then
+                    '// 22:01を過ぎているため翌日扱いとする
+                    sReleaseDate = DateAdd("d", 1, DateValue(sReleaseDate))
+                Else
+                    sReleaseDate = DateValue(sReleaseDate)
+                End If
+                
+                '// 落札日付
+                sBidDate = Now
+                If (Hour(sBidDate) = 22 And Minute(sBidDate) >= 1) Or _
+                    Hour(sBidDate) > 22 Then
+                    '// 22:01を過ぎているため翌日扱いとする
+                    sBidDate = DateAdd("d", 1, DateValue(sBidDate))
+                Else
+                    sBidDate = DateValue(sBidDate)
+                End If
+                Do Until Weekday(sBidDate) = 4
+                    sBidDate = DateAdd("d", -1, sBidDate)
+                Loop
+                
+                '// 手放し７日未満チェック
+                If DateDiff("d", sReleaseDate, sBidDate) < 7 Then
+                    sComment = sComment & "手放し７日未満"
+                End If
+            End If
         Else
             '// 馬名不明
             sComment = "不明"
