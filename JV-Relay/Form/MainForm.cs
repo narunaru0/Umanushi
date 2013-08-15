@@ -105,7 +105,7 @@ namespace JVRelay
             JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eRACE;
             JVRelayClass.JVDataSpec = JVRelayClass.eJVDataSpec.eRACE.ToString().Substring(1);
             JVRelayClass.Option = (int)JVRelayClass.eJVOpenFlag.ThisWeek;
-            JVRelayClass.FromDate = DateTime.Today.AddDays(-7).ToString("yyyyMMdd");
+            JVRelayClass.FromDate = DateTime.Today.AddDays(DayOfWeek.Tuesday - DateTime.Today.DayOfWeek).ToString("yyyyMMdd");
             JVRelayClass.ToDate = DateTime.Today.ToString("yyyyMMdd");
             JVRelayClass.IsSaveFile = true;
             JVRelayClass.IsPostFile = false;
@@ -136,7 +136,7 @@ namespace JVRelay
             JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eRACE;
             JVRelayClass.JVDataSpec = JVRelayClass.eJVDataSpec.eRACE.ToString().Substring(1);
             JVRelayClass.Option = (int)JVRelayClass.eJVOpenFlag.ThisWeek;
-            JVRelayClass.FromDate = DateTime.Today.AddDays(-7).ToString("yyyyMMdd");
+            JVRelayClass.FromDate = DateTime.Today.AddDays(DayOfWeek.Tuesday - DateTime.Today.DayOfWeek).ToString("yyyyMMdd");
             JVRelayClass.ToDate = DateTime.Today.ToString("yyyyMMdd");
             JVRelayClass.IsSaveFile = false;
             JVRelayClass.IsPostFile = true;
