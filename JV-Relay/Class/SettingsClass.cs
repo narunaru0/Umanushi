@@ -12,11 +12,6 @@ namespace JVRelay
     {
         #region privateメンバ
         /// <summary>
-        /// ファイル名
-        /// </summary>
-        private const string m_fileName = "setting.xml";
-
-        /// <summary>
         /// 会社名
         /// </summary>
         private static string m_assemblyCompany = "";
@@ -27,14 +22,19 @@ namespace JVRelay
         private static string m_assemblyProduct = "";
 
         /// <summary>
-        /// ディレクトリパス
+        /// 設定ディレクトリパス
         /// </summary>
-        private static string m_directoryPath = "";
+        private static string m_settingDirectoryPath = "";
 
         /// <summary>
-        /// ファイルパス
+        /// 設定ファイル名
         /// </summary>
-        private static string m_filePath = "";
+        private const string m_settingFileName = "setting.xml";
+
+        /// <summary>
+        /// 設定ファイルパス
+        /// </summary>
+        private static string m_settingFilePath = "";
         #endregion
 
         #region プロパティ
@@ -77,31 +77,31 @@ namespace JVRelay
                 typeof(System.Reflection.AssemblyProductAttribute))).Product;
 
             // ディレクトリパスの設定
-            m_directoryPath = string.Format(@"{0}\{1}\{2}"
+            m_settingDirectoryPath = string.Format(@"{0}\{1}\{2}"
                 , Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
                 , m_assemblyCompany
                 , m_assemblyProduct);
 
             // ファイルパスの設定
-            m_filePath = FileSystem.CombinePath(m_directoryPath, m_fileName);
+            m_settingFilePath = FileSystem.CombinePath(m_settingDirectoryPath, m_settingFileName);
 
 
             // ディレクトリパスが無い場合は作成する
-            if (!FileSystem.DirectoryExists(m_directoryPath))
+            if (!FileSystem.DirectoryExists(m_settingDirectoryPath))
             {
-                FileSystem.CreateDirectory(m_directoryPath);
+                FileSystem.CreateDirectory(m_settingDirectoryPath);
             }
 
             // 設定ファイルが無い場合は作成する
-            if (!FileSystem.FileExists(m_filePath))
+            if (!FileSystem.FileExists(m_settingFilePath))
             {
-                FileSystem.WriteAllText(m_filePath, @"<?xml version='1.0' encoding='utf-8' ?>", false, Encoding.UTF8);
+                FileSystem.WriteAllText(m_settingFilePath, @"<?xml version='1.0' encoding='utf-8' ?>", false, Encoding.UTF8);
                 Save();
             }
 
             // 設定ファイルの読込
             XmlSerializer serializer = new XmlSerializer(typeof(setting));
-            System.IO.FileStream fs = new System.IO.FileStream(m_filePath, System.IO.FileMode.Open);
+            System.IO.FileStream fs = new System.IO.FileStream(m_settingFilePath, System.IO.FileMode.Open);
             Setting = (setting)serializer.Deserialize(fs);
             fs.Close();
         }
@@ -112,7 +112,7 @@ namespace JVRelay
         public static void Save()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(setting));
-            System.IO.FileStream fs = new System.IO.FileStream(m_filePath, System.IO.FileMode.Create);
+            System.IO.FileStream fs = new System.IO.FileStream(m_settingFilePath, System.IO.FileMode.Create);
             serializer.Serialize(fs, Setting);
             fs.Close();
         }
@@ -138,5 +138,10 @@ namespace JVRelay
         /// POSTパスワード
         /// </summary>
         public string PostPassword { get; set; }
+
+        /// <summary>
+        /// デバッグ用SQLiteファイルパス
+        /// </summary>
+        public string DebugSqLiteFilePath { get; set; }
     }
 }

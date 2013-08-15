@@ -273,24 +273,6 @@ namespace JVRelay
         /// <param name="e"></param>
         private void customStorageButton_Click(object sender, EventArgs e)
         {
-            // TODO
-            SQLiteConnection conn = new SQLiteConnection();
-            conn.ConnectionString = "Data Source=testdb.db;Version=3;";
-            conn.Open();
-            SQLiteCommand command = conn.CreateCommand();
-            command.CommandText = "CREATE TABLE Test (id integer primary key AUTOINCREMENT, text varchar(100))";
-            command.ExecuteNonQuery();
-
-            command = conn.CreateCommand();
-            command.CommandText = "INSERT INTO Test (text) VALUES (@1)";
-            SQLiteParameter parameter = command.CreateParameter();
-            parameter.ParameterName = "@1";
-            parameter.Value = "あいうえお";
-            command.Parameters.Add(parameter);
-            command.ExecuteNonQuery();
-
-            return;
-
             if (mainBackgroundWorker.IsBusy == true)
             {
                 mainToolStripStatusLabel.Text += "ビジー状態です。";
@@ -298,38 +280,18 @@ namespace JVRelay
             }
             
             DateTime fromDate;
-            DateTime toDate;
-            string dataSpec;
+            int option;
 
             #region 入力値
-            if (raceRadioButton.Checked)
+            if (14 == fromTextBox.Text.Length)
             {
-                dataSpec = JVRelayClass.eJVDataSpec.eRACE.ToString().Substring(1);
-            }
-            else if (diffRadioButton.Checked)
-            {
-                dataSpec = JVRelayClass.eJVDataSpec.eDIFF.ToString().Substring(1);
-            }
-            else if (boldRadioButton.Checked)
-            {
-                dataSpec = JVRelayClass.eJVDataSpec.eBLOD.ToString().Substring(1);
-            }
-            else if (hoyuRadioButton.Checked)
-            {
-                dataSpec = JVRelayClass.eJVDataSpec.eHOYU.ToString().Substring(1);
-            }
-            else
-            {
-                MessageBox.Show("有効な情報を選択してください。",
-                    "入力値エラー",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-                return;
-            }
-
-            if (8 == fromTextBox.Text.Length)
-            {
-                string s = string.Format("{0}/{1}/{2}", fromTextBox.Text.Substring(0, 4), fromTextBox.Text.Substring(4, 2), fromTextBox.Text.Substring(6, 2));
+                string s = string.Format("{0}/{1}/{2} {3}:{4}:{5}",
+                    fromTextBox.Text.Substring(0, 4),
+                    fromTextBox.Text.Substring(4, 2),
+                    fromTextBox.Text.Substring(6, 2),
+                    fromTextBox.Text.Substring(8, 2),
+                    fromTextBox.Text.Substring(10, 2),
+                    fromTextBox.Text.Substring(12, 2));
                 if (!DateTime.TryParse(s, out fromDate))
                 {
                     MessageBox.Show("有効な日時を入力してください。",
@@ -347,30 +309,24 @@ namespace JVRelay
                     MessageBoxIcon.Error);
                 return;
             }
-            if (8 == toTextBox.Text.Length)
+
+            if (isSetupCheckBox.Checked == true)
             {
-                string s = string.Format("{0}/{1}/{2}", toTextBox.Text.Substring(0, 4), toTextBox.Text.Substring(4, 2), toTextBox.Text.Substring(6, 2));
-                if (!DateTime.TryParse(s, out toDate))
-                {
-                    MessageBox.Show("有効な日時を入力してください。",
-                        "入力値エラー",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
-                    return;
-                }
+                option = (int)JVRelayClass.eJVOpenFlag.SetupSkipDialog;
             }
             else
             {
-                toDate = DateTime.Today;
+                option = (int)JVRelayClass.eJVOpenFlag.Normal;
             }
             #endregion
 
             JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eSTORE;
-            JVRelayClass.JVDataSpec = dataSpec;
-            JVRelayClass.Option = (int)JVRelayClass.eJVOpenFlag.SetupSkipDialog;
-            JVRelayClass.FromDate = fromDate.ToString("yyyyMMdd");
-            JVRelayClass.ToDate = toDate.ToString("yyyyMMdd");
-            JVRelayClass.IsSaveFile = true;
+            JVRelayClass.JVDataSpec = "RACEDIFF";
+            JVRelayClass.Option = option;
+            JVRelayClass.FromDate = fromTextBox.Text;
+            JVRelayClass.DbTimeStamp = fromTextBox.Text;
+            JVRelayClass.ToDate = "";
+            JVRelayClass.IsSaveFile = false;
             JVRelayClass.IsPostFile = false;
             mainBackgroundWorker.RunWorkerAsync();
         }
@@ -388,7 +344,7 @@ namespace JVRelay
             }
             else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eSTORE)
             {
-                JVRelay();
+                JVSTRelay();
             }
         }
 
@@ -464,6 +420,11 @@ namespace JVRelay
                 }
             }
 
+            if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eSTORE)
+            {
+                fromTextBox.Text = JVRelayClass.LastFileTimestamp;
+            }
+
             mainToolStripProgressBar.Value = mainToolStripProgressBar.Maximum;
             mainToolStripStatusLabel.Text = "完了 " + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
         }
@@ -478,15 +439,15 @@ namespace JVRelay
             // JVRelay初期化
             JVRelayClass.Initialize(axJVLink, mainBackgroundWorker);
 
-            fromTextBox.Text = DateTime.Today.AddYears(-1).ToString("yyyy") + "0101";
-            autoPostToTextBox.Text = DateTime.Now.AddHours(3).ToString("yyyy/MM/dd HH:mm");
-            autoPostIntervalTextBox.Text = "10";
+            autoPostToTextBox.Text = DateTime.Today.AddHours(17).ToString("yyyy/MM/dd HH:mm");
+            autoPostIntervalTextBox.Text = "5";
+            fromTextBox.Text = JVRelayClass.DbTimeStamp;
         }
 
         /// <summary>
-        /// JVRelay
+        /// JVSTRelay
         /// </summary>
-        public void JVRelay()
+        public void JVSTRelay()
         {
             int nRet = -1;
             int readCount = 0;
@@ -500,8 +461,8 @@ namespace JVRelay
             JVRelayClass.ReadCount = 0;
             JVRelayClass.DownloadCount = 0;
             JVRelayClass.Output = new StringBuilder();
+            nRet = axJVLink.JVOpen(JVRelayClass.JVDataSpec, JVRelayClass.DbTimeStamp, JVRelayClass.Option, ref readCount, ref downloadCount, out lastFileTimeStamp);
 
-            nRet = axJVLink.JVOpen(JVRelayClass.JVDataSpec, JVRelayClass.FromDate + "000000", JVRelayClass.Option, ref readCount, ref downloadCount, out lastFileTimeStamp);
             JVRelayClass.ReadCount += readCount;
             JVRelayClass.DownloadCount += downloadCount;
             JVRelayClass.LastFileTimestamp = lastFileTimeStamp;
@@ -527,8 +488,8 @@ namespace JVRelay
                         JVRelayClass.ProgressUserState.Text = "ダウンロード完了";
                         mainBackgroundWorker.ReportProgress(0, JVRelayClass.ProgressUserState);
 
-                        //JVReading処理
-                        JVRelayClass.JVReading(JVRelayClass.ToDate);
+                        // JVSTReading処理
+                        JVRelayClass.JVSTReading();
                     }
                     else
                     {
@@ -542,20 +503,8 @@ namespace JVRelay
 
                 // JVClosing処理
                 JVRelayClass.JVClosing();
-
-
-                // JVRelayファイル名の設定
-                if (JVRelayClass.JVDataSpec != JVRelayClass.JVDataSpec)
-                {
-                    JVRelayFileName = "JVStore_" + JVRelayClass.JVDataSpec + "_" + JVRelayClass.FromDate + "-" + JVRelayClass.ToDate;
-                    JVRelayFileName += ".csv";
-                }
-                else
-                {
-                    JVRelayFileName = "JVStore_" + JVRelayClass.FromDate + "-" + JVRelayClass.ToDate;
-                    JVRelayFileName += ".csv";
-                }
             }
+
         }
 
         /// <summary>
