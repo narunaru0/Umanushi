@@ -36,7 +36,6 @@
             this.mainStatusStrip = new System.Windows.Forms.StatusStrip();
             this.mainToolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.mainToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.label1 = new System.Windows.Forms.Label();
             this.autoPost4Label = new System.Windows.Forms.Label();
             this.autoPost3Label = new System.Windows.Forms.Label();
             this.autoPostIntervalTextBox = new System.Windows.Forms.TextBox();
@@ -45,9 +44,8 @@
             this.autoPost2Label = new System.Windows.Forms.Label();
             this.isAutoPostCheckBox = new System.Windows.Forms.CheckBox();
             this.isSetupCheckBox = new System.Windows.Forms.CheckBox();
-            this.from2Label = new System.Windows.Forms.Label();
             this.fromTextBox = new System.Windows.Forms.TextBox();
-            this.customStorageButton = new System.Windows.Forms.Button();
+            this.umaStorageButton = new System.Windows.Forms.Button();
             this.storagePostButton = new System.Windows.Forms.Button();
             this.realTimePostButton = new System.Windows.Forms.Button();
             this.axJVLink = new AxJVDTLabLib.AxJVLink();
@@ -81,7 +79,6 @@
             // 
             // mainToolStripContainer.ContentPanel
             // 
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.label1);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPost4Label);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPost3Label);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPostIntervalTextBox);
@@ -90,9 +87,8 @@
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPost2Label);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.isAutoPostCheckBox);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.isSetupCheckBox);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.from2Label);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.fromTextBox);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.customStorageButton);
+            this.mainToolStripContainer.ContentPanel.Controls.Add(this.umaStorageButton);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.storagePostButton);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.realTimePostButton);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.axJVLink);
@@ -132,15 +128,6 @@
             this.mainToolStripStatusLabel.Name = "mainToolStripStatusLabel";
             this.mainToolStripStatusLabel.Size = new System.Drawing.Size(20, 18);
             this.mainToolStripStatusLabel.Text = "...";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 160);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(524, 12);
-            this.label1.TabIndex = 31;
-            this.label1.Text = "以下、未整備　※差分をローカル(SQLite？)で蓄積し、全現役馬を抽出するようにする？不要なものは削除？";
             // 
             // autoPost4Label
             // 
@@ -208,38 +195,29 @@
             // isSetupCheckBox
             // 
             this.isSetupCheckBox.AutoSize = true;
-            this.isSetupCheckBox.Location = new System.Drawing.Point(132, 212);
+            this.isSetupCheckBox.Location = new System.Drawing.Point(252, 188);
             this.isSetupCheckBox.Name = "isSetupCheckBox";
-            this.isSetupCheckBox.Size = new System.Drawing.Size(102, 16);
+            this.isSetupCheckBox.Size = new System.Drawing.Size(307, 16);
             this.isSetupCheckBox.TabIndex = 15;
-            this.isSetupCheckBox.Text = "セットアップデータ";
+            this.isSetupCheckBox.Text = "初期化して一からデータを作成する（数十分以上かかります）";
             this.isSetupCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // from2Label
-            // 
-            this.from2Label.AutoSize = true;
-            this.from2Label.Location = new System.Drawing.Point(132, 178);
-            this.from2Label.Name = "from2Label";
-            this.from2Label.Size = new System.Drawing.Size(77, 12);
-            this.from2Label.TabIndex = 20;
-            this.from2Label.Text = "例：yyyyMMdd";
             // 
             // fromTextBox
             // 
-            this.fromTextBox.Location = new System.Drawing.Point(13, 175);
+            this.fromTextBox.Location = new System.Drawing.Point(15, 175);
             this.fromTextBox.Name = "fromTextBox";
             this.fromTextBox.Size = new System.Drawing.Size(113, 19);
             this.fromTextBox.TabIndex = 8;
             // 
-            // customStorageButton
+            // umaStorageButton
             // 
-            this.customStorageButton.Location = new System.Drawing.Point(14, 200);
-            this.customStorageButton.Name = "customStorageButton";
-            this.customStorageButton.Size = new System.Drawing.Size(114, 39);
-            this.customStorageButton.TabIndex = 14;
-            this.customStorageButton.Text = "蓄積系データ取得\r\n+ファイル保存";
-            this.customStorageButton.UseVisualStyleBackColor = true;
-            this.customStorageButton.Click += new System.EventHandler(this.customStorageButton_Click);
+            this.umaStorageButton.Location = new System.Drawing.Point(134, 165);
+            this.umaStorageButton.Name = "umaStorageButton";
+            this.umaStorageButton.Size = new System.Drawing.Size(114, 39);
+            this.umaStorageButton.TabIndex = 14;
+            this.umaStorageButton.Text = "馬情報\r\n（ファイル保存のみ）";
+            this.umaStorageButton.UseVisualStyleBackColor = true;
+            this.umaStorageButton.Click += new System.EventHandler(this.umaStorageButton_Click);
             // 
             // storagePostButton
             // 
@@ -415,8 +393,7 @@
         private System.Windows.Forms.Button realTimePostButton;
         private System.Windows.Forms.Button storagePostButton;
         private System.Windows.Forms.TextBox fromTextBox;
-        private System.Windows.Forms.Button customStorageButton;
-        private System.Windows.Forms.Label from2Label;
+        private System.Windows.Forms.Button umaStorageButton;
         private System.ComponentModel.BackgroundWorker mainBackgroundWorker;
         private System.Windows.Forms.CheckBox isSetupCheckBox;
         private System.Windows.Forms.TextBox autoPostIntervalTextBox;
@@ -426,7 +403,6 @@
         private System.Windows.Forms.CheckBox isAutoPostCheckBox;
         private System.Windows.Forms.Label autoPost4Label;
         private System.Windows.Forms.Label autoPost3Label;
-        private System.Windows.Forms.Label label1;
     }
 }
 

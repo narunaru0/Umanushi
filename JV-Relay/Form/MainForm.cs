@@ -32,8 +32,16 @@ namespace JVRelay
         {
             InitializeComponent();
 
-            // 初期化
-            Initialize();
+            try
+            {
+                // 初期化
+                Initialize();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + Environment.NewLine + ex.StackTrace, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw;
+            }
         }
 
         /// <summary>
@@ -94,7 +102,7 @@ namespace JVRelay
                 return;
             }
 
-            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eSTORE;
+            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eRACE;
             JVRelayClass.JVDataSpec = JVRelayClass.eJVDataSpec.eRACE.ToString().Substring(1);
             JVRelayClass.Option = (int)JVRelayClass.eJVOpenFlag.ThisWeek;
             JVRelayClass.FromDate = DateTime.Today.AddDays(-7).ToString("yyyyMMdd");
@@ -125,7 +133,7 @@ namespace JVRelay
                 return;
             }
 
-            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eSTORE;
+            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eRACE;
             JVRelayClass.JVDataSpec = JVRelayClass.eJVDataSpec.eRACE.ToString().Substring(1);
             JVRelayClass.Option = (int)JVRelayClass.eJVOpenFlag.ThisWeek;
             JVRelayClass.FromDate = DateTime.Today.AddDays(-7).ToString("yyyyMMdd");
@@ -148,7 +156,7 @@ namespace JVRelay
                 return;
             }
 
-            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eSPOT;
+            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eQUICK;
             JVRelayClass.JVDataSpec = JVRelayClass.eJVDataSpec.e0B12.ToString().Substring(1);
             JVRelayClass.Option = (int)JVRelayClass.eJVOpenFlag.Normal;
             JVRelayClass.IsSaveFile = true;
@@ -190,7 +198,7 @@ namespace JVRelay
                 return;
             }
             
-            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eSPOT;
+            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eQUICK;
             JVRelayClass.JVDataSpec = JVRelayClass.eJVDataSpec.e0B12.ToString().Substring(1);
             JVRelayClass.Option = (int)JVRelayClass.eJVOpenFlag.Normal;
             JVRelayClass.IsSaveFile = false;
@@ -267,11 +275,11 @@ namespace JVRelay
         }
 
         /// <summary>
-        /// customStorageButtonボタン押下イベントハンドラ
+        /// umaStorageButtonボタン押下イベントハンドラ
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void customStorageButton_Click(object sender, EventArgs e)
+        private void umaStorageButton_Click(object sender, EventArgs e)
         {
             if (mainBackgroundWorker.IsBusy == true)
             {
@@ -320,13 +328,13 @@ namespace JVRelay
             }
             #endregion
 
-            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eSTORE;
+            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eUMA;
             JVRelayClass.JVDataSpec = "RACEDIFF";
             JVRelayClass.Option = option;
             JVRelayClass.FromDate = fromTextBox.Text;
             JVRelayClass.DbTimeStamp = fromTextBox.Text;
             JVRelayClass.ToDate = "";
-            JVRelayClass.IsSaveFile = false;
+            JVRelayClass.IsSaveFile = true;
             JVRelayClass.IsPostFile = false;
             mainBackgroundWorker.RunWorkerAsync();
         }
@@ -338,13 +346,17 @@ namespace JVRelay
         /// <param name="e"></param>
         private void mainBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eSPOT)
+            if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eQUICK)
             {
-                JVRTRelay();
+                JVQuickRelay();
             }
-            else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eSTORE)
+            else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eRACE)
             {
-                JVSTRelay();
+                JVRaceRelay();
+            }
+            else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eUMA)
+            {
+                JVUmaRelay();
             }
         }
 
@@ -380,7 +392,7 @@ namespace JVRelay
         {
             if (JVRelayClass.IsSaveFile)
             {
-                if (JVRelayClass.ReadCount > 0)
+                if (JVRelayClass.Output.Length > 0)
                 {
                     using (SaveFileDialog dlg = new SaveFileDialog())
                     {
@@ -398,7 +410,7 @@ namespace JVRelay
             {
                 bool isError;
                 string errorMessage;
-                if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eSPOT)
+                if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eQUICK)
                 {
                     WebUtilityClass.HttpPostJVRTRelay(out isError, out errorMessage);
                     if (isError == true)
@@ -408,7 +420,7 @@ namespace JVRelay
                         return;
                     }
                 }
-                else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eSTORE)
+                else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eRACE)
                 {
                     WebUtilityClass.HttpPostJVRelay(out isError, out errorMessage);
                     if (isError == true)
@@ -420,7 +432,7 @@ namespace JVRelay
                 }
             }
 
-            if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eSTORE)
+            if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eRACE)
             {
                 fromTextBox.Text = JVRelayClass.LastFileTimestamp;
             }
@@ -445,9 +457,9 @@ namespace JVRelay
         }
 
         /// <summary>
-        /// JVSTRelay
+        /// JVRaceRelay
         /// </summary>
-        public void JVSTRelay()
+        public void JVRaceRelay()
         {
             int nRet = -1;
             int readCount = 0;
@@ -461,8 +473,8 @@ namespace JVRelay
             JVRelayClass.ReadCount = 0;
             JVRelayClass.DownloadCount = 0;
             JVRelayClass.Output = new StringBuilder();
-            nRet = axJVLink.JVOpen(JVRelayClass.JVDataSpec, JVRelayClass.DbTimeStamp, JVRelayClass.Option, ref readCount, ref downloadCount, out lastFileTimeStamp);
 
+            nRet = axJVLink.JVOpen(JVRelayClass.JVDataSpec, JVRelayClass.FromDate + "000000", JVRelayClass.Option, ref readCount, ref downloadCount, out lastFileTimeStamp);
             JVRelayClass.ReadCount += readCount;
             JVRelayClass.DownloadCount += downloadCount;
             JVRelayClass.LastFileTimestamp = lastFileTimeStamp;
@@ -488,8 +500,8 @@ namespace JVRelay
                         JVRelayClass.ProgressUserState.Text = "ダウンロード完了";
                         mainBackgroundWorker.ReportProgress(0, JVRelayClass.ProgressUserState);
 
-                        // JVSTReading処理
-                        JVRelayClass.JVSTReading();
+                        //JVReading処理
+                        JVRelayClass.JVReading(JVRelayClass.ToDate);
                     }
                     else
                     {
@@ -503,14 +515,17 @@ namespace JVRelay
 
                 // JVClosing処理
                 JVRelayClass.JVClosing();
-            }
 
+                // JVRelayファイル名の設定
+                JVRelayFileName = "JVRace_" + JVRelayClass.FromDate + "-" + JVRelayClass.ToDate;
+                JVRelayFileName += ".csv";
+            }
         }
 
         /// <summary>
-        /// JVRTRelay
+        /// JVQuickRelay
         /// </summary>
-        public void JVRTRelay()
+        public void JVQuickRelay()
         {
             int nRet;
             const int nPrev = -5;
@@ -558,7 +573,7 @@ namespace JVRelay
             if (sRTRelay.Count > 0)
             {
                 // JVRTRelayファイル名の設定
-                JVRelayFileName = "JVSpot_";
+                JVRelayFileName = "JVQuick_";
                 bool bFileNameFirst = false;
                 sRTRelay.Sort();
                 for (int i = 0; i < sRTRelay.Count; i++)
@@ -578,6 +593,75 @@ namespace JVRelay
                 }
                 JVRelayFileName += ".csv";
             }
+        }
+
+        /// <summary>
+        /// JVUmaRelay
+        /// </summary>
+        public void JVUmaRelay()
+        {
+            int nRet = -1;
+            int readCount = 0;
+            int downloadCount = 0;
+            string lastFileTimeStamp = "";
+
+            JVRelayClass.ProgressUserState.Value = 0;
+            JVRelayClass.ProgressUserState.Text = "";
+            mainBackgroundWorker.ReportProgress(0, JVRelayClass.ProgressUserState);
+
+            JVRelayClass.ReadCount = 0;
+            JVRelayClass.DownloadCount = 0;
+            JVRelayClass.Output = new StringBuilder();
+            nRet = axJVLink.JVOpen(JVRelayClass.JVDataSpec, JVRelayClass.DbTimeStamp, JVRelayClass.Option, ref readCount, ref downloadCount, out lastFileTimeStamp);
+
+            JVRelayClass.ReadCount += readCount;
+            JVRelayClass.DownloadCount += downloadCount;
+            JVRelayClass.LastFileTimestamp = lastFileTimeStamp;
+
+            if (0 == nRet)
+            {
+                JVRelayClass.ProgressUserState.Maxinum = JVRelayClass.DownloadCount;
+
+                do
+                {
+                    nRet = axJVLink.JVStatus();
+
+                    // エラー発生
+                    if (nRet < 0)
+                    {
+                        mainToolStripStatusLabel.Text = "エラー発生";
+
+                        break;
+                    }
+                    else if (nRet == JVRelayClass.DownloadCount)
+                    {
+                        JVRelayClass.ProgressUserState.Value = nRet;
+                        JVRelayClass.ProgressUserState.Text = "ダウンロード完了";
+                        mainBackgroundWorker.ReportProgress(0, JVRelayClass.ProgressUserState);
+
+                        // JVUmaReadWriting処理
+                        JVRelayClass.JVUmaReadWriting();
+                    }
+                    else
+                    {
+                        JVRelayClass.ProgressUserState.Value = nRet;
+                        JVRelayClass.ProgressUserState.Text = "ダウンロード中...";
+                        mainBackgroundWorker.ReportProgress(0, JVRelayClass.ProgressUserState);
+
+                        System.Threading.Thread.Sleep(100);
+                    }
+                } while (nRet < JVRelayClass.DownloadCount);
+
+                // JVClosing処理
+                JVRelayClass.JVClosing();
+            }
+
+            // JVUmaReading処理
+            JVRelayClass.JVUmaReading();
+
+            // JVRelayファイル名の設定
+            JVRelayFileName = "JVUma_" + JVRelayClass.DbTimeStamp;
+            JVRelayFileName += ".csv";
         }
         #endregion
     }
