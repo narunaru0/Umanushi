@@ -249,6 +249,10 @@ namespace JVRelay
                     {
                         DbTimeStamp = "";
                     }
+                    else if (command.ExecuteScalar().ToString() == "00000000000000")
+                    {
+                        DbTimeStamp = "";
+                    }
                     else
                     {
                         DbTimeStamp = command.ExecuteScalar().ToString();
@@ -302,7 +306,7 @@ namespace JVRelay
                         command.CommandText = "INSERT INTO timestamp (date) VALUES (@1)";
                         parameter = command.CreateParameter();
                         parameter.ParameterName = "@1";
-                        parameter.Value = (DateTime.Today.Year-3) +"0101000000";
+                        parameter.Value = "00000000000000";
                         command.Parameters.Add(parameter);
                         command.ExecuteNonQuery();
 
@@ -367,38 +371,24 @@ namespace JVRelay
                             switch (JVData_Struct.MidB2S(ref buff, 1, 2))
                             {
                                 case "RA":
-                                    if (JVDataSpec.Equals(JVRelayClass.eJVDataSpec.e0B12.ToString().Substring(1)) ||
-                                        0 <= JVDataSpec.IndexOf(JVRelayClass.eJVDataSpec.eRACE.ToString().Substring(1)))
-                                    {
-                                        JVData_Struct.JV_RA_RACE race = new JVData_Struct.JV_RA_RACE();
-                                        race.SetDataB(ref buffStr);
-                                        OutputRaceData(eOutput.Umanushi, race);
-                                    }
-                                    else
-                                    {
-                                        // 対象外recspecのファイルをスキップする。
-                                        AxJVLink.JVSkip();
-                                        nCount++;
-                                    }
+                                    JVData_Struct.JV_RA_RACE race = new JVData_Struct.JV_RA_RACE();
+                                    race.SetDataB(ref buffStr);
+                                    OutputRaceData(eOutput.Umanushi, race);
                                     break;
 
                                 case "SE":
-                                    if (JVDataSpec.Equals(JVRelayClass.eJVDataSpec.e0B12.ToString().Substring(1)) ||
-                                        0 <= JVDataSpec.IndexOf(JVRelayClass.eJVDataSpec.eRACE.ToString().Substring(1)))
-                                    {
-                                        JVData_Struct.JV_SE_RACE_UMA raceUma = new JVData_Struct.JV_SE_RACE_UMA();
-                                        raceUma.SetDataB(ref buffStr);
-                                        OutputRaceUmaData(eOutput.Umanushi, raceUma);
-                                    }
-                                    else
-                                    {
-                                        // 対象外recspecのファイルをスキップする。
-                                        AxJVLink.JVSkip();
-                                        nCount++;
-                                    }
+                                    JVData_Struct.JV_SE_RACE_UMA raceUma = new JVData_Struct.JV_SE_RACE_UMA();
+                                    raceUma.SetDataB(ref buffStr);
+                                    OutputRaceUmaData(eOutput.Umanushi, raceUma);
                                     break;
 
                                 default:
+                                    // 対象外recspecのファイルをスキップする。
+                                    AxJVLink.JVSkip();
+                                    nCount++;
+                                    ProgressUserState.Value = nCount;
+                                    ProgressUserState.Text = "データ読み込み中...";
+                                    MainBackgroundWorker.ReportProgress(0, ProgressUserState);
                                     break;
                             }
                         }
@@ -470,6 +460,16 @@ namespace JVRelay
 
             try
             {
+                // 初期化時
+                if (JVRelayClass.Option == (int)JVRelayClass.eJVOpenFlag.SetupSkipDialog)
+                {
+                    using (SQLiteCommand command = DbConn.CreateCommand())
+                    {
+                        command.CommandText = "DELETE FROM uma";
+                        command.ExecuteNonQuery();
+                    }
+                }
+
                 using (SQLiteCommand command = DbConn.CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM uma";
@@ -547,6 +547,9 @@ namespace JVRelay
                                 // 対象外recspecのファイルをスキップする。
                                 AxJVLink.JVSkip();
                                 nCount++;
+                                ProgressUserState.Value = nCount;
+                                ProgressUserState.Text = "データ読み込み中...";
+                                MainBackgroundWorker.ReportProgress(0, ProgressUserState);
                                 break;
                         }
                     }
@@ -662,6 +665,7 @@ namespace JVRelay
                         command.ExecuteNonQuery();
                     }
                     tran.Commit();
+                    JVRelayClass.DbTimeStamp = LastFileTimestamp;
                 }
             }
             finally
