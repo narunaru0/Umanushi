@@ -1097,6 +1097,9 @@ namespace JVRelay
                 case "3":
                     kyusha = "地";
                     break;
+                case "4":
+                    kyusha = "外";
+                    break;
                 default:
                     kyusha = "";
                     break;
