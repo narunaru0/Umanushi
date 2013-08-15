@@ -83,6 +83,7 @@ namespace JVRelay
                 , m_assemblyProduct);
 
             // ファイルパスの設定
+            // 　C:\Users\ユーザー名\AppData\Roaming\Naruo\JV-Relay\setting.xml
             m_settingFilePath = FileSystem.CombinePath(m_settingDirectoryPath, m_settingFileName);
 
 

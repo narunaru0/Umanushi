@@ -187,6 +187,17 @@ namespace JVRelay
         /// ファイルをPOSTするか
         /// </summary>
         public static bool IsPostFile { get; set; }
+
+        /// <summary>
+        /// データ破棄する馬の生年
+        /// </summary>
+        public static int DiscardBirthYear
+        {
+            get
+            {
+                return DateTime.Today.AddYears(-20).Year;
+            }
+        }
         #endregion
 
         public static ProgressUserStateClass ProgressUserState = new ProgressUserStateClass();
@@ -219,7 +230,7 @@ namespace JVRelay
                 string dbPath = "";
                 if (string.IsNullOrEmpty(SettingsClass.Setting.DebugSqLiteFilePath))
                 {
-                    dbPath = "umanushidb.db";
+                    dbPath = "jvRelay.db";
                 }
                 else
                 {
@@ -296,7 +307,7 @@ namespace JVRelay
                         command.ExecuteNonQuery();
 
                         // uma
-                        command.CommandText = "CREATE TABLE uma (KettoNum integer primary key, MakeDate text, DelKubun text, RegDate text, DelDate text, BirthYear text, Bamei text, SexCD text, TozaiCD text, ChokyosiRyakusyo text, RuikeiSyutokuHeichi integer, RuikeiSyutokuSyogai integer, RaceCount integer, UmaClass text, RaceDate text, RaceSyubetuCD text, RaceKakuteiJyuni text, BeforeUmaClass text, BeforeRaceDate text, BeforeRaceSyubetuCD text, BeforeRaceKakuteiJyuni text)";
+                        command.CommandText = "CREATE TABLE uma (KettoNum integer primary key, MakeDate text, DelKubun text, RegDate text, DelDate text, BirthYear text, Bamei text, SexCD text, TozaiCD text, ChokyosiRyakusyo text, RuikeiSyutokuHeichi integer, RuikeiSyutokuSyogai integer, RaceCount integer, UmaClass text, RaceDate text, RaceDataKubun text, RaceGradeCD text, RaceSyubetuCD text, RaceKakuteiJyuni text, BeforeUmaClass text, BeforeRaceDate text, BeforeRaceDataKubun text, BeforeRaceGradeCD text, BeforeRaceSyubetuCD text, BeforeRaceKakuteiJyuni text)";
                         command.ExecuteNonQuery();
                     }
 
@@ -469,6 +480,8 @@ namespace JVRelay
                 }
                 raceDataTable.Columns.Add("RaceKey", typeof(string));
                 raceDataTable.Columns.Add("RaceDate", typeof(string));
+                raceDataTable.Columns.Add("DataKubun", typeof(string));
+                raceDataTable.Columns.Add("GradeCD", typeof(string));
                 raceDataTable.Columns.Add("SyubetuCD", typeof(string));
                 raceUmaDataTable.Columns.Add("RaceKey", typeof(string));
                 raceUmaDataTable.Columns.Add("RaceDate", typeof(string));
@@ -488,13 +501,10 @@ namespace JVRelay
                     raceUmaDataTable.PrimaryKey = new[] { raceUmaDataTable.Columns["RaceKey"], raceUmaDataTable.Columns["KettoNum"] };
                 }
 
-                if (JVDataAccessType == eJVDataAccessType.eRACE)
-                {
-                    ProgressUserState.Maxinum = ReadCount;
-                    ProgressUserState.Value = 0;
-                    ProgressUserState.Text = "データ読み込み中...";
-                    MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                }
+                ProgressUserState.Maxinum = ReadCount;
+                ProgressUserState.Value = 0;
+                ProgressUserState.Text = "データ読み込み中...";
+                MainBackgroundWorker.ReportProgress(0, ProgressUserState);
 
                 do
                 {
@@ -543,23 +553,17 @@ namespace JVRelay
                     // ファイルの切れ目
                     else if (-1 == nRet)
                     {
-                        if (JVDataAccessType == eJVDataAccessType.eRACE)
-                        {
-                            nCount++;
-                            ProgressUserState.Value = nCount;
-                            ProgressUserState.Text = "データ読み込み中...";
-                            MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                        }
+                        nCount++;
+                        ProgressUserState.Value = nCount;
+                        ProgressUserState.Text = "データ読み込み中...";
+                        MainBackgroundWorker.ReportProgress(0, ProgressUserState);
                     }
                     // 全レコード読込み終了(EOF)
                     else if (0 == nRet)
                     {
-                        if (JVDataAccessType == eJVDataAccessType.eRACE)
-                        {
-                            ProgressUserState.Value = ProgressUserState.Maxinum;
-                            ProgressUserState.Text = "データ読み込み完了";
-                            MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                        }
+                        ProgressUserState.Value = ProgressUserState.Maxinum;
+                        ProgressUserState.Text = "データ読み込み完了";
+                        MainBackgroundWorker.ReportProgress(0, ProgressUserState);
 
                         reading = false;
                     }
@@ -590,15 +594,44 @@ namespace JVRelay
                             string raceDate = umaDataRow["RaceDate"].ToString();
                             if ("" == raceDate || 0 > raceDate.CompareTo(raceUmaDataRow["RaceDate"].ToString()))
                             {
+                                // レースを追加
                                 umaDataRow["BeforeUmaClass"] = umaDataRow["UmaClass"];
                                 umaDataRow["BeforeRaceDate"] = umaDataRow["RaceDate"];
+                                umaDataRow["BeforeRaceDataKubun"] = umaDataRow["RaceDataKubun"];
+                                umaDataRow["BeforeRaceGradeCD"] = umaDataRow["RaceGradeCD"];
                                 umaDataRow["BeforeRaceSyubetuCD"] = umaDataRow["RaceSyubetuCD"];
                                 umaDataRow["BeforeRaceKakuteiJyuni"] = umaDataRow["RaceKakuteiJyuni"];
 
                                 umaDataRow["RaceDate"] = raceUmaDataRow["RaceDate"];
+                                umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
+                                umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
                                 umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
                                 umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
                                 umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                            }
+                            else if (0 == raceDate.CompareTo(raceUmaDataRow["RaceDate"].ToString()))
+                            {
+                                // レース結果の更新
+                                if (umaDataRow["RaceDataKubun"].ToString() != raceDataRow["DataKubun"].ToString())
+                                {
+                                    umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
+                                }
+                                if (umaDataRow["RaceGradeCD"].ToString() != raceDataRow["GradeCD"].ToString())
+                                {
+                                    umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
+                                }
+                                if (umaDataRow["RaceSyubetuCD"].ToString() != raceDataRow["SyubetuCD"].ToString())
+                                {
+                                    umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
+                                }
+                                if (umaDataRow["RaceKakuteiJyuni"].ToString() != raceUmaDataRow["KakuteiJyuni"].ToString())
+                                {
+                                    umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
+                                }
+                                if (umaDataRow["UmaClass"].ToString() != GetUmaClass(umaDataRow))
+                                {
+                                    umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                                }
                             }
                         }
                     }
@@ -621,6 +654,9 @@ namespace JVRelay
                             da.DeleteCommand = cb.GetDeleteCommand();
                             da.Update(umaDataTable);
                         }
+
+                        command.CommandText = "DELETE FROM uma WHERE BirthYear <= '" + DiscardBirthYear + "'";
+                        command.ExecuteNonQuery();
 
                         command.CommandText = "UPDATE timestamp SET date ='" + LastFileTimestamp + "'";
                         command.ExecuteNonQuery();
@@ -772,8 +808,7 @@ namespace JVRelay
             {
                 case eOutput.Umanushi:
 
-                    string discardYear = DateTime.Today.AddYears(-20).Year.ToString();
-                    if (0 >= uma.BirthDate.Year.CompareTo(discardYear))
+                    if (0 >= uma.BirthDate.Year.CompareTo(DiscardBirthYear.ToString()))
                     {
                         // 20歳以上の馬は不要
                         return;
@@ -893,11 +928,21 @@ namespace JVRelay
                         dr = raceDataTable.NewRow();
                         dr["RaceKey"] = receKey;
                         dr["RaceDate"] = raceDate;
+                        dr["DataKubun"] = race.head.DataKubun;
+                        dr["GradeCD"] = race.GradeCD;
                         dr["SyubetuCD"] = race.JyokenInfo.SyubetuCD;
                         raceDataTable.Rows.Add(dr);
                     }
                     else
                     {
+                        if (dr["DataKubun"].ToString() != race.head.DataKubun)
+                        {
+                            dr["DataKubun"] = race.head.DataKubun;
+                        }
+                        if (dr["GradeCD"].ToString() != race.GradeCD)
+                        {
+                            dr["GradeCD"] = race.GradeCD;
+                        }
                         if (dr["SyubetuCD"].ToString() != race.JyokenInfo.SyubetuCD)
                         {
                             dr["SyubetuCD"] = race.JyokenInfo.SyubetuCD;
