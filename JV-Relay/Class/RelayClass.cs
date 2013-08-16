@@ -592,43 +592,66 @@ namespace JVRelay
                         string raceDate = umaDataRow["RaceDate"].ToString();
                         if ("" == raceDate || 0 > raceDate.CompareTo(raceUmaDataRow["RaceDate"].ToString()))
                         {
-                            // レースを追加
-                            umaDataRow["BeforeUmaClass"] = umaDataRow["UmaClass"];
-                            umaDataRow["BeforeRaceDate"] = umaDataRow["RaceDate"];
-                            umaDataRow["BeforeRaceDataKubun"] = umaDataRow["RaceDataKubun"];
-                            umaDataRow["BeforeRaceGradeCD"] = umaDataRow["RaceGradeCD"];
-                            umaDataRow["BeforeRaceSyubetuCD"] = umaDataRow["RaceSyubetuCD"];
-                            umaDataRow["BeforeRaceKakuteiJyuni"] = umaDataRow["RaceKakuteiJyuni"];
+                            if (raceDataRow["DataKubun"].ToString() != "9" && raceDataRow["DataKubun"].ToString() != "0")
+                            {
+                                // レースを追加
+                                umaDataRow["BeforeUmaClass"] = umaDataRow["UmaClass"];
+                                umaDataRow["BeforeRaceDate"] = umaDataRow["RaceDate"];
+                                umaDataRow["BeforeRaceDataKubun"] = umaDataRow["RaceDataKubun"];
+                                umaDataRow["BeforeRaceGradeCD"] = umaDataRow["RaceGradeCD"];
+                                umaDataRow["BeforeRaceSyubetuCD"] = umaDataRow["RaceSyubetuCD"];
+                                umaDataRow["BeforeRaceKakuteiJyuni"] = umaDataRow["RaceKakuteiJyuni"];
 
-                            umaDataRow["RaceDate"] = raceUmaDataRow["RaceDate"];
-                            umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
-                            umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
-                            umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
-                            umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
-                            umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                                umaDataRow["RaceDate"] = raceUmaDataRow["RaceDate"];
+                                umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
+                                umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
+                                umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
+                                umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
+                                umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                            }
                         }
                         else if (0 == raceDate.CompareTo(raceUmaDataRow["RaceDate"].ToString()))
                         {
-                            // レース結果の更新
-                            if (umaDataRow["RaceDataKubun"].ToString() != raceDataRow["DataKubun"].ToString())
+                            if (raceDataRow["DataKubun"].ToString() == "9" || raceDataRow["DataKubun"].ToString() == "0")
                             {
-                                umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
+                                // レース中止、データ削除のため戻す
+                                umaDataRow["UmaClass"] = umaDataRow["BeforeUmaClass"];
+                                umaDataRow["RaceDate"] = umaDataRow["BeforeRaceDate"];
+                                umaDataRow["RaceDataKubun"] = umaDataRow["BeforeRaceDataKubun"];
+                                umaDataRow["RaceGradeCD"] = umaDataRow["BeforeRaceGradeCD"];
+                                umaDataRow["RaceSyubetuCD"] = umaDataRow["BeforeRaceSyubetuCD"];
+                                umaDataRow["RaceKakuteiJyuni"] = umaDataRow["BeforeRaceKakuteiJyuni"];
+
+                                umaDataRow["BeforeUmaClass"] = null;
+                                umaDataRow["BeforeRaceDate"] = null;
+                                umaDataRow["BeforeRaceDataKubun"] = null;
+                                umaDataRow["BeforeRaceGradeCD"] = null;
+                                umaDataRow["BeforeRaceSyubetuCD"] = null;
+                                umaDataRow["BeforeRaceKakuteiJyuni"] = null;
                             }
-                            if (umaDataRow["RaceGradeCD"].ToString() != raceDataRow["GradeCD"].ToString())
+                            else
                             {
-                                umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
-                            }
-                            if (umaDataRow["RaceSyubetuCD"].ToString() != raceDataRow["SyubetuCD"].ToString())
-                            {
-                                umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
-                            }
-                            if (umaDataRow["RaceKakuteiJyuni"].ToString() != raceUmaDataRow["KakuteiJyuni"].ToString())
-                            {
-                                umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
-                            }
-                            if (umaDataRow["UmaClass"].ToString() != GetUmaClass(umaDataRow))
-                            {
-                                umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                                // レース結果の更新
+                                if (umaDataRow["RaceDataKubun"].ToString() != raceDataRow["DataKubun"].ToString())
+                                {
+                                    umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
+                                }
+                                if (umaDataRow["RaceGradeCD"].ToString() != raceDataRow["GradeCD"].ToString())
+                                {
+                                    umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
+                                }
+                                if (umaDataRow["RaceSyubetuCD"].ToString() != raceDataRow["SyubetuCD"].ToString())
+                                {
+                                    umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
+                                }
+                                if (umaDataRow["RaceKakuteiJyuni"].ToString() != raceUmaDataRow["KakuteiJyuni"].ToString())
+                                {
+                                    umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
+                                }
+                                if (umaDataRow["UmaClass"].ToString() != GetUmaClass(umaDataRow))
+                                {
+                                    umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                                }
                             }
                         }
                     }
