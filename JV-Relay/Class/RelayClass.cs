@@ -220,56 +220,49 @@ namespace JVRelay
             AxJVLink = axJVLink;
             MainBackgroundWorker = mainBackgroundWorker;
 
-            try
-            {
-                // JVInit:ソフトウェアID
-                string sid = "UNKNOWN";
+            // JVInit:ソフトウェアID
+            string sid = "UNKNOWN";
 
-                // データベースコネクション
-                DbConn = new SQLiteConnection();
-                string dbPath = "";
-                if (string.IsNullOrEmpty(SettingsClass.Setting.DebugSqLiteFilePath))
+            // データベースコネクション
+            DbConn = new SQLiteConnection();
+            string dbPath = "";
+            if (string.IsNullOrEmpty(SettingsClass.Setting.DebugSqLiteFilePath))
+            {
+                dbPath = "jvRelay.db";
+            }
+            else
+            {
+                dbPath = SettingsClass.Setting.DebugSqLiteFilePath;
+            }
+            DbConn.ConnectionString = "Data Source=" + dbPath + ";Version=3;";
+            DbConn.Open();
+
+            // データベースバージョンアップ処理
+            DbVersionUp();
+
+            using (SQLiteCommand command = DbConn.CreateCommand())
+            {
+                command.CommandText = "SELECT date FROM timestamp ORDER BY date DESC";
+                if (command.ExecuteScalar() == null)
                 {
-                    dbPath = "jvRelay.db";
+                    DbTimeStamp = "";
+                }
+                else if (command.ExecuteScalar().ToString() == "00000000000000")
+                {
+                    DbTimeStamp = "";
                 }
                 else
                 {
-                    dbPath = SettingsClass.Setting.DebugSqLiteFilePath;
-                }
-                DbConn.ConnectionString = "Data Source=" + dbPath + ";Version=3;";
-                DbConn.Open();
-
-                // データベースバージョンアップ処理
-                DbVersionUp();
-
-                using (SQLiteCommand command = DbConn.CreateCommand())
-                {
-                    command.CommandText = "SELECT date FROM timestamp ORDER BY date DESC";
-                    if (command.ExecuteScalar() == null)
-                    {
-                        DbTimeStamp = "";
-                    }
-                    else if (command.ExecuteScalar().ToString() == "00000000000000")
-                    {
-                        DbTimeStamp = "";
-                    }
-                    else
-                    {
-                        DbTimeStamp = command.ExecuteScalar().ToString();
-                    }
-                }
-
-                //-----------------
-                // JVLink初期化
-                //-----------------
-                if (0 == AxJVLink.JVInit(sid))
-                {
-                    IsUse = true;
+                    DbTimeStamp = command.ExecuteScalar().ToString();
                 }
             }
-            finally
+
+            //-----------------
+            // JVLink初期化
+            //-----------------
+            if (0 == AxJVLink.JVInit(sid))
             {
-                // ToDo...
+                IsUse = true;
             }
         }
 
@@ -334,113 +327,113 @@ namespace JVRelay
         /// <param name="endDate">終了日</param>
         public static void JVReading(string endDate)
         {
-            try
-            {
-                bool reading = true;
-                int nCount = 0;
-                object buffObj = new byte[0];
-                int buffsize = 110000;
-                string endTimeStamp = endDate + "235959";
-                string timeStamp;
-                string buffname;
+            bool reading = true;
+            int nCount = 0;
+            object buffObj = new byte[0];
+            int buffsize = 110000;
+            string endTimeStamp = endDate + "235959";
+            string timeStamp;
+            string buffname;
 
-                if (JVDataAccessType == eJVDataAccessType.eRACE)
+            if (JVDataAccessType == eJVDataAccessType.eRACE)
+            {
+                ProgressUserState.Maxinum = ReadCount;
+                ProgressUserState.Value = 0;
+                ProgressUserState.Text = "データ読み込み中...";
+                MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+            }
+
+            do
+            {
+                //---------------------
+                // JVLink読込み処理
+                //---------------------
+                buffObj = new byte[0];
+                int nRet = AxJVLink.JVGets(ref buffObj, buffsize, out buffname);
+                timeStamp = AxJVLink.m_CurrentFileTimeStamp;
+                byte[] buff = (byte[])buffObj;
+                string buffStr = System.Text.Encoding.GetEncoding(932).GetString(buff);
+
+                // 正常
+                if (0 < nRet)
                 {
-                    ProgressUserState.Maxinum = ReadCount;
-                    ProgressUserState.Value = 0;
+                    string recordSpec = JVData_Struct.MidB2S(ref buff, 1, 2);
+                    buffObj = new byte[0];
+                    buff = new byte[0];
+
+                    if (0 <= endTimeStamp.CompareTo(timeStamp))
+                    {
+                        switch (recordSpec)
+                        {
+                            case "RA":
+                                JVData_Struct.JV_RA_RACE race = new JVData_Struct.JV_RA_RACE();
+                                race.SetDataB(ref buffStr);
+                                OutputRaceData(eOutput.Umanushi, race);
+                                break;
+
+                            case "SE":
+                                JVData_Struct.JV_SE_RACE_UMA raceUma = new JVData_Struct.JV_SE_RACE_UMA();
+                                raceUma.SetDataB(ref buffStr);
+                                OutputRaceUmaData(eOutput.Umanushi, raceUma);
+                                break;
+
+                            default:
+                                // 対象外recspecのファイルをスキップする。
+                                AxJVLink.JVSkip();
+                                nCount++;
+                                ProgressUserState.Value = nCount;
+                                ProgressUserState.Text = "データ読み込み中...";
+                                MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        // 対象外recspecのファイルをスキップする。
+                        AxJVLink.JVSkip();
+                        nCount++;
+                        ProgressUserState.Value = nCount;
+                        ProgressUserState.Text = "データ読み込み中...";
+                        MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                    }
+                }
+                // ファイルの切れ目
+                else if (-1 == nRet)
+                {
+                    if (JVDataAccessType == eJVDataAccessType.eRACE)
+                    {
+                        nCount++;
+                        ProgressUserState.Value = nCount;
+                        ProgressUserState.Text = "データ読み込み中...";
+                        MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                    }
+                }
+                // 全レコード読込み終了(EOF)
+                else if (0 == nRet)
+                {
+                    if (JVDataAccessType == eJVDataAccessType.eRACE)
+                    {
+                        ProgressUserState.Value = ProgressUserState.Maxinum;
+                        ProgressUserState.Text = "データ読み込み完了";
+                        MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                    }
+
+                    reading = false;
+                }
+                // エラー
+                else if (-1 > nRet)
+                {
+                    // エラーファイルをスキップする。
+                    AxJVLink.JVSkip();
+                    nCount++;
+                    ProgressUserState.Value = nCount;
                     ProgressUserState.Text = "データ読み込み中...";
                     MainBackgroundWorker.ReportProgress(0, ProgressUserState);
                 }
 
-                do
-                {
-                    //---------------------
-                    // JVLink読込み処理
-                    //---------------------
-                    buffObj = new byte[0];
-                    int nRet = AxJVLink.JVGets(ref buffObj, buffsize, out buffname);
-                    timeStamp = AxJVLink.m_CurrentFileTimeStamp;
-                    byte[] buff = (byte[])buffObj;
-                    string buffStr = System.Text.Encoding.GetEncoding(932).GetString(buff);
-
-                    // 正常
-                    if (0 < nRet)
-                    {
-                        if (0 <= endTimeStamp.CompareTo(timeStamp))
-                        {
-                            switch (JVData_Struct.MidB2S(ref buff, 1, 2))
-                            {
-                                case "RA":
-                                    JVData_Struct.JV_RA_RACE race = new JVData_Struct.JV_RA_RACE();
-                                    race.SetDataB(ref buffStr);
-                                    OutputRaceData(eOutput.Umanushi, race);
-                                    break;
-
-                                case "SE":
-                                    JVData_Struct.JV_SE_RACE_UMA raceUma = new JVData_Struct.JV_SE_RACE_UMA();
-                                    raceUma.SetDataB(ref buffStr);
-                                    OutputRaceUmaData(eOutput.Umanushi, raceUma);
-                                    break;
-
-                                default:
-                                    // 対象外recspecのファイルをスキップする。
-                                    AxJVLink.JVSkip();
-                                    nCount++;
-                                    ProgressUserState.Value = nCount;
-                                    ProgressUserState.Text = "データ読み込み中...";
-                                    MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            // 対象外recspecのファイルをスキップする。
-                            AxJVLink.JVSkip();
-                            nCount++;
-                            ProgressUserState.Value = nCount;
-                            ProgressUserState.Text = "データ読み込み中...";
-                            MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                        }
-                    }
-                    // ファイルの切れ目
-                    else if (-1 == nRet)
-                    {
-                        if (JVDataAccessType == eJVDataAccessType.eRACE)
-                        {
-                            nCount++;
-                            ProgressUserState.Value = nCount;
-                            ProgressUserState.Text = "データ読み込み中...";
-                            MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                        }
-                    }
-                    // 全レコード読込み終了(EOF)
-                    else if (0 == nRet)
-                    {
-                        if (JVDataAccessType == eJVDataAccessType.eRACE)
-                        {
-                            ProgressUserState.Value = ProgressUserState.Maxinum;
-                            ProgressUserState.Text = "データ読み込み完了";
-                            MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                        }
-
-                        reading = false;
-                    }
-                    // エラー
-                    else if (-1 > nRet)
-                    {
-                        // ToDo...
-
-                        return;
-                    }
-
-                    System.Threading.Thread.Sleep(10);
-                }
-                while (true == reading);
+                System.Threading.Thread.Sleep(10);
             }
-            finally
-            {
-                // ToDo...
-            }
+            while (true == reading);
         }
 
         /// <summary>
@@ -458,219 +451,216 @@ namespace JVRelay
             DataTable raceDataTable = new DataTable();
             DataTable raceUmaDataTable = new DataTable();
 
-            try
+            // 初期化時
+            if (JVRelayClass.Option == (int)JVRelayClass.eJVOpenFlag.SetupSkipDialog)
             {
-                // 初期化時
-                if (JVRelayClass.Option == (int)JVRelayClass.eJVOpenFlag.SetupSkipDialog)
-                {
-                    using (SQLiteCommand command = DbConn.CreateCommand())
-                    {
-                        command.CommandText = "DELETE FROM uma";
-                        command.ExecuteNonQuery();
-                    }
-                }
-
                 using (SQLiteCommand command = DbConn.CreateCommand())
                 {
-                    command.CommandText = "SELECT * FROM uma";
-                    using (SQLiteDataAdapter da = new SQLiteDataAdapter(command))
-                    {
-                        da.Fill(umaDataTable);
-                    }
-                }
-                raceDataTable.Columns.Add("RaceKey", typeof(string));
-                raceDataTable.Columns.Add("RaceDate", typeof(string));
-                raceDataTable.Columns.Add("DataKubun", typeof(string));
-                raceDataTable.Columns.Add("GradeCD", typeof(string));
-                raceDataTable.Columns.Add("SyubetuCD", typeof(string));
-                raceUmaDataTable.Columns.Add("RaceKey", typeof(string));
-                raceUmaDataTable.Columns.Add("RaceDate", typeof(string));
-                raceUmaDataTable.Columns.Add("KettoNum", typeof(string));
-                raceUmaDataTable.Columns.Add("KakuteiJyuni", typeof(string));
-
-                if (umaDataTable.PrimaryKey.Length == 0)
-                {
-                    umaDataTable.PrimaryKey = new[] { umaDataTable.Columns["KettoNum"] };
-                }
-                if (raceDataTable.PrimaryKey.Length == 0)
-                {
-                    raceDataTable.PrimaryKey = new[] { raceDataTable.Columns["RaceKey"] };
-                }
-                if (raceUmaDataTable.PrimaryKey.Length == 0)
-                {
-                    raceUmaDataTable.PrimaryKey = new[] { raceUmaDataTable.Columns["RaceKey"], raceUmaDataTable.Columns["KettoNum"] };
-                }
-
-                ProgressUserState.Maxinum = ReadCount;
-                ProgressUserState.Value = 0;
-                ProgressUserState.Text = "データ読み込み中...";
-                MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-
-                do
-                {
-                    //---------------------
-                    // JVLink読込み処理
-                    //---------------------
-                    buffObj = new byte[0];
-                    int nRet = AxJVLink.JVGets(ref buffObj, buffsize, out buffname);
-                    timeStamp = AxJVLink.m_CurrentFileTimeStamp;
-                    byte[] buff = (byte[])buffObj;
-                    string buffStr = System.Text.Encoding.GetEncoding(932).GetString(buff);
-
-                    // 正常
-                    if (0 < nRet)
-                    {
-                        switch (JVData_Struct.MidB2S(ref buff, 1, 2))
-                        {
-                            case "UM":
-                                {
-                                    JVData_Struct.JV_UM_UMA uma = new JVData_Struct.JV_UM_UMA();
-                                    uma.SetDataB(ref buffStr);
-                                    WriteDbUmaData(eOutput.Umanushi, uma, umaDataTable);
-                                }
-                                break;
-                            case "RA":
-                                {
-                                    JVData_Struct.JV_RA_RACE race = new JVData_Struct.JV_RA_RACE();
-                                    race.SetDataB(ref buffStr);
-                                    WriteDbRaceData(eOutput.Umanushi, race, raceDataTable);
-                                }
-                                break;
-                            case "SE":
-                                {
-                                    JVData_Struct.JV_SE_RACE_UMA raceUma = new JVData_Struct.JV_SE_RACE_UMA();
-                                    raceUma.SetDataB(ref buffStr);
-                                    WriteDbRaceUmaData(eOutput.Umanushi, raceUma, raceUmaDataTable);
-                                }
-                                break;
-                            default:
-                                // 対象外recspecのファイルをスキップする。
-                                AxJVLink.JVSkip();
-                                nCount++;
-                                ProgressUserState.Value = nCount;
-                                ProgressUserState.Text = "データ読み込み中...";
-                                MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                                break;
-                        }
-                    }
-                    // ファイルの切れ目
-                    else if (-1 == nRet)
-                    {
-                        nCount++;
-                        ProgressUserState.Value = nCount;
-                        ProgressUserState.Text = "データ読み込み中...";
-                        MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                    }
-                    // 全レコード読込み終了(EOF)
-                    else if (0 == nRet)
-                    {
-                        ProgressUserState.Value = ProgressUserState.Maxinum;
-                        ProgressUserState.Text = "データ読み込み完了";
-                        MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-
-                        reading = false;
-                    }
-                    // エラー
-                    else if (-1 > nRet)
-                    {
-                        // エラーファイルをスキップする。
-                        AxJVLink.JVSkip();
-                        nCount++;
-                        ProgressUserState.Value = nCount;
-                        ProgressUserState.Text = "データ読み込み中...";
-                        MainBackgroundWorker.ReportProgress(0, ProgressUserState);
-                    }
-
-                    System.Threading.Thread.Sleep(10);
-                }
-                while (true == reading);
-
-                // データ整備
-                if (raceUmaDataTable.Rows.Count > 0)
-                {
-                    foreach (DataRow raceUmaDataRow in raceUmaDataTable.Select("", "RaceDate"))
-                    {
-                        DataRow raceDataRow = raceDataTable.Rows.Find(raceUmaDataRow["RaceKey"]);
-                        DataRow umaDataRow = umaDataTable.Rows.Find(raceUmaDataRow["KettoNum"]);
-                        if (raceDataRow != null && umaDataRow != null)
-                        {
-                            string raceDate = umaDataRow["RaceDate"].ToString();
-                            if ("" == raceDate || 0 > raceDate.CompareTo(raceUmaDataRow["RaceDate"].ToString()))
-                            {
-                                // レースを追加
-                                umaDataRow["BeforeUmaClass"] = umaDataRow["UmaClass"];
-                                umaDataRow["BeforeRaceDate"] = umaDataRow["RaceDate"];
-                                umaDataRow["BeforeRaceDataKubun"] = umaDataRow["RaceDataKubun"];
-                                umaDataRow["BeforeRaceGradeCD"] = umaDataRow["RaceGradeCD"];
-                                umaDataRow["BeforeRaceSyubetuCD"] = umaDataRow["RaceSyubetuCD"];
-                                umaDataRow["BeforeRaceKakuteiJyuni"] = umaDataRow["RaceKakuteiJyuni"];
-
-                                umaDataRow["RaceDate"] = raceUmaDataRow["RaceDate"];
-                                umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
-                                umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
-                                umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
-                                umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
-                                umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
-                            }
-                            else if (0 == raceDate.CompareTo(raceUmaDataRow["RaceDate"].ToString()))
-                            {
-                                // レース結果の更新
-                                if (umaDataRow["RaceDataKubun"].ToString() != raceDataRow["DataKubun"].ToString())
-                                {
-                                    umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
-                                }
-                                if (umaDataRow["RaceGradeCD"].ToString() != raceDataRow["GradeCD"].ToString())
-                                {
-                                    umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
-                                }
-                                if (umaDataRow["RaceSyubetuCD"].ToString() != raceDataRow["SyubetuCD"].ToString())
-                                {
-                                    umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
-                                }
-                                if (umaDataRow["RaceKakuteiJyuni"].ToString() != raceUmaDataRow["KakuteiJyuni"].ToString())
-                                {
-                                    umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
-                                }
-                                if (umaDataRow["UmaClass"].ToString() != GetUmaClass(umaDataRow))
-                                {
-                                    umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // データ更新
-                using (SQLiteTransaction tran = DbConn.BeginTransaction())
-                {
-                    using (SQLiteCommand command = DbConn.CreateCommand())
-                    {
-                        command.Transaction = tran;
-                        command.CommandText = "SELECT * FROM uma";
-                        using (SQLiteDataAdapter da = new SQLiteDataAdapter(command))
-                        using (SQLiteCommandBuilder cb = new SQLiteCommandBuilder(da))
-                        {
-                            cb.SetAllValues = false;
-                            cb.ConflictOption = ConflictOption.OverwriteChanges;
-                            da.UpdateCommand = cb.GetUpdateCommand();
-                            da.InsertCommand = cb.GetInsertCommand();
-                            da.DeleteCommand = cb.GetDeleteCommand();
-                            da.Update(umaDataTable);
-                        }
-
-                        command.CommandText = "DELETE FROM uma WHERE BirthYear <= '" + DiscardBirthYear + "'";
-                        command.ExecuteNonQuery();
-
-                        command.CommandText = "UPDATE timestamp SET date ='" + LastFileTimestamp + "'";
-                        command.ExecuteNonQuery();
-                    }
-                    tran.Commit();
-                    JVRelayClass.DbTimeStamp = LastFileTimestamp;
+                    command.CommandText = "DELETE FROM uma";
+                    command.ExecuteNonQuery();
                 }
             }
-            finally
+
+            using (SQLiteCommand command = DbConn.CreateCommand())
             {
-                // ToDo...
+                command.CommandText = "SELECT * FROM uma";
+                using (SQLiteDataAdapter da = new SQLiteDataAdapter(command))
+                {
+                    da.Fill(umaDataTable);
+                }
+            }
+            raceDataTable.Columns.Add("RaceKey", typeof(string));
+            raceDataTable.Columns.Add("RaceDate", typeof(string));
+            raceDataTable.Columns.Add("DataKubun", typeof(string));
+            raceDataTable.Columns.Add("GradeCD", typeof(string));
+            raceDataTable.Columns.Add("SyubetuCD", typeof(string));
+            raceUmaDataTable.Columns.Add("RaceKey", typeof(string));
+            raceUmaDataTable.Columns.Add("RaceDate", typeof(string));
+            raceUmaDataTable.Columns.Add("KettoNum", typeof(string));
+            raceUmaDataTable.Columns.Add("KakuteiJyuni", typeof(string));
+
+            if (umaDataTable.PrimaryKey.Length == 0)
+            {
+                umaDataTable.PrimaryKey = new[] { umaDataTable.Columns["KettoNum"] };
+            }
+            if (raceDataTable.PrimaryKey.Length == 0)
+            {
+                raceDataTable.PrimaryKey = new[] { raceDataTable.Columns["RaceKey"] };
+            }
+            if (raceUmaDataTable.PrimaryKey.Length == 0)
+            {
+                raceUmaDataTable.PrimaryKey = new[] { raceUmaDataTable.Columns["RaceKey"], raceUmaDataTable.Columns["KettoNum"] };
+            }
+
+            ProgressUserState.Maxinum = ReadCount;
+            ProgressUserState.Value = 0;
+            ProgressUserState.Text = "データ読み込み中...";
+            MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+
+            do
+            {
+                //---------------------
+                // JVLink読込み処理
+                //---------------------
+                buffObj = new byte[0];
+                int nRet = AxJVLink.JVGets(ref buffObj, buffsize, out buffname);
+                timeStamp = AxJVLink.m_CurrentFileTimeStamp;
+                byte[] buff = (byte[])buffObj;
+                string buffStr = System.Text.Encoding.GetEncoding(932).GetString(buff);
+
+                // 正常
+                if (0 < nRet)
+                {
+                    string recordSpec = JVData_Struct.MidB2S(ref buff, 1, 2);
+                    buffObj = new byte[0];
+                    buff = new byte[0];
+
+                    switch (recordSpec)
+                    {
+                        case "UM":
+                            {
+                                JVData_Struct.JV_UM_UMA uma = new JVData_Struct.JV_UM_UMA();
+                                uma.SetDataB(ref buffStr);
+                                WriteDbUmaData(eOutput.Umanushi, uma, umaDataTable);
+                            }
+                            break;
+                        case "RA":
+                            {
+                                JVData_Struct.JV_RA_RACE race = new JVData_Struct.JV_RA_RACE();
+                                race.SetDataB(ref buffStr);
+                                WriteDbRaceData(eOutput.Umanushi, race, raceDataTable);
+                            }
+                            break;
+                        case "SE":
+                            {
+                                JVData_Struct.JV_SE_RACE_UMA raceUma = new JVData_Struct.JV_SE_RACE_UMA();
+                                raceUma.SetDataB(ref buffStr);
+                                WriteDbRaceUmaData(eOutput.Umanushi, raceUma, raceUmaDataTable);
+                            }
+                            break;
+                        default:
+                            // 対象外recspecのファイルをスキップする。
+                            AxJVLink.JVSkip();
+                            nCount++;
+                            ProgressUserState.Value = nCount;
+                            ProgressUserState.Text = "データ読み込み中...";
+                            MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                            break;
+                    }
+                }
+                // ファイルの切れ目
+                else if (-1 == nRet)
+                {
+                    nCount++;
+                    ProgressUserState.Value = nCount;
+                    ProgressUserState.Text = "データ読み込み中...";
+                    MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                }
+                // 全レコード読込み終了(EOF)
+                else if (0 == nRet)
+                {
+                    ProgressUserState.Value = ProgressUserState.Maxinum;
+                    ProgressUserState.Text = "データ読み込み完了";
+                    MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+
+                    reading = false;
+                }
+                // エラー
+                else if (-1 > nRet)
+                {
+                    // エラーファイルをスキップする。
+                    AxJVLink.JVSkip();
+                    nCount++;
+                    ProgressUserState.Value = nCount;
+                    ProgressUserState.Text = "データ読み込み中...";
+                    MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                }
+
+                System.Threading.Thread.Sleep(10);
+            }
+            while (true == reading);
+
+            // データ整備
+            if (raceUmaDataTable.Rows.Count > 0)
+            {
+                foreach (DataRow raceUmaDataRow in raceUmaDataTable.Select("", "RaceDate"))
+                {
+                    DataRow raceDataRow = raceDataTable.Rows.Find(raceUmaDataRow["RaceKey"]);
+                    DataRow umaDataRow = umaDataTable.Rows.Find(raceUmaDataRow["KettoNum"]);
+                    if (raceDataRow != null && umaDataRow != null)
+                    {
+                        string raceDate = umaDataRow["RaceDate"].ToString();
+                        if ("" == raceDate || 0 > raceDate.CompareTo(raceUmaDataRow["RaceDate"].ToString()))
+                        {
+                            // レースを追加
+                            umaDataRow["BeforeUmaClass"] = umaDataRow["UmaClass"];
+                            umaDataRow["BeforeRaceDate"] = umaDataRow["RaceDate"];
+                            umaDataRow["BeforeRaceDataKubun"] = umaDataRow["RaceDataKubun"];
+                            umaDataRow["BeforeRaceGradeCD"] = umaDataRow["RaceGradeCD"];
+                            umaDataRow["BeforeRaceSyubetuCD"] = umaDataRow["RaceSyubetuCD"];
+                            umaDataRow["BeforeRaceKakuteiJyuni"] = umaDataRow["RaceKakuteiJyuni"];
+
+                            umaDataRow["RaceDate"] = raceUmaDataRow["RaceDate"];
+                            umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
+                            umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
+                            umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
+                            umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
+                            umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                        }
+                        else if (0 == raceDate.CompareTo(raceUmaDataRow["RaceDate"].ToString()))
+                        {
+                            // レース結果の更新
+                            if (umaDataRow["RaceDataKubun"].ToString() != raceDataRow["DataKubun"].ToString())
+                            {
+                                umaDataRow["RaceDataKubun"] = raceDataRow["DataKubun"];
+                            }
+                            if (umaDataRow["RaceGradeCD"].ToString() != raceDataRow["GradeCD"].ToString())
+                            {
+                                umaDataRow["RaceGradeCD"] = raceDataRow["GradeCD"];
+                            }
+                            if (umaDataRow["RaceSyubetuCD"].ToString() != raceDataRow["SyubetuCD"].ToString())
+                            {
+                                umaDataRow["RaceSyubetuCD"] = raceDataRow["SyubetuCD"];
+                            }
+                            if (umaDataRow["RaceKakuteiJyuni"].ToString() != raceUmaDataRow["KakuteiJyuni"].ToString())
+                            {
+                                umaDataRow["RaceKakuteiJyuni"] = raceUmaDataRow["KakuteiJyuni"];
+                            }
+                            if (umaDataRow["UmaClass"].ToString() != GetUmaClass(umaDataRow))
+                            {
+                                umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // データ更新
+            using (SQLiteTransaction tran = DbConn.BeginTransaction())
+            {
+                using (SQLiteCommand command = DbConn.CreateCommand())
+                {
+                    command.Transaction = tran;
+                    command.CommandText = "SELECT * FROM uma";
+                    using (SQLiteDataAdapter da = new SQLiteDataAdapter(command))
+                    using (SQLiteCommandBuilder cb = new SQLiteCommandBuilder(da))
+                    {
+                        cb.SetAllValues = false;
+                        cb.ConflictOption = ConflictOption.OverwriteChanges;
+                        da.UpdateCommand = cb.GetUpdateCommand();
+                        da.InsertCommand = cb.GetInsertCommand();
+                        da.DeleteCommand = cb.GetDeleteCommand();
+                        da.Update(umaDataTable);
+                    }
+
+                    command.CommandText = "DELETE FROM uma WHERE BirthYear <= '" + DiscardBirthYear + "'";
+                    command.ExecuteNonQuery();
+
+                    command.CommandText = "UPDATE timestamp SET date ='" + LastFileTimestamp + "'";
+                    command.ExecuteNonQuery();
+                }
+                tran.Commit();
+                JVRelayClass.DbTimeStamp = LastFileTimestamp;
             }
         }
 
@@ -701,14 +691,7 @@ namespace JVRelay
         /// </summary>
         public static void JVClosing()
         {
-            try
-            {
-                AxJVLink.JVClose();
-            }
-            finally
-            {
-                // ToDo...
-            }
+            AxJVLink.JVClose();
         }
 
         /// <summary>
@@ -996,7 +979,7 @@ namespace JVRelay
         /// 競走馬マスタ情報出力
         /// </summary>
         /// <param name="e"></param>
-        /// <param name="uma">競走馬DataRow</param>
+        /// <param name="umaDataRow">競走馬DataRow</param>
         private static void OutputUmaData(eOutput e, DataRow umaDataRow)
         {
             switch (e)
@@ -1009,6 +992,7 @@ namespace JVRelay
                     Output.AppendFormat("{0},", GetKyusha(umaDataRow["TozaiCD"].ToString(), umaDataRow["ChokyosiRyakusyo"].ToString()));
                     Output.AppendFormat("{0},", umaDataRow["UmaClass"].ToString());
                     Output.AppendFormat("{0},", umaDataRow["RaceDate"].ToString());
+                    Output.AppendFormat("{0},", GetUmaClassKakuteiFlag(umaDataRow["UmaClass"].ToString(), umaDataRow["BeforeRaceSyubetuCD"].ToString(), umaDataRow["RaceDataKubun"].ToString(), umaDataRow["RaceGradeCD"].ToString(), umaDataRow["RaceKakuteiJyuni"].ToString()));
                     Output.AppendFormat("{0},", umaDataRow["BeforeUmaClass"].ToString());
                     Output.AppendFormat("{0},", umaDataRow["BeforeRaceDate"].ToString());
                     Output.Append(System.Environment.NewLine);
@@ -1157,6 +1141,93 @@ namespace JVRelay
             kyusha += chokyosi;
 
             return kyusha;
+        }
+
+        /// <summary>
+        /// 馬クラス確定フラグの取得
+        /// </summary>
+        /// <param name="umaClass">馬クラス</param>
+        /// <param name="beforeRaceSyubetuCD">前走競走種別コード</param>
+        /// <param name="raceDataKubun">レースデータ区分</param>
+        /// <param name="raceGradeCD">レースグレードコード</param>
+        /// <param name="raceKakuteiJyuni">レース確定順位</param>
+        /// <returns></returns>
+        private static string GetUmaClassKakuteiFlag(
+            string umaClass,
+            string beforeRaceSyubetuCD,
+            string raceDataKubun, 
+            string raceGradeCD, 
+            string raceKakuteiJyuni)
+        {
+            if (umaClass == "2_501")
+            {
+                // ２歳OP馬はクラスアップが無いため確定
+                return "1";
+            }
+            else if (string.IsNullOrEmpty(beforeRaceSyubetuCD) == false)
+            {
+                if (beforeRaceSyubetuCD == "18" || beforeRaceSyubetuCD == "19")
+                {
+                    if (umaClass == "S_OP")
+                    {
+                        // 前走障害を走った障害OP馬はクラスアップが無いため確定
+                        return "1";
+                    }
+                }
+                else
+                {
+                    if (umaClass == "3_1601")
+                    {
+                        // 前走平地を走ったOP馬はクラスアップが無いため確定
+                        return "1";
+                    }
+                }
+            }
+
+
+            switch (raceDataKubun)
+            {
+                case "7":
+                case "A":
+                case "B":
+                case "9":
+                case "0":
+                    return "1";
+                case "3":
+                case "4":
+                case "5":
+                case "6":
+                    if (raceKakuteiJyuni == "00")
+                    {
+                        // 着順未定のため未確定
+                        return "0";
+                    }
+                    else if (raceKakuteiJyuni == "01")
+                    {
+                        // 収得金額未定のため未確定
+                        return "0";
+                    }
+                    else if (raceKakuteiJyuni == "02")
+                    {
+                        if (raceGradeCD != " " && raceGradeCD != "E")
+                        {
+                            // 重賞２着。収得金額未定のため未確定
+                            return "0";
+                        }
+                        else
+                        {
+                            // 重賞以外の２着は収得金額変動なしのため確定
+                            return "1";
+                        }
+                    }
+                    else
+                    {
+                        return "1";
+                    }
+                default:
+                    // 出走前は未確定
+                    return "0";
+            }
         }
         #endregion
     }

@@ -623,7 +623,14 @@ namespace JVRelay
 
             JVRelayClass.ReadCount += readCount;
             JVRelayClass.DownloadCount += downloadCount;
-            JVRelayClass.LastFileTimestamp = lastFileTimeStamp;
+            if (string.IsNullOrEmpty(lastFileTimeStamp))
+            {
+                JVRelayClass.LastFileTimestamp = JVRelayClass.DbTimeStamp;
+            }
+            else
+            {
+                JVRelayClass.LastFileTimestamp = lastFileTimeStamp;
+            }
 
             if (0 == nRet)
             {
