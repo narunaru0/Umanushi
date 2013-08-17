@@ -1213,16 +1213,22 @@ namespace JVRelay
 
             switch (raceDataKubun)
             {
+                case "1":
+                case "2":
+                    // 出走前は未確定
+                    return "0";
                 case "7":
                 case "A":
                 case "B":
                 case "9":
                 case "0":
+                    // 正式なレース成績は確定
                     return "1";
                 case "3":
                 case "4":
                 case "5":
                 case "6":
+                    // レース速報
                     if (raceKakuteiJyuni == "00")
                     {
                         // 着順未定のため未確定
@@ -1251,8 +1257,7 @@ namespace JVRelay
                         return "1";
                     }
                 default:
-                    // 出走前は未確定
-                    return "0";
+                    return "1";
             }
         }
         #endregion
