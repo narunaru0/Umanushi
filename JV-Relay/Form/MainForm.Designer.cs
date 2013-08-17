@@ -36,21 +36,26 @@
             this.mainStatusStrip = new System.Windows.Forms.StatusStrip();
             this.mainToolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.mainToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.autoPost4Label = new System.Windows.Forms.Label();
-            this.autoPost3Label = new System.Windows.Forms.Label();
-            this.autoPostIntervalTextBox = new System.Windows.Forms.TextBox();
-            this.autoPostToTextBox = new System.Windows.Forms.TextBox();
-            this.autoPost1Label = new System.Windows.Forms.Label();
-            this.autoPost2Label = new System.Windows.Forms.Label();
-            this.isAutoPostCheckBox = new System.Windows.Forms.CheckBox();
-            this.isSetupCheckBox = new System.Windows.Forms.CheckBox();
+            this.debugGroupBox = new System.Windows.Forms.GroupBox();
+            this.raceFileSaveButton = new System.Windows.Forms.Button();
+            this.quickFileSaveButton = new System.Windows.Forms.Button();
+            this.umaGroupBox = new System.Windows.Forms.GroupBox();
+            this.umaFileSaveButton = new System.Windows.Forms.Button();
+            this.fromLabel = new System.Windows.Forms.Label();
             this.fromTextBox = new System.Windows.Forms.TextBox();
-            this.umaStorageButton = new System.Windows.Forms.Button();
-            this.storagePostButton = new System.Windows.Forms.Button();
-            this.realTimePostButton = new System.Windows.Forms.Button();
+            this.isSetupCheckBox = new System.Windows.Forms.CheckBox();
+            this.quickGroupBox = new System.Windows.Forms.GroupBox();
+            this.quickPostButton = new System.Windows.Forms.Button();
+            this.isQuickAutoPostCheckBox = new System.Windows.Forms.CheckBox();
+            this.autoPost2Label = new System.Windows.Forms.Label();
+            this.autoPost1Label = new System.Windows.Forms.Label();
+            this.quickAutoPostToTextBox = new System.Windows.Forms.TextBox();
+            this.autoPost4Label = new System.Windows.Forms.Label();
+            this.quickAutoPostIntervalTextBox = new System.Windows.Forms.TextBox();
+            this.autoPost3Label = new System.Windows.Forms.Label();
+            this.raceGroupBox = new System.Windows.Forms.GroupBox();
+            this.racePostButton = new System.Windows.Forms.Button();
             this.axJVLink = new AxJVDTLabLib.AxJVLink();
-            this.realTimeButton = new System.Windows.Forms.Button();
-            this.storageButton = new System.Windows.Forms.Button();
             this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,6 +71,10 @@
             this.mainToolStripContainer.TopToolStripPanel.SuspendLayout();
             this.mainToolStripContainer.SuspendLayout();
             this.mainStatusStrip.SuspendLayout();
+            this.debugGroupBox.SuspendLayout();
+            this.umaGroupBox.SuspendLayout();
+            this.quickGroupBox.SuspendLayout();
+            this.raceGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.axJVLink)).BeginInit();
             this.mainMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -79,26 +88,16 @@
             // 
             // mainToolStripContainer.ContentPanel
             // 
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPost4Label);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPost3Label);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPostIntervalTextBox);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPostToTextBox);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPost1Label);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.autoPost2Label);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.isAutoPostCheckBox);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.isSetupCheckBox);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.fromTextBox);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.umaStorageButton);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.storagePostButton);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.realTimePostButton);
+            this.mainToolStripContainer.ContentPanel.Controls.Add(this.debugGroupBox);
+            this.mainToolStripContainer.ContentPanel.Controls.Add(this.umaGroupBox);
+            this.mainToolStripContainer.ContentPanel.Controls.Add(this.quickGroupBox);
+            this.mainToolStripContainer.ContentPanel.Controls.Add(this.raceGroupBox);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.axJVLink);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.realTimeButton);
-            this.mainToolStripContainer.ContentPanel.Controls.Add(this.storageButton);
-            this.mainToolStripContainer.ContentPanel.Size = new System.Drawing.Size(690, 370);
+            this.mainToolStripContainer.ContentPanel.Size = new System.Drawing.Size(524, 294);
             this.mainToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainToolStripContainer.Location = new System.Drawing.Point(0, 0);
             this.mainToolStripContainer.Name = "mainToolStripContainer";
-            this.mainToolStripContainer.Size = new System.Drawing.Size(690, 419);
+            this.mainToolStripContainer.Size = new System.Drawing.Size(524, 343);
             this.mainToolStripContainer.TabIndex = 5;
             this.mainToolStripContainer.Text = "toolStripContainer1";
             // 
@@ -114,7 +113,7 @@
             this.mainToolStripStatusLabel});
             this.mainStatusStrip.Location = new System.Drawing.Point(0, 0);
             this.mainStatusStrip.Name = "mainStatusStrip";
-            this.mainStatusStrip.Size = new System.Drawing.Size(690, 23);
+            this.mainStatusStrip.Size = new System.Drawing.Size(524, 23);
             this.mainStatusStrip.TabIndex = 3;
             this.mainStatusStrip.Text = "statusStrip1";
             // 
@@ -129,144 +128,205 @@
             this.mainToolStripStatusLabel.Size = new System.Drawing.Size(20, 18);
             this.mainToolStripStatusLabel.Text = "...";
             // 
-            // autoPost4Label
+            // debugGroupBox
             // 
-            this.autoPost4Label.AutoSize = true;
-            this.autoPost4Label.Location = new System.Drawing.Point(379, 64);
-            this.autoPost4Label.Name = "autoPost4Label";
-            this.autoPost4Label.Size = new System.Drawing.Size(13, 12);
-            this.autoPost4Label.TabIndex = 30;
-            this.autoPost4Label.Text = "　";
+            this.debugGroupBox.Controls.Add(this.raceFileSaveButton);
+            this.debugGroupBox.Controls.Add(this.quickFileSaveButton);
+            this.debugGroupBox.Location = new System.Drawing.Point(18, 214);
+            this.debugGroupBox.Name = "debugGroupBox";
+            this.debugGroupBox.Size = new System.Drawing.Size(258, 77);
+            this.debugGroupBox.TabIndex = 4;
+            this.debugGroupBox.TabStop = false;
+            this.debugGroupBox.Text = "デバッグ用";
             // 
-            // autoPost3Label
+            // raceFileSaveButton
             // 
-            this.autoPost3Label.AutoSize = true;
-            this.autoPost3Label.Location = new System.Drawing.Point(271, 64);
-            this.autoPost3Label.Name = "autoPost3Label";
-            this.autoPost3Label.Size = new System.Drawing.Size(107, 12);
-            this.autoPost3Label.TabIndex = 29;
-            this.autoPost3Label.Text = "次回WEB登録予定：";
+            this.raceFileSaveButton.Location = new System.Drawing.Point(6, 18);
+            this.raceFileSaveButton.Name = "raceFileSaveButton";
+            this.raceFileSaveButton.Size = new System.Drawing.Size(114, 48);
+            this.raceFileSaveButton.TabIndex = 1;
+            this.raceFileSaveButton.Text = "出走馬情報\r\n(ファイル保存のみ)";
+            this.raceFileSaveButton.UseVisualStyleBackColor = true;
+            this.raceFileSaveButton.Click += new System.EventHandler(this.raceFileSaveButton_Click);
             // 
-            // autoPostIntervalTextBox
+            // quickFileSaveButton
             // 
-            this.autoPostIntervalTextBox.Location = new System.Drawing.Point(409, 42);
-            this.autoPostIntervalTextBox.Name = "autoPostIntervalTextBox";
-            this.autoPostIntervalTextBox.Size = new System.Drawing.Size(28, 19);
-            this.autoPostIntervalTextBox.TabIndex = 7;
-            this.autoPostIntervalTextBox.Leave += new System.EventHandler(this.autoPostSetting_Changed);
+            this.quickFileSaveButton.Location = new System.Drawing.Point(126, 18);
+            this.quickFileSaveButton.Name = "quickFileSaveButton";
+            this.quickFileSaveButton.Size = new System.Drawing.Size(114, 48);
+            this.quickFileSaveButton.TabIndex = 2;
+            this.quickFileSaveButton.Text = "レース結果\r\n（ファイル保存のみ）";
+            this.quickFileSaveButton.UseVisualStyleBackColor = true;
+            this.quickFileSaveButton.Click += new System.EventHandler(this.quickFileSaveButton_Click);
             // 
-            // autoPostToTextBox
+            // umaGroupBox
             // 
-            this.autoPostToTextBox.Location = new System.Drawing.Point(273, 42);
-            this.autoPostToTextBox.Name = "autoPostToTextBox";
-            this.autoPostToTextBox.Size = new System.Drawing.Size(100, 19);
-            this.autoPostToTextBox.TabIndex = 6;
-            this.autoPostToTextBox.Leave += new System.EventHandler(this.autoPostSetting_Changed);
+            this.umaGroupBox.Controls.Add(this.umaFileSaveButton);
+            this.umaGroupBox.Controls.Add(this.fromLabel);
+            this.umaGroupBox.Controls.Add(this.fromTextBox);
+            this.umaGroupBox.Controls.Add(this.isSetupCheckBox);
+            this.umaGroupBox.Location = new System.Drawing.Point(18, 109);
+            this.umaGroupBox.Name = "umaGroupBox";
+            this.umaGroupBox.Size = new System.Drawing.Size(494, 88);
+            this.umaGroupBox.TabIndex = 3;
+            this.umaGroupBox.TabStop = false;
+            this.umaGroupBox.Text = "馬情報";
             // 
-            // autoPost1Label
+            // umaFileSaveButton
             // 
-            this.autoPost1Label.AutoSize = true;
-            this.autoPost1Label.Location = new System.Drawing.Point(379, 45);
-            this.autoPost1Label.Name = "autoPost1Label";
-            this.autoPost1Label.Size = new System.Drawing.Size(24, 12);
-            this.autoPost1Label.TabIndex = 26;
-            this.autoPost1Label.Text = "まで";
+            this.umaFileSaveButton.Location = new System.Drawing.Point(6, 37);
+            this.umaFileSaveButton.Name = "umaFileSaveButton";
+            this.umaFileSaveButton.Size = new System.Drawing.Size(114, 39);
+            this.umaFileSaveButton.TabIndex = 2;
+            this.umaFileSaveButton.Text = "馬情報\r\n（ファイル保存のみ）";
+            this.umaFileSaveButton.UseVisualStyleBackColor = true;
+            this.umaFileSaveButton.Click += new System.EventHandler(this.umaFileSaveButton_Click);
+            // 
+            // fromLabel
+            // 
+            this.fromLabel.AutoSize = true;
+            this.fromLabel.Location = new System.Drawing.Point(6, 15);
+            this.fromLabel.Name = "fromLabel";
+            this.fromLabel.Size = new System.Drawing.Size(87, 12);
+            this.fromLabel.TabIndex = 31;
+            this.fromLabel.Text = "登録データ日時：";
+            // 
+            // fromTextBox
+            // 
+            this.fromTextBox.Location = new System.Drawing.Point(99, 12);
+            this.fromTextBox.MaxLength = 14;
+            this.fromTextBox.Name = "fromTextBox";
+            this.fromTextBox.Size = new System.Drawing.Size(94, 19);
+            this.fromTextBox.TabIndex = 1;
+            // 
+            // isSetupCheckBox
+            // 
+            this.isSetupCheckBox.AutoSize = true;
+            this.isSetupCheckBox.Location = new System.Drawing.Point(132, 49);
+            this.isSetupCheckBox.Name = "isSetupCheckBox";
+            this.isSetupCheckBox.Size = new System.Drawing.Size(350, 16);
+            this.isSetupCheckBox.TabIndex = 3;
+            this.isSetupCheckBox.Text = "初期化して一からデータを作成する（２時間近くかかる場合があります）";
+            this.isSetupCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // quickGroupBox
+            // 
+            this.quickGroupBox.Controls.Add(this.quickPostButton);
+            this.quickGroupBox.Controls.Add(this.isQuickAutoPostCheckBox);
+            this.quickGroupBox.Controls.Add(this.autoPost2Label);
+            this.quickGroupBox.Controls.Add(this.autoPost1Label);
+            this.quickGroupBox.Controls.Add(this.quickAutoPostToTextBox);
+            this.quickGroupBox.Controls.Add(this.autoPost4Label);
+            this.quickGroupBox.Controls.Add(this.quickAutoPostIntervalTextBox);
+            this.quickGroupBox.Controls.Add(this.autoPost3Label);
+            this.quickGroupBox.Location = new System.Drawing.Point(156, 3);
+            this.quickGroupBox.Name = "quickGroupBox";
+            this.quickGroupBox.Size = new System.Drawing.Size(356, 100);
+            this.quickGroupBox.TabIndex = 2;
+            this.quickGroupBox.TabStop = false;
+            this.quickGroupBox.Text = "レース結果";
+            // 
+            // quickPostButton
+            // 
+            this.quickPostButton.Location = new System.Drawing.Point(6, 18);
+            this.quickPostButton.Name = "quickPostButton";
+            this.quickPostButton.Size = new System.Drawing.Size(114, 48);
+            this.quickPostButton.TabIndex = 1;
+            this.quickPostButton.Text = "レース結果\r\n（WEB登録）";
+            this.quickPostButton.UseVisualStyleBackColor = true;
+            this.quickPostButton.Click += new System.EventHandler(this.quickPostButton_Click);
+            // 
+            // isQuickAutoPostCheckBox
+            // 
+            this.isQuickAutoPostCheckBox.AutoSize = true;
+            this.isQuickAutoPostCheckBox.Location = new System.Drawing.Point(126, 18);
+            this.isQuickAutoPostCheckBox.Name = "isQuickAutoPostCheckBox";
+            this.isQuickAutoPostCheckBox.Size = new System.Drawing.Size(197, 16);
+            this.isQuickAutoPostCheckBox.TabIndex = 2;
+            this.isQuickAutoPostCheckBox.Text = "自動的にレース結果をWEB登録する";
+            this.isQuickAutoPostCheckBox.UseVisualStyleBackColor = true;
+            this.isQuickAutoPostCheckBox.CheckedChanged += new System.EventHandler(this.quickAutoPostSetting_Changed);
             // 
             // autoPost2Label
             // 
             this.autoPost2Label.AutoSize = true;
-            this.autoPost2Label.Location = new System.Drawing.Point(443, 45);
+            this.autoPost2Label.Location = new System.Drawing.Point(296, 43);
             this.autoPost2Label.Name = "autoPost2Label";
             this.autoPost2Label.Size = new System.Drawing.Size(41, 12);
             this.autoPost2Label.TabIndex = 24;
             this.autoPost2Label.Text = "分間隔";
             // 
-            // isAutoPostCheckBox
+            // autoPost1Label
             // 
-            this.isAutoPostCheckBox.AutoSize = true;
-            this.isAutoPostCheckBox.Location = new System.Drawing.Point(252, 20);
-            this.isAutoPostCheckBox.Name = "isAutoPostCheckBox";
-            this.isAutoPostCheckBox.Size = new System.Drawing.Size(197, 16);
-            this.isAutoPostCheckBox.TabIndex = 5;
-            this.isAutoPostCheckBox.Text = "自動的にレース結果をWEB登録する";
-            this.isAutoPostCheckBox.UseVisualStyleBackColor = true;
-            this.isAutoPostCheckBox.CheckedChanged += new System.EventHandler(this.autoPostSetting_Changed);
+            this.autoPost1Label.AutoSize = true;
+            this.autoPost1Label.Location = new System.Drawing.Point(232, 43);
+            this.autoPost1Label.Name = "autoPost1Label";
+            this.autoPost1Label.Size = new System.Drawing.Size(24, 12);
+            this.autoPost1Label.TabIndex = 26;
+            this.autoPost1Label.Text = "まで";
             // 
-            // isSetupCheckBox
+            // quickAutoPostToTextBox
             // 
-            this.isSetupCheckBox.AutoSize = true;
-            this.isSetupCheckBox.Location = new System.Drawing.Point(252, 188);
-            this.isSetupCheckBox.Name = "isSetupCheckBox";
-            this.isSetupCheckBox.Size = new System.Drawing.Size(350, 16);
-            this.isSetupCheckBox.TabIndex = 15;
-            this.isSetupCheckBox.Text = "初期化して一からデータを作成する（２時間近くかかる場合があります）";
-            this.isSetupCheckBox.UseVisualStyleBackColor = true;
+            this.quickAutoPostToTextBox.Location = new System.Drawing.Point(126, 40);
+            this.quickAutoPostToTextBox.MaxLength = 16;
+            this.quickAutoPostToTextBox.Name = "quickAutoPostToTextBox";
+            this.quickAutoPostToTextBox.Size = new System.Drawing.Size(100, 19);
+            this.quickAutoPostToTextBox.TabIndex = 3;
             // 
-            // fromTextBox
+            // autoPost4Label
             // 
-            this.fromTextBox.Location = new System.Drawing.Point(15, 175);
-            this.fromTextBox.Name = "fromTextBox";
-            this.fromTextBox.Size = new System.Drawing.Size(113, 19);
-            this.fromTextBox.TabIndex = 8;
+            this.autoPost4Label.AutoSize = true;
+            this.autoPost4Label.Location = new System.Drawing.Point(234, 62);
+            this.autoPost4Label.Name = "autoPost4Label";
+            this.autoPost4Label.Size = new System.Drawing.Size(13, 12);
+            this.autoPost4Label.TabIndex = 30;
+            this.autoPost4Label.Text = "　";
             // 
-            // umaStorageButton
+            // quickAutoPostIntervalTextBox
             // 
-            this.umaStorageButton.Location = new System.Drawing.Point(134, 165);
-            this.umaStorageButton.Name = "umaStorageButton";
-            this.umaStorageButton.Size = new System.Drawing.Size(114, 39);
-            this.umaStorageButton.TabIndex = 14;
-            this.umaStorageButton.Text = "馬情報\r\n（ファイル保存のみ）";
-            this.umaStorageButton.UseVisualStyleBackColor = true;
-            this.umaStorageButton.Click += new System.EventHandler(this.umaStorageButton_Click);
+            this.quickAutoPostIntervalTextBox.Location = new System.Drawing.Point(262, 40);
+            this.quickAutoPostIntervalTextBox.MaxLength = 2;
+            this.quickAutoPostIntervalTextBox.Name = "quickAutoPostIntervalTextBox";
+            this.quickAutoPostIntervalTextBox.Size = new System.Drawing.Size(28, 19);
+            this.quickAutoPostIntervalTextBox.TabIndex = 4;
             // 
-            // storagePostButton
+            // autoPost3Label
             // 
-            this.storagePostButton.Location = new System.Drawing.Point(12, 3);
-            this.storagePostButton.Name = "storagePostButton";
-            this.storagePostButton.Size = new System.Drawing.Size(114, 48);
-            this.storagePostButton.TabIndex = 3;
-            this.storagePostButton.Text = "出走馬情報\r\n（WEB登録）";
-            this.storagePostButton.UseVisualStyleBackColor = true;
-            this.storagePostButton.Click += new System.EventHandler(this.storagePostButton_Click);
+            this.autoPost3Label.AutoSize = true;
+            this.autoPost3Label.Location = new System.Drawing.Point(126, 62);
+            this.autoPost3Label.Name = "autoPost3Label";
+            this.autoPost3Label.Size = new System.Drawing.Size(107, 12);
+            this.autoPost3Label.TabIndex = 29;
+            this.autoPost3Label.Text = "次回WEB登録予定：";
             // 
-            // realTimePostButton
+            // raceGroupBox
             // 
-            this.realTimePostButton.Location = new System.Drawing.Point(132, 3);
-            this.realTimePostButton.Name = "realTimePostButton";
-            this.realTimePostButton.Size = new System.Drawing.Size(114, 48);
-            this.realTimePostButton.TabIndex = 4;
-            this.realTimePostButton.Text = "レース結果\r\n（WEB登録）";
-            this.realTimePostButton.UseVisualStyleBackColor = true;
-            this.realTimePostButton.Click += new System.EventHandler(this.realTimePostButton_Click);
+            this.raceGroupBox.Controls.Add(this.racePostButton);
+            this.raceGroupBox.Location = new System.Drawing.Point(12, 3);
+            this.raceGroupBox.Name = "raceGroupBox";
+            this.raceGroupBox.Size = new System.Drawing.Size(138, 83);
+            this.raceGroupBox.TabIndex = 1;
+            this.raceGroupBox.TabStop = false;
+            this.raceGroupBox.Text = "出走馬情報";
+            // 
+            // racePostButton
+            // 
+            this.racePostButton.Location = new System.Drawing.Point(6, 18);
+            this.racePostButton.Name = "racePostButton";
+            this.racePostButton.Size = new System.Drawing.Size(114, 48);
+            this.racePostButton.TabIndex = 1;
+            this.racePostButton.Text = "出走馬情報\r\n（WEB登録）";
+            this.racePostButton.UseVisualStyleBackColor = true;
+            this.racePostButton.Click += new System.EventHandler(this.racePostButton_Click);
             // 
             // axJVLink
             // 
             this.axJVLink.Enabled = true;
-            this.axJVLink.Location = new System.Drawing.Point(590, 301);
+            this.axJVLink.Location = new System.Drawing.Point(280, 241);
             this.axJVLink.Name = "axJVLink";
             this.axJVLink.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axJVLink.OcxState")));
             this.axJVLink.Size = new System.Drawing.Size(192, 192);
             this.axJVLink.TabIndex = 0;
-            // 
-            // realTimeButton
-            // 
-            this.realTimeButton.Location = new System.Drawing.Point(564, 57);
-            this.realTimeButton.Name = "realTimeButton";
-            this.realTimeButton.Size = new System.Drawing.Size(114, 48);
-            this.realTimeButton.TabIndex = 2;
-            this.realTimeButton.Text = "レース結果\r\n（ファイル保存のみ）";
-            this.realTimeButton.UseVisualStyleBackColor = true;
-            this.realTimeButton.Click += new System.EventHandler(this.realTimeButton_Click);
-            // 
-            // storageButton
-            // 
-            this.storageButton.Location = new System.Drawing.Point(564, 3);
-            this.storageButton.Name = "storageButton";
-            this.storageButton.Size = new System.Drawing.Size(114, 48);
-            this.storageButton.TabIndex = 1;
-            this.storageButton.Text = "出走馬情報\r\n(ファイル保存のみ)";
-            this.storageButton.UseVisualStyleBackColor = true;
-            this.storageButton.Click += new System.EventHandler(this.storageButton_Click);
             // 
             // mainMenuStrip
             // 
@@ -277,7 +337,7 @@
             this.helpToolStripMenuItem});
             this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.mainMenuStrip.Name = "mainMenuStrip";
-            this.mainMenuStrip.Size = new System.Drawing.Size(690, 26);
+            this.mainMenuStrip.Size = new System.Drawing.Size(524, 26);
             this.mainMenuStrip.TabIndex = 9;
             this.mainMenuStrip.Text = "menuStrip1";
             // 
@@ -351,20 +411,25 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(690, 419);
+            this.ClientSize = new System.Drawing.Size(524, 343);
             this.Controls.Add(this.mainToolStripContainer);
             this.Name = "MainForm";
             this.Text = "JV-Relay";
             this.mainToolStripContainer.BottomToolStripPanel.ResumeLayout(false);
             this.mainToolStripContainer.BottomToolStripPanel.PerformLayout();
             this.mainToolStripContainer.ContentPanel.ResumeLayout(false);
-            this.mainToolStripContainer.ContentPanel.PerformLayout();
             this.mainToolStripContainer.TopToolStripPanel.ResumeLayout(false);
             this.mainToolStripContainer.TopToolStripPanel.PerformLayout();
             this.mainToolStripContainer.ResumeLayout(false);
             this.mainToolStripContainer.PerformLayout();
             this.mainStatusStrip.ResumeLayout(false);
             this.mainStatusStrip.PerformLayout();
+            this.debugGroupBox.ResumeLayout(false);
+            this.umaGroupBox.ResumeLayout(false);
+            this.umaGroupBox.PerformLayout();
+            this.quickGroupBox.ResumeLayout(false);
+            this.quickGroupBox.PerformLayout();
+            this.raceGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.axJVLink)).EndInit();
             this.mainMenuStrip.ResumeLayout(false);
             this.mainMenuStrip.PerformLayout();
@@ -376,8 +441,8 @@
 
         private System.Windows.Forms.ToolStripContainer mainToolStripContainer;
         private AxJVDTLabLib.AxJVLink axJVLink;
-        private System.Windows.Forms.Button realTimeButton;
-        private System.Windows.Forms.Button storageButton;
+        private System.Windows.Forms.Button quickFileSaveButton;
+        private System.Windows.Forms.Button raceFileSaveButton;
         private System.Windows.Forms.StatusStrip mainStatusStrip;
         private System.Windows.Forms.ToolStripProgressBar mainToolStripProgressBar;
         private System.Windows.Forms.ToolStripStatusLabel mainToolStripStatusLabel;
@@ -390,19 +455,24 @@
         private System.Windows.Forms.ToolStripMenuItem readMeToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator helpToolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem aboutBoxToolStripMenuItem;
-        private System.Windows.Forms.Button realTimePostButton;
-        private System.Windows.Forms.Button storagePostButton;
+        private System.Windows.Forms.Button quickPostButton;
+        private System.Windows.Forms.Button racePostButton;
         private System.Windows.Forms.TextBox fromTextBox;
-        private System.Windows.Forms.Button umaStorageButton;
+        private System.Windows.Forms.Button umaFileSaveButton;
         private System.ComponentModel.BackgroundWorker mainBackgroundWorker;
         private System.Windows.Forms.CheckBox isSetupCheckBox;
-        private System.Windows.Forms.TextBox autoPostIntervalTextBox;
-        private System.Windows.Forms.TextBox autoPostToTextBox;
+        private System.Windows.Forms.TextBox quickAutoPostIntervalTextBox;
+        private System.Windows.Forms.TextBox quickAutoPostToTextBox;
         private System.Windows.Forms.Label autoPost1Label;
         private System.Windows.Forms.Label autoPost2Label;
-        private System.Windows.Forms.CheckBox isAutoPostCheckBox;
+        private System.Windows.Forms.CheckBox isQuickAutoPostCheckBox;
         private System.Windows.Forms.Label autoPost4Label;
         private System.Windows.Forms.Label autoPost3Label;
+        private System.Windows.Forms.Label fromLabel;
+        private System.Windows.Forms.GroupBox raceGroupBox;
+        private System.Windows.Forms.GroupBox debugGroupBox;
+        private System.Windows.Forms.GroupBox umaGroupBox;
+        private System.Windows.Forms.GroupBox quickGroupBox;
     }
 }
 
