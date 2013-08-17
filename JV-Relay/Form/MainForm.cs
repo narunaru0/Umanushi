@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
+using System.Runtime.InteropServices;
+using Microsoft.Win32.SafeHandles;
 
 namespace JVRelay
 {
@@ -15,6 +17,7 @@ namespace JVRelay
     {
         #region privateフィールド
         private System.Windows.Forms.Timer quickAutoPostTimer = new System.Windows.Forms.Timer();
+        private System.Windows.Forms.Timer raceAutoPostTimer = new System.Windows.Forms.Timer();
         #endregion
 
         #region プロパティ
@@ -132,6 +135,14 @@ namespace JVRelay
                     MessageBoxIcon.Error);
                 return;
             }
+            if (isRaceAutoPostCheckBox.Checked == true)
+            {
+                // 自動POSTの場合は設定を解除
+                isRaceAutoPostCheckBox.Checked = false;
+                raceAutoPostTimer.Tick -= new EventHandler(racePostButton_Click);
+                raceAutoPostTimer.Enabled = false;
+                raceAutoPost2Label.Text = "---";
+            }
 
             JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eRACE;
             JVRelayClass.JVDataSpec = JVRelayClass.eJVDataSpec.eRACE.ToString().Substring(1);
@@ -141,6 +152,50 @@ namespace JVRelay
             JVRelayClass.IsSaveFile = false;
             JVRelayClass.IsPostFile = true;
             mainBackgroundWorker.RunWorkerAsync();
+        }
+
+        /// <summary>
+        /// isRaceAutoPostCheckBox変更イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void isRaceAutoPostCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (isRaceAutoPostCheckBox.Checked == true)
+            {
+                DateTime fromDateTime;
+                if (DateTime.TryParse(raceAutoPostFromTextBox.Text, out fromDateTime) == false)
+                {
+                    MessageBox.Show("有効な日時を入力してください。",
+                        "入力値エラー",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    isRaceAutoPostCheckBox.Checked = false;
+                    return;
+                }
+                if (0 > fromDateTime.CompareTo(DateTime.Now))
+                {
+                    MessageBox.Show("有効な日時を入力してください。",
+                        "入力値エラー",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    isRaceAutoPostCheckBox.Checked = false;
+                    return;
+                }
+
+                TimeSpan ts = fromDateTime - DateTime.Now;
+                int interval = (int)ts.TotalMilliseconds;
+                raceAutoPostTimer.Tick += new EventHandler(racePostButton_Click);
+                raceAutoPostTimer.Interval = interval;
+                raceAutoPostTimer.Enabled = true;
+                raceAutoPost2Label.Text = fromDateTime.ToString("yyyy/MM/dd HH:mm頃");
+            }
+            else
+            {
+                raceAutoPostTimer.Tick -= new EventHandler(racePostButton_Click);
+                raceAutoPostTimer.Enabled = false;
+                raceAutoPost2Label.Text = "---";
+            }
         }
 
         /// <summary>
@@ -177,11 +232,11 @@ namespace JVRelay
                 {
                     quickAutoPostTimer.Tick -= new EventHandler(quickPostButton_Click);
                     quickAutoPostTimer.Enabled = false;
-                    autoPost4Label.Text = "---";
+                    quickAutoPost4Label.Text = "---";
                 }
                 else
                 {
-                    autoPost4Label.Text = DateTime.Now.AddMilliseconds(quickAutoPostTimer.Interval).ToString("yyyy/MM/dd HH:mm:ss頃");
+                    quickAutoPost4Label.Text = DateTime.Now.AddMilliseconds(quickAutoPostTimer.Interval).ToString("yyyy/MM/dd HH:mm:ss頃");
                 }
             }
             if (mainBackgroundWorker.IsBusy == true)
@@ -207,9 +262,11 @@ namespace JVRelay
         }
 
         /// <summary>
-        /// 自動POST設定値変更イベントハンドラ
+        /// isQuickAutoPostCheckBox変更イベントハンドラ
         /// </summary>
-        private void quickAutoPostSetting_Changed(object sender, EventArgs e)
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void isQuickAutoPostCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (isQuickAutoPostCheckBox.Checked == true)
             {
@@ -264,13 +321,13 @@ namespace JVRelay
                 quickAutoPostTimer.Tick += new EventHandler(quickPostButton_Click);
                 quickAutoPostTimer.Interval = interval * 60 * 1000;
                 quickAutoPostTimer.Enabled = true;
-                autoPost4Label.Text = DateTime.Now.AddMilliseconds(quickAutoPostTimer.Interval).ToString("yyyy/MM/dd HH:mm:ss頃");
+                quickAutoPost4Label.Text = DateTime.Now.AddMilliseconds(quickAutoPostTimer.Interval).ToString("yyyy/MM/dd HH:mm:ss頃");
             }
             else
             {
                 quickAutoPostTimer.Tick -= new EventHandler(quickPostButton_Click);
                 quickAutoPostTimer.Enabled = false;
-                autoPost4Label.Text = "---";
+                quickAutoPost4Label.Text = "---";
             }
         }
 
@@ -452,6 +509,7 @@ namespace JVRelay
             // JVRelay初期化
             JVRelayClass.Initialize(axJVLink, mainBackgroundWorker);
 
+            raceAutoPostFromTextBox.Text = DateTime.Now.AddMinutes(1).ToString("yyyy/MM/dd HH:mm");
             quickAutoPostToTextBox.Text = DateTime.Today.AddHours(17).ToString("yyyy/MM/dd HH:mm");
             quickAutoPostIntervalTextBox.Text = "5";
             if (JVRelayClass.DbTimeStamp == "")
