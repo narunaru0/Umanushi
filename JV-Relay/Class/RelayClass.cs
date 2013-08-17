@@ -378,12 +378,15 @@ namespace JVRelay
                                 break;
 
                             default:
-                                // 対象外recspecのファイルをスキップする。
-                                AxJVLink.JVSkip();
-                                nCount++;
-                                ProgressUserState.Value = nCount;
-                                ProgressUserState.Text = "データ読み込み中...";
-                                MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                                if (JVDataAccessType == eJVDataAccessType.eRACE)
+                                {
+                                    // 対象外recspecのファイルをスキップする。
+                                    AxJVLink.JVSkip();
+                                    nCount++;
+                                    ProgressUserState.Value = nCount;
+                                    ProgressUserState.Text = "データ読み込み中...";
+                                    MainBackgroundWorker.ReportProgress(0, ProgressUserState);
+                                }
                                 break;
                         }
                     }

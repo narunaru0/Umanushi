@@ -573,7 +573,6 @@ namespace JVRelay
                 JVRelayClass.JVClosing();
             }
 
-            //sslMain.Text = "データ読み込み完了";
             JVRelayClass.ProgressUserState.Value = JVRelayClass.ProgressUserState.Maxinum;
             JVRelayClass.ProgressUserState.Text = "データ読み込み完了";
             mainBackgroundWorker.ReportProgress(0, JVRelayClass.ProgressUserState);
