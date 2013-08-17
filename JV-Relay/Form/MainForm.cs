@@ -435,6 +435,7 @@ namespace JVRelay
             if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eUMA)
             {
                 fromTextBox.Text = JVRelayClass.DbTimeStamp;
+                isSetupCheckBox.Checked = false;
             }
 
             mainToolStripProgressBar.Value = mainToolStripProgressBar.Maximum;

@@ -197,9 +197,9 @@
             this.isSetupCheckBox.AutoSize = true;
             this.isSetupCheckBox.Location = new System.Drawing.Point(252, 188);
             this.isSetupCheckBox.Name = "isSetupCheckBox";
-            this.isSetupCheckBox.Size = new System.Drawing.Size(307, 16);
+            this.isSetupCheckBox.Size = new System.Drawing.Size(350, 16);
             this.isSetupCheckBox.TabIndex = 15;
-            this.isSetupCheckBox.Text = "初期化して一からデータを作成する（数十分以上かかります）";
+            this.isSetupCheckBox.Text = "初期化して一からデータを作成する（２時間近くかかる場合があります）";
             this.isSetupCheckBox.UseVisualStyleBackColor = true;
             // 
             // fromTextBox
