@@ -194,13 +194,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Lib\SQLite.Interop.dll" />
     <Content Include="Lib\System.Data.SQLite.dll" />
     <Content Include="Lib\System.Data.SQLite.Linq.dll" />
+    <Content Include="Lib\x64\SQLite.Interop.dll" />
+    <Content Include="Lib\x86\SQLite.Interop.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(ProjectDir)Lib\*.dll $(TargetDir) /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy $(ProjectDir)Lib\*.* $(TargetDir) /S /Y
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
