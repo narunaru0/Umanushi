@@ -17,7 +17,8 @@ namespace JVRelay
     {
         #region privateフィールド
         private System.Windows.Forms.Timer quickAutoPostTimer = new System.Windows.Forms.Timer();
-        private System.Windows.Forms.Timer raceAutoPostTimer = new System.Windows.Forms.Timer();
+        private WakeUPTimer wakeUpTimer = new WakeUPTimer();
+
         #endregion
 
         #region プロパティ
@@ -133,6 +134,7 @@ namespace JVRelay
                 mainToolStripStatusLabel.Text += "ビジー状態です。";
                 return;
             }
+
             if (SettingsClass.Setting.IsPost == false)
             {
                 MessageBox.Show("WEB登録の設定が無効です。" + Environment.NewLine + "[ツール]-[オプション]からWEB登録に必要な設定を行ってください。",
@@ -145,9 +147,6 @@ namespace JVRelay
             {
                 // 自動POSTの場合は設定を解除
                 isRaceAutoPostCheckBox.Checked = false;
-                raceAutoPostTimer.Tick -= new EventHandler(racePostButton_Click);
-                raceAutoPostTimer.Enabled = false;
-                raceAutoPost2Label.Text = "---";
             }
 
             int fromInterval = DayOfWeek.Tuesday - DateTime.Today.DayOfWeek;
@@ -195,17 +194,13 @@ namespace JVRelay
                     return;
                 }
 
-                TimeSpan ts = fromDateTime - DateTime.Now;
-                int interval = (int)ts.TotalMilliseconds;
-                raceAutoPostTimer.Tick += new EventHandler(racePostButton_Click);
-                raceAutoPostTimer.Interval = interval;
-                raceAutoPostTimer.Enabled = true;
+                wakeUpTimer.Woken += new EventHandler(racePostButton_Click);
+                wakeUpTimer.SetWakeUpTime(fromDateTime.ToUniversalTime());
                 raceAutoPost2Label.Text = fromDateTime.ToString("yyyy/MM/dd HH:mm頃");
             }
             else
             {
-                raceAutoPostTimer.Tick -= new EventHandler(racePostButton_Click);
-                raceAutoPostTimer.Enabled = false;
+                wakeUpTimer.Woken -= new EventHandler(racePostButton_Click);
                 raceAutoPost2Label.Text = "---";
             }
         }

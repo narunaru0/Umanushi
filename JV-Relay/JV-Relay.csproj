@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class\JVData_Struct.cs" />
+    <Compile Include="Class\WakeUPTimer.cs" />
     <Compile Include="Class\WebUtilityClass.cs" />
     <Compile Include="Class\RelayClass.cs" />
     <Compile Include="Form\AboutBoxForm.cs">
