@@ -70,6 +70,7 @@
             this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.aboutBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.umaPostButton = new System.Windows.Forms.Button();
             this.mainToolStripContainer.BottomToolStripPanel.SuspendLayout();
             this.mainToolStripContainer.ContentPanel.SuspendLayout();
             this.mainToolStripContainer.TopToolStripPanel.SuspendLayout();
@@ -134,11 +135,12 @@
             // 
             // debugGroupBox
             // 
+            this.debugGroupBox.Controls.Add(this.umaFileSaveButton);
             this.debugGroupBox.Controls.Add(this.raceFileSaveButton);
             this.debugGroupBox.Controls.Add(this.quickFileSaveButton);
             this.debugGroupBox.Location = new System.Drawing.Point(12, 269);
             this.debugGroupBox.Name = "debugGroupBox";
-            this.debugGroupBox.Size = new System.Drawing.Size(258, 77);
+            this.debugGroupBox.Size = new System.Drawing.Size(419, 77);
             this.debugGroupBox.TabIndex = 4;
             this.debugGroupBox.TabStop = false;
             this.debugGroupBox.Text = "デバッグ用";
@@ -165,7 +167,7 @@
             // 
             // umaGroupBox
             // 
-            this.umaGroupBox.Controls.Add(this.umaFileSaveButton);
+            this.umaGroupBox.Controls.Add(this.umaPostButton);
             this.umaGroupBox.Controls.Add(this.fromLabel);
             this.umaGroupBox.Controls.Add(this.fromTextBox);
             this.umaGroupBox.Controls.Add(this.isSetupCheckBox);
@@ -178,10 +180,10 @@
             // 
             // umaFileSaveButton
             // 
-            this.umaFileSaveButton.Location = new System.Drawing.Point(6, 37);
+            this.umaFileSaveButton.Location = new System.Drawing.Point(246, 18);
             this.umaFileSaveButton.Name = "umaFileSaveButton";
-            this.umaFileSaveButton.Size = new System.Drawing.Size(114, 39);
-            this.umaFileSaveButton.TabIndex = 2;
+            this.umaFileSaveButton.Size = new System.Drawing.Size(114, 48);
+            this.umaFileSaveButton.TabIndex = 3;
             this.umaFileSaveButton.Text = "馬情報\r\n（ファイル保存のみ）";
             this.umaFileSaveButton.UseVisualStyleBackColor = true;
             this.umaFileSaveButton.Click += new System.EventHandler(this.umaFileSaveButton_Click);
@@ -370,7 +372,7 @@
             this.axJVLink.Location = new System.Drawing.Point(280, 287);
             this.axJVLink.Name = "axJVLink";
             this.axJVLink.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axJVLink.OcxState")));
-            this.axJVLink.Size = new System.Drawing.Size(85, 48);
+            this.axJVLink.Size = new System.Drawing.Size(192, 192);
             this.axJVLink.TabIndex = 0;
             // 
             // mainMenuStrip
@@ -452,6 +454,16 @@
             this.mainBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.mainBackgroundWorker_ProgressChanged);
             this.mainBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.mainBackgroundWorker_RunWorkerCompleted);
             // 
+            // umaPostButton
+            // 
+            this.umaPostButton.Location = new System.Drawing.Point(6, 30);
+            this.umaPostButton.Name = "umaPostButton";
+            this.umaPostButton.Size = new System.Drawing.Size(114, 48);
+            this.umaPostButton.TabIndex = 2;
+            this.umaPostButton.Text = "馬情報\r\n（WEB登録）";
+            this.umaPostButton.UseVisualStyleBackColor = true;
+            this.umaPostButton.Click += new System.EventHandler(this.umaPostButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -523,6 +535,7 @@
         private System.Windows.Forms.TextBox raceAutoPostFromTextBox;
         private System.Windows.Forms.Label raceAutoPost2Label;
         private System.Windows.Forms.Label raceAutoPost1Label;
+        private System.Windows.Forms.Button umaPostButton;
     }
 }
 

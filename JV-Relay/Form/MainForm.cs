@@ -339,7 +339,7 @@ namespace JVRelay
         }
 
         /// <summary>
-        /// umaFileSaveButtonボタン押下イベントハンドラ
+        /// umaFileSaveButton押下イベントハンドラ
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -400,6 +400,80 @@ namespace JVRelay
             JVRelayClass.ToDate = "";
             JVRelayClass.IsSaveFile = true;
             JVRelayClass.IsPostFile = false;
+            mainBackgroundWorker.RunWorkerAsync();
+        }
+
+        /// <summary>
+        /// umaPostButton押下イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void umaPostButton_Click(object sender, EventArgs e)
+        {
+            if (mainBackgroundWorker.IsBusy == true)
+            {
+                mainToolStripStatusLabel.Text += "ビジー状態です。";
+                return;
+            }
+
+            if (SettingsClass.Setting.IsPost == false)
+            {
+                MessageBox.Show("WEB登録の設定が無効です。" + Environment.NewLine + "[ツール]-[オプション]からWEB登録に必要な設定を行ってください。",
+                    "実行エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            DateTime fromDate;
+            int option;
+
+            #region 入力値
+            if (isSetupCheckBox.Checked == true)
+            {
+                option = (int)JVRelayClass.eJVOpenFlag.SetupSkipDialog;
+                fromDate = new DateTime(DateTime.Today.Year - 3, 1, 1);
+            }
+            else
+            {
+                option = (int)JVRelayClass.eJVOpenFlag.Normal;
+
+                if (14 == fromTextBox.Text.Length)
+                {
+                    string s = string.Format("{0}/{1}/{2} {3}:{4}:{5}",
+                        fromTextBox.Text.Substring(0, 4),
+                        fromTextBox.Text.Substring(4, 2),
+                        fromTextBox.Text.Substring(6, 2),
+                        fromTextBox.Text.Substring(8, 2),
+                        fromTextBox.Text.Substring(10, 2),
+                        fromTextBox.Text.Substring(12, 2));
+                    if (!DateTime.TryParse(s, out fromDate))
+                    {
+                        MessageBox.Show("有効な日時を入力してください。",
+                            "入力値エラー",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("有効な日時を入力してください。",
+                        "入力値エラー",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            #endregion
+
+            JVRelayClass.JVDataAccessType = JVRelayClass.eJVDataAccessType.eUMA;
+            JVRelayClass.JVDataSpec = "RACEDIFF";
+            JVRelayClass.Option = option;
+            JVRelayClass.FromDate = fromDate.ToString("yyyyMMddHHmmss");
+            JVRelayClass.ToDate = "";
+            JVRelayClass.IsSaveFile = false;
+            JVRelayClass.IsPostFile = true;
             mainBackgroundWorker.RunWorkerAsync();
         }
 
@@ -476,7 +550,7 @@ namespace JVRelay
                 string errorMessage;
                 if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eQUICK)
                 {
-                    WebUtilityClass.HttpPostJVRTRelay(out isError, out errorMessage);
+                    WebUtilityClass.HttpPostQuickRelay(out isError, out errorMessage);
                     if (isError == true)
                     {
                         mainToolStripProgressBar.Value = mainToolStripProgressBar.Maximum;
@@ -486,7 +560,17 @@ namespace JVRelay
                 }
                 else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eRACE)
                 {
-                    WebUtilityClass.HttpPostJVRelay(out isError, out errorMessage);
+                    WebUtilityClass.HttpPostRaceRelay(out isError, out errorMessage);
+                    if (isError == true)
+                    {
+                        mainToolStripProgressBar.Value = mainToolStripProgressBar.Maximum;
+                        mainToolStripStatusLabel.Text = errorMessage;
+                        return;
+                    }
+                }
+                else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eUMA)
+                {
+                    WebUtilityClass.HttpPostUmaRelay(out isError, out errorMessage);
                     if (isError == true)
                     {
                         mainToolStripProgressBar.Value = mainToolStripProgressBar.Maximum;

@@ -12,12 +12,12 @@ namespace JVRelay
     static class WebUtilityClass
     {
         /// <summary>
-        /// JVRelayをHTTPでPOST処理
+        /// 出走馬情報をHTTPでPOSTする
         /// </summary>
         /// <param name="isError">エラーか</param>
         /// <param name="errorMessage">エラーメッセージ</param>
         /// <returns>POST結果</returns>
-        public static string HttpPostJVRelay(out bool isError, out string errorMessage)
+        public static string HttpPostRaceRelay(out bool isError, out string errorMessage)
         {
             string result = "";
             string url;
@@ -50,7 +50,7 @@ namespace JVRelay
                 }
                 querystring.Clear();
 
-                // レースデータ送信
+                // 出走馬情報データ送信
                 url = "http://www.umanushi.com/race/admin/";
                 fileFormName = "NEWRACEFILE";
                 querystring["Fnc"] = "Update";
@@ -64,12 +64,12 @@ namespace JVRelay
         }
 
         /// <summary>
-        /// JVRTRelayをHTTPでPOST処理
+        /// レース結果をHTTPでPOSTする
         /// </summary>
         /// <param name="isError">エラーか</param>
         /// <param name="errorMessage">エラーメッセージ</param>
         /// <returns>POST結果</returns>
-        public static string HttpPostJVRTRelay(out bool isError, out string errorMessage)
+        public static string HttpPostQuickRelay(out bool isError, out string errorMessage)
         {
             string result = "";
             string url;
@@ -107,6 +107,58 @@ namespace JVRelay
                 fileFormName = "NEWRESULTFILE1";
                 querystring["Fnc"] = "Update";
                 querystring["Mode"] = "RaceResult";
+
+                result = WebUtilityClass.HttpPostFile(url, new MemoryStream(System.Text.Encoding.GetEncoding("Shift-JIS").GetBytes(JVRelayClass.Output.ToString())),
+                    @"c:\dummy.csv", fileFormName, "application/vnd.ms-excel", querystring, cookies);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 馬情報をHTTPでPOSTする
+        /// </summary>
+        /// <param name="isError">エラーか</param>
+        /// <param name="errorMessage">エラーメッセージ</param>
+        /// <returns>POST結果</returns>
+        public static string HttpPostUmaRelay(out bool isError, out string errorMessage)
+        {
+            string result = "";
+            string url;
+            string fileFormName;
+
+            isError = false;
+            errorMessage = string.Empty;
+
+            NameValueCollection querystring = new NameValueCollection();
+            CookieContainer cookies = new CookieContainer();
+
+            if (SettingsClass.Setting.IsPost == true)
+            {
+                // 認証
+                querystring["Fnc"] = "Login";
+                querystring["Props"] = "/login/";
+                querystring["USR"] = SettingsClass.Setting.PostUserName;
+                querystring["PWD"] = SettingsClass.Setting.PostPassword;
+                url = "http://www.umanushi.com/login/";
+                result = WebUtilityClass.HttpPost(url, querystring, cookies);
+                if (cookies.Count == 0)
+                {
+                    // 認証に失敗
+                    isError = true;
+                    errorMessage = string.Format("ログインに失敗しました。ユーザー名=[{1}]、パスワード=[{2}]",
+                        url,
+                        SettingsClass.Setting.PostUserName,
+                        SettingsClass.Setting.PostPassword);
+                    return result;
+                }
+                querystring.Clear();
+
+                // 馬情報データ送信
+                url = "http://www.umanushi.com/balister/admin/";
+                fileFormName = "NEWBALISTERFILE";
+                querystring["Fnc"] = "Update";
+                querystring["Mode"] = "AddNewList";
 
                 result = WebUtilityClass.HttpPostFile(url, new MemoryStream(System.Text.Encoding.GetEncoding("Shift-JIS").GetBytes(JVRelayClass.Output.ToString())),
                     @"c:\dummy.csv", fileFormName, "application/vnd.ms-excel", querystring, cookies);
