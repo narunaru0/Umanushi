@@ -38,13 +38,16 @@
             this.mainToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.debugGroupBox = new System.Windows.Forms.GroupBox();
             this.umaFileSaveButton = new System.Windows.Forms.Button();
-            this.raceFileSaveButton = new System.Windows.Forms.Button();
-            this.quickFileSaveButton = new System.Windows.Forms.Button();
-            this.umaGroupBox = new System.Windows.Forms.GroupBox();
-            this.umaPostButton = new System.Windows.Forms.Button();
             this.fromLabel = new System.Windows.Forms.Label();
+            this.raceFileSaveButton = new System.Windows.Forms.Button();
             this.fromTextBox = new System.Windows.Forms.TextBox();
+            this.quickFileSaveButton = new System.Windows.Forms.Button();
             this.isSetupCheckBox = new System.Windows.Forms.CheckBox();
+            this.umaGroupBox = new System.Windows.Forms.GroupBox();
+            this.umaAutoPost1Label = new System.Windows.Forms.Label();
+            this.umaPostButton = new System.Windows.Forms.Button();
+            this.umaAutoPostFromTextBox = new System.Windows.Forms.TextBox();
+            this.isUmaAutoPostCheckBox = new System.Windows.Forms.CheckBox();
             this.quickGroupBox = new System.Windows.Forms.GroupBox();
             this.quickPostButton = new System.Windows.Forms.Button();
             this.isQuickAutoPostCheckBox = new System.Windows.Forms.CheckBox();
@@ -71,6 +74,7 @@
             this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.aboutBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.umaAutoPost2Label = new System.Windows.Forms.Label();
             this.mainToolStripContainer.BottomToolStripPanel.SuspendLayout();
             this.mainToolStripContainer.ContentPanel.SuspendLayout();
             this.mainToolStripContainer.TopToolStripPanel.SuspendLayout();
@@ -98,11 +102,11 @@
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.quickGroupBox);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.raceGroupBox);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.axJVLink);
-            this.mainToolStripContainer.ContentPanel.Size = new System.Drawing.Size(524, 402);
+            this.mainToolStripContainer.ContentPanel.Size = new System.Drawing.Size(484, 394);
             this.mainToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainToolStripContainer.Location = new System.Drawing.Point(0, 0);
             this.mainToolStripContainer.Name = "mainToolStripContainer";
-            this.mainToolStripContainer.Size = new System.Drawing.Size(524, 451);
+            this.mainToolStripContainer.Size = new System.Drawing.Size(484, 443);
             this.mainToolStripContainer.TabIndex = 5;
             this.mainToolStripContainer.Text = "toolStripContainer1";
             // 
@@ -118,7 +122,7 @@
             this.mainToolStripStatusLabel});
             this.mainStatusStrip.Location = new System.Drawing.Point(0, 0);
             this.mainStatusStrip.Name = "mainStatusStrip";
-            this.mainStatusStrip.Size = new System.Drawing.Size(524, 23);
+            this.mainStatusStrip.Size = new System.Drawing.Size(484, 23);
             this.mainStatusStrip.TabIndex = 3;
             this.mainStatusStrip.Text = "statusStrip1";
             // 
@@ -136,25 +140,36 @@
             // debugGroupBox
             // 
             this.debugGroupBox.Controls.Add(this.umaFileSaveButton);
+            this.debugGroupBox.Controls.Add(this.fromLabel);
             this.debugGroupBox.Controls.Add(this.raceFileSaveButton);
+            this.debugGroupBox.Controls.Add(this.fromTextBox);
             this.debugGroupBox.Controls.Add(this.quickFileSaveButton);
             this.debugGroupBox.Controls.Add(this.isSetupCheckBox);
-            this.debugGroupBox.Location = new System.Drawing.Point(12, 269);
+            this.debugGroupBox.Location = new System.Drawing.Point(12, 261);
             this.debugGroupBox.Name = "debugGroupBox";
-            this.debugGroupBox.Size = new System.Drawing.Size(460, 113);
+            this.debugGroupBox.Size = new System.Drawing.Size(469, 127);
             this.debugGroupBox.TabIndex = 4;
             this.debugGroupBox.TabStop = false;
             this.debugGroupBox.Text = "デバッグ用";
             // 
             // umaFileSaveButton
             // 
-            this.umaFileSaveButton.Location = new System.Drawing.Point(246, 18);
+            this.umaFileSaveButton.Location = new System.Drawing.Point(148, 43);
             this.umaFileSaveButton.Name = "umaFileSaveButton";
             this.umaFileSaveButton.Size = new System.Drawing.Size(114, 48);
             this.umaFileSaveButton.TabIndex = 3;
             this.umaFileSaveButton.Text = "馬情報\r\n（ファイル保存のみ）";
             this.umaFileSaveButton.UseVisualStyleBackColor = true;
             this.umaFileSaveButton.Click += new System.EventHandler(this.umaFileSaveButton_Click);
+            // 
+            // fromLabel
+            // 
+            this.fromLabel.AutoSize = true;
+            this.fromLabel.Location = new System.Drawing.Point(148, 21);
+            this.fromLabel.Name = "fromLabel";
+            this.fromLabel.Size = new System.Drawing.Size(99, 12);
+            this.fromLabel.TabIndex = 31;
+            this.fromLabel.Text = "登録済データ日時：";
             // 
             // raceFileSaveButton
             // 
@@ -166,9 +181,17 @@
             this.raceFileSaveButton.UseVisualStyleBackColor = true;
             this.raceFileSaveButton.Click += new System.EventHandler(this.raceFileSaveButton_Click);
             // 
+            // fromTextBox
+            // 
+            this.fromTextBox.Location = new System.Drawing.Point(253, 18);
+            this.fromTextBox.MaxLength = 14;
+            this.fromTextBox.Name = "fromTextBox";
+            this.fromTextBox.Size = new System.Drawing.Size(94, 19);
+            this.fromTextBox.TabIndex = 1;
+            // 
             // quickFileSaveButton
             // 
-            this.quickFileSaveButton.Location = new System.Drawing.Point(126, 18);
+            this.quickFileSaveButton.Location = new System.Drawing.Point(6, 72);
             this.quickFileSaveButton.Name = "quickFileSaveButton";
             this.quickFileSaveButton.Size = new System.Drawing.Size(114, 48);
             this.quickFileSaveButton.TabIndex = 2;
@@ -176,21 +199,42 @@
             this.quickFileSaveButton.UseVisualStyleBackColor = true;
             this.quickFileSaveButton.Click += new System.EventHandler(this.quickFileSaveButton_Click);
             // 
+            // isSetupCheckBox
+            // 
+            this.isSetupCheckBox.AutoSize = true;
+            this.isSetupCheckBox.Location = new System.Drawing.Point(268, 54);
+            this.isSetupCheckBox.Name = "isSetupCheckBox";
+            this.isSetupCheckBox.Size = new System.Drawing.Size(188, 28);
+            this.isSetupCheckBox.TabIndex = 3;
+            this.isSetupCheckBox.Text = "初期化して一からデータを作成する\r\n（２時間近くかかる場合があります）";
+            this.isSetupCheckBox.UseVisualStyleBackColor = true;
+            // 
             // umaGroupBox
             // 
+            this.umaGroupBox.Controls.Add(this.umaAutoPost2Label);
+            this.umaGroupBox.Controls.Add(this.umaAutoPost1Label);
             this.umaGroupBox.Controls.Add(this.umaPostButton);
-            this.umaGroupBox.Controls.Add(this.fromLabel);
-            this.umaGroupBox.Controls.Add(this.fromTextBox);
+            this.umaGroupBox.Controls.Add(this.umaAutoPostFromTextBox);
+            this.umaGroupBox.Controls.Add(this.isUmaAutoPostCheckBox);
             this.umaGroupBox.Location = new System.Drawing.Point(12, 175);
             this.umaGroupBox.Name = "umaGroupBox";
-            this.umaGroupBox.Size = new System.Drawing.Size(494, 88);
+            this.umaGroupBox.Size = new System.Drawing.Size(469, 80);
             this.umaGroupBox.TabIndex = 3;
             this.umaGroupBox.TabStop = false;
             this.umaGroupBox.Text = "馬情報";
             // 
+            // umaAutoPost1Label
+            // 
+            this.umaAutoPost1Label.AutoSize = true;
+            this.umaAutoPost1Label.Location = new System.Drawing.Point(126, 62);
+            this.umaAutoPost1Label.Name = "umaAutoPost1Label";
+            this.umaAutoPost1Label.Size = new System.Drawing.Size(107, 12);
+            this.umaAutoPost1Label.TabIndex = 34;
+            this.umaAutoPost1Label.Text = "次回WEB登録予定：";
+            // 
             // umaPostButton
             // 
-            this.umaPostButton.Location = new System.Drawing.Point(6, 34);
+            this.umaPostButton.Location = new System.Drawing.Point(6, 18);
             this.umaPostButton.Name = "umaPostButton";
             this.umaPostButton.Size = new System.Drawing.Size(114, 48);
             this.umaPostButton.TabIndex = 2;
@@ -198,32 +242,24 @@
             this.umaPostButton.UseVisualStyleBackColor = true;
             this.umaPostButton.Click += new System.EventHandler(this.umaPostButton_Click);
             // 
-            // fromLabel
+            // umaAutoPostFromTextBox
             // 
-            this.fromLabel.AutoSize = true;
-            this.fromLabel.Location = new System.Drawing.Point(6, 15);
-            this.fromLabel.Name = "fromLabel";
-            this.fromLabel.Size = new System.Drawing.Size(99, 12);
-            this.fromLabel.TabIndex = 31;
-            this.fromLabel.Text = "登録済データ日時：";
+            this.umaAutoPostFromTextBox.Location = new System.Drawing.Point(126, 40);
+            this.umaAutoPostFromTextBox.MaxLength = 16;
+            this.umaAutoPostFromTextBox.Name = "umaAutoPostFromTextBox";
+            this.umaAutoPostFromTextBox.Size = new System.Drawing.Size(100, 19);
+            this.umaAutoPostFromTextBox.TabIndex = 32;
             // 
-            // fromTextBox
+            // isUmaAutoPostCheckBox
             // 
-            this.fromTextBox.Location = new System.Drawing.Point(111, 12);
-            this.fromTextBox.MaxLength = 14;
-            this.fromTextBox.Name = "fromTextBox";
-            this.fromTextBox.Size = new System.Drawing.Size(94, 19);
-            this.fromTextBox.TabIndex = 1;
-            // 
-            // isSetupCheckBox
-            // 
-            this.isSetupCheckBox.AutoSize = true;
-            this.isSetupCheckBox.Location = new System.Drawing.Point(256, 72);
-            this.isSetupCheckBox.Name = "isSetupCheckBox";
-            this.isSetupCheckBox.Size = new System.Drawing.Size(188, 28);
-            this.isSetupCheckBox.TabIndex = 3;
-            this.isSetupCheckBox.Text = "初期化して一からデータを作成する\r\n（２時間近くかかる場合があります）";
-            this.isSetupCheckBox.UseVisualStyleBackColor = true;
+            this.isUmaAutoPostCheckBox.AutoSize = true;
+            this.isUmaAutoPostCheckBox.Location = new System.Drawing.Point(126, 18);
+            this.isUmaAutoPostCheckBox.Name = "isUmaAutoPostCheckBox";
+            this.isUmaAutoPostCheckBox.Size = new System.Drawing.Size(181, 16);
+            this.isUmaAutoPostCheckBox.TabIndex = 33;
+            this.isUmaAutoPostCheckBox.Text = "自動的に馬情報をWEB登録する";
+            this.isUmaAutoPostCheckBox.UseVisualStyleBackColor = true;
+            this.isUmaAutoPostCheckBox.CheckedChanged += new System.EventHandler(this.isUmaAutoPostCheckBox_CheckedChanged);
             // 
             // quickGroupBox
             // 
@@ -332,7 +368,7 @@
             // raceAutoPost2Label
             // 
             this.raceAutoPost2Label.AutoSize = true;
-            this.raceAutoPost2Label.Location = new System.Drawing.Point(234, 62);
+            this.raceAutoPost2Label.Location = new System.Drawing.Point(239, 62);
             this.raceAutoPost2Label.Name = "raceAutoPost2Label";
             this.raceAutoPost2Label.Size = new System.Drawing.Size(13, 12);
             this.raceAutoPost2Label.TabIndex = 31;
@@ -394,7 +430,7 @@
             this.helpToolStripMenuItem});
             this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.mainMenuStrip.Name = "mainMenuStrip";
-            this.mainMenuStrip.Size = new System.Drawing.Size(524, 26);
+            this.mainMenuStrip.Size = new System.Drawing.Size(484, 26);
             this.mainMenuStrip.TabIndex = 9;
             this.mainMenuStrip.Text = "menuStrip1";
             // 
@@ -464,11 +500,20 @@
             this.mainBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.mainBackgroundWorker_ProgressChanged);
             this.mainBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.mainBackgroundWorker_RunWorkerCompleted);
             // 
+            // umaAutoPost2Label
+            // 
+            this.umaAutoPost2Label.AutoSize = true;
+            this.umaAutoPost2Label.Location = new System.Drawing.Point(239, 62);
+            this.umaAutoPost2Label.Name = "umaAutoPost2Label";
+            this.umaAutoPost2Label.Size = new System.Drawing.Size(13, 12);
+            this.umaAutoPost2Label.TabIndex = 35;
+            this.umaAutoPost2Label.Text = "　";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(524, 451);
+            this.ClientSize = new System.Drawing.Size(484, 443);
             this.Controls.Add(this.mainToolStripContainer);
             this.Name = "MainForm";
             this.Text = "JV-Relay";
@@ -537,6 +582,10 @@
         private System.Windows.Forms.Label raceAutoPost2Label;
         private System.Windows.Forms.Label raceAutoPost1Label;
         private System.Windows.Forms.Button umaPostButton;
+        private System.Windows.Forms.Label umaAutoPost1Label;
+        private System.Windows.Forms.TextBox umaAutoPostFromTextBox;
+        private System.Windows.Forms.CheckBox isUmaAutoPostCheckBox;
+        private System.Windows.Forms.Label umaAutoPost2Label;
     }
 }
 

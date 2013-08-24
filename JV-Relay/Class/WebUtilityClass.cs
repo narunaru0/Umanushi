@@ -104,7 +104,7 @@ namespace JVRelay
 
                 // レース結果データ送信
                 url = "http://www.umanushi.com/race/admin/";
-                fileFormName = "NEWRESULTFILE1";
+                fileFormName = "NEWRESULTFILE";
                 querystring["Fnc"] = "Update";
                 querystring["Mode"] = "RaceResult";
 

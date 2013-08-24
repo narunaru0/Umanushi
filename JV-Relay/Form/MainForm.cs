@@ -17,8 +17,8 @@ namespace JVRelay
     {
         #region privateフィールド
         private System.Windows.Forms.Timer quickAutoPostTimer = new System.Windows.Forms.Timer();
-        private WakeUPTimer wakeUpTimer = new WakeUPTimer();
-
+        private WakeUPTimer raceWakeUpTimer = new WakeUPTimer();
+        private WakeUPTimer umaWakeUpTimer = new WakeUPTimer();
         #endregion
 
         #region プロパティ
@@ -194,13 +194,13 @@ namespace JVRelay
                     return;
                 }
 
-                wakeUpTimer.Woken += new EventHandler(racePostButton_Click);
-                wakeUpTimer.SetWakeUpTime(fromDateTime.ToUniversalTime());
+                raceWakeUpTimer.Woken += new EventHandler(racePostButton_Click);
+                raceWakeUpTimer.SetWakeUpTime(fromDateTime.ToUniversalTime());
                 raceAutoPost2Label.Text = fromDateTime.ToString("yyyy/MM/dd HH:mm頃");
             }
             else
             {
-                wakeUpTimer.Woken -= new EventHandler(racePostButton_Click);
+                raceWakeUpTimer.Woken -= new EventHandler(racePostButton_Click);
                 raceAutoPost2Label.Text = "---";
             }
         }
@@ -478,6 +478,46 @@ namespace JVRelay
         }
 
         /// <summary>
+        /// isUmaAutoPostCheckBox変更イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void isUmaAutoPostCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (isUmaAutoPostCheckBox.Checked == true)
+            {
+                DateTime fromDateTime;
+                if (DateTime.TryParse(umaAutoPostFromTextBox.Text, out fromDateTime) == false)
+                {
+                    MessageBox.Show("有効な日時を入力してください。",
+                        "入力値エラー",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    isUmaAutoPostCheckBox.Checked = false;
+                    return;
+                }
+                if (0 > fromDateTime.CompareTo(DateTime.Now))
+                {
+                    MessageBox.Show("有効な日時を入力してください。",
+                        "入力値エラー",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    isUmaAutoPostCheckBox.Checked = false;
+                    return;
+                }
+
+                umaWakeUpTimer.Woken += new EventHandler(umaPostButton_Click);
+                umaWakeUpTimer.SetWakeUpTime(fromDateTime.ToUniversalTime());
+                umaAutoPost2Label.Text = fromDateTime.ToString("yyyy/MM/dd HH:mm頃");
+            }
+            else
+            {
+                umaWakeUpTimer.Woken -= new EventHandler(umaPostButton_Click);
+                umaAutoPost2Label.Text = "---";
+            }
+        }
+
+        /// <summary>
         /// mainBackgroundWorker実行イベントハンドラ
         /// </summary>
         /// <param name="sender"></param>
@@ -603,6 +643,7 @@ namespace JVRelay
             raceAutoPostFromTextBox.Text = DateTime.Now.AddMinutes(1).ToString("yyyy/MM/dd HH:mm");
             quickAutoPostToTextBox.Text = DateTime.Today.AddHours(17).ToString("yyyy/MM/dd HH:mm");
             quickAutoPostIntervalTextBox.Text = "5";
+            umaAutoPostFromTextBox.Text = DateTime.Now.AddMinutes(1).ToString("yyyy/MM/dd HH:mm");
             if (JVRelayClass.DbTimeStamp == "")
             {
                 isSetupCheckBox.Checked = true;
