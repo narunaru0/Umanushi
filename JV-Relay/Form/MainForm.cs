@@ -17,8 +17,8 @@ namespace JVRelay
     {
         #region privateフィールド
         private System.Windows.Forms.Timer quickAutoPostTimer = new System.Windows.Forms.Timer();
-        private WakeUPTimer raceWakeUpTimer = new WakeUPTimer();
-        private WakeUPTimer umaWakeUpTimer = new WakeUPTimer();
+        private WakeUPTimer raceWakeUpTimer = new WakeUPTimer("raceWakeUpTimer");
+        private WakeUPTimer umaWakeUpTimer = new WakeUPTimer("umaWakeUpTimer");
         #endregion
 
         #region プロパティ
@@ -146,7 +146,9 @@ namespace JVRelay
             if (isRaceAutoPostCheckBox.Checked == true)
             {
                 // 自動POSTの場合は設定を解除
+                raceAutoPost2Label.Text = "---";
                 isRaceAutoPostCheckBox.Checked = false;
+                raceWakeUpTimer = new WakeUPTimer("raceWakeUpTimer");
             }
 
             int fromInterval = DayOfWeek.Tuesday - DateTime.Today.DayOfWeek;
@@ -202,6 +204,7 @@ namespace JVRelay
             {
                 raceWakeUpTimer.Woken -= new EventHandler(racePostButton_Click);
                 raceAutoPost2Label.Text = "---";
+                raceWakeUpTimer = new WakeUPTimer("raceWakeUpTimer");
             }
         }
 
@@ -424,6 +427,13 @@ namespace JVRelay
                     MessageBoxIcon.Error);
                 return;
             }
+            if (isUmaAutoPostCheckBox.Checked == true)
+            {
+                // 自動POSTの場合は設定を解除
+                umaAutoPost2Label.Text = "---";
+                isUmaAutoPostCheckBox.Checked = false;
+                umaWakeUpTimer = new WakeUPTimer("umaWakeUpTimer");
+            }
 
             DateTime fromDate;
             int option;
@@ -514,6 +524,7 @@ namespace JVRelay
             {
                 umaWakeUpTimer.Woken -= new EventHandler(umaPostButton_Click);
                 umaAutoPost2Label.Text = "---";
+                umaWakeUpTimer = new WakeUPTimer("umaWakeUpTimer");
             }
         }
 

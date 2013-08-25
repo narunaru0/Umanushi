@@ -28,9 +28,11 @@ namespace JVRelay
         public event EventHandler Woken;
 
         private BackgroundWorker bgWorker = new BackgroundWorker();
+        private string timerName;
 
-        public WakeUPTimer()
+        public WakeUPTimer(string timerName)
         {
+            this.timerName = timerName;
             bgWorker.DoWork += new DoWorkEventHandler(bgWorker_DoWork);
             bgWorker.RunWorkerCompleted +=
               new RunWorkerCompletedEventHandler(bgWorker_RunWorkerCompleted);
@@ -70,8 +72,7 @@ namespace JVRelay
             long waketime = (long)e.Argument;
 
             using (SafeWaitHandle handle =
-                      CreateWaitableTimer(IntPtr.Zero, true,
-                      this.GetType().Assembly.GetName().Name.ToString() + "Timer"))
+                      CreateWaitableTimer(IntPtr.Zero, true, timerName))
             {
                 if (SetWaitableTimer(handle, ref waketime, 0,
                                        IntPtr.Zero, IntPtr.Zero, true))
