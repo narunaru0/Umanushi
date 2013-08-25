@@ -146,9 +146,7 @@ namespace JVRelay
             if (isRaceAutoPostCheckBox.Checked == true)
             {
                 // 自動POSTの場合は設定を解除
-                raceAutoPost2Label.Text = "---";
                 isRaceAutoPostCheckBox.Checked = false;
-                raceWakeUpTimer = new WakeUPTimer("raceWakeUpTimer");
             }
 
             int fromInterval = DayOfWeek.Tuesday - DateTime.Today.DayOfWeek;
@@ -165,6 +163,75 @@ namespace JVRelay
             JVRelayClass.IsSaveFile = false;
             JVRelayClass.IsPostFile = true;
             mainBackgroundWorker.RunWorkerAsync();
+        }
+
+        /// <summary>
+        /// racePostPreset1Button押下イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void racePostPreset1Button_Click(object sender, EventArgs e)
+        {
+            if (isRaceAutoPostCheckBox.Checked == true)
+            {
+                // 自動POSTの場合は一旦設定を解除
+                isRaceAutoPostCheckBox.Checked = false;
+            }
+
+            // 次の木18:00にセット
+            int fromInterval = DayOfWeek.Thursday - DateTime.Today.DayOfWeek;
+            if (fromInterval < 0)
+            {
+                fromInterval += 7;
+            }
+            raceAutoPostFromTextBox.Text = DateTime.Today.AddDays(fromInterval).AddHours(18).ToString("yyyy/MM/dd HH:mm");
+            isRaceAutoPostCheckBox.Checked = true;
+        }
+
+        /// <summary>
+        /// racePostPreset2Button押下イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void racePostPreset2Button_Click(object sender, EventArgs e)
+        {
+            if (isRaceAutoPostCheckBox.Checked == true)
+            {
+                // 自動POSTの場合は一旦設定を解除
+                isRaceAutoPostCheckBox.Checked = false;
+            }
+
+            // 次の金13:00にセット
+            int fromInterval = DayOfWeek.Friday - DateTime.Today.DayOfWeek;
+            if (fromInterval < 0)
+            {
+                fromInterval += 7;
+            }
+            raceAutoPostFromTextBox.Text = DateTime.Today.AddDays(fromInterval).AddHours(13).ToString("yyyy/MM/dd HH:mm");
+            isRaceAutoPostCheckBox.Checked = true;
+        }
+
+        /// <summary>
+        /// racePostPreset3Button押下イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void racePostPreset3Button_Click(object sender, EventArgs e)
+        {
+            if (isRaceAutoPostCheckBox.Checked == true)
+            {
+                // 自動POSTの場合は一旦設定を解除
+                isRaceAutoPostCheckBox.Checked = false;
+            }
+
+            // 次の土13:00にセット
+            int fromInterval = DayOfWeek.Saturday - DateTime.Today.DayOfWeek;
+            if (fromInterval < 0)
+            {
+                fromInterval += 7;
+            }
+            raceAutoPostFromTextBox.Text = DateTime.Today.AddDays(fromInterval).AddHours(13).ToString("yyyy/MM/dd HH:mm");
+            isRaceAutoPostCheckBox.Checked = true;
         }
 
         /// <summary>
@@ -430,9 +497,7 @@ namespace JVRelay
             if (isUmaAutoPostCheckBox.Checked == true)
             {
                 // 自動POSTの場合は設定を解除
-                umaAutoPost2Label.Text = "---";
                 isUmaAutoPostCheckBox.Checked = false;
-                umaWakeUpTimer = new WakeUPTimer("umaWakeUpTimer");
             }
 
             DateTime fromDate;
@@ -526,6 +591,52 @@ namespace JVRelay
                 umaAutoPost2Label.Text = "---";
                 umaWakeUpTimer = new WakeUPTimer("umaWakeUpTimer");
             }
+        }
+
+        /// <summary>
+        /// umaPostPreset1Button押下イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void umaPostPreset1Button_Click(object sender, EventArgs e)
+        {
+            if (isUmaAutoPostCheckBox.Checked == true)
+            {
+                // 自動POSTの場合は一旦設定を解除
+                isUmaAutoPostCheckBox.Checked = false;
+            }
+
+            // 次の木21:00にセット
+            int fromInterval = DayOfWeek.Thursday - DateTime.Today.DayOfWeek;
+            if (fromInterval < 0)
+            {
+                fromInterval += 7;
+            }
+            umaAutoPostFromTextBox.Text = DateTime.Today.AddDays(fromInterval).AddHours(21).ToString("yyyy/MM/dd HH:mm");
+            isUmaAutoPostCheckBox.Checked = true;
+        }
+
+        /// <summary>
+        /// umaPostPreset2Button押下イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void umaPostPreset2Button_Click(object sender, EventArgs e)
+        {
+            if (isUmaAutoPostCheckBox.Checked == true)
+            {
+                // 自動POSTの場合は一旦設定を解除
+                isUmaAutoPostCheckBox.Checked = false;
+            }
+
+            // 次の月15:00にセット
+            int fromInterval = DayOfWeek.Monday - DateTime.Today.DayOfWeek;
+            if (fromInterval < 0)
+            {
+                fromInterval += 7;
+            }
+            umaAutoPostFromTextBox.Text = DateTime.Today.AddDays(fromInterval).AddHours(15).ToString("yyyy/MM/dd HH:mm");
+            isUmaAutoPostCheckBox.Checked = true;
         }
 
         /// <summary>
