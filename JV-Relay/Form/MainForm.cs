@@ -434,15 +434,15 @@ namespace JVRelay
             {
                 option = (int)JVRelayClass.eJVOpenFlag.Normal;
 
-                if (14 == fromTextBox.Text.Length)
+                if (14 == umaFromTextBox.Text.Length)
                 {
                     string s = string.Format("{0}/{1}/{2} {3}:{4}:{5}",
-                        fromTextBox.Text.Substring(0, 4),
-                        fromTextBox.Text.Substring(4, 2),
-                        fromTextBox.Text.Substring(6, 2),
-                        fromTextBox.Text.Substring(8, 2),
-                        fromTextBox.Text.Substring(10, 2),
-                        fromTextBox.Text.Substring(12, 2));
+                        umaFromTextBox.Text.Substring(0, 4),
+                        umaFromTextBox.Text.Substring(4, 2),
+                        umaFromTextBox.Text.Substring(6, 2),
+                        umaFromTextBox.Text.Substring(8, 2),
+                        umaFromTextBox.Text.Substring(10, 2),
+                        umaFromTextBox.Text.Substring(12, 2));
                     if (!DateTime.TryParse(s, out fromDate))
                     {
                         MessageBox.Show("有効な日時を入力してください。",
@@ -513,15 +513,15 @@ namespace JVRelay
             {
                 option = (int)JVRelayClass.eJVOpenFlag.Normal;
 
-                if (14 == fromTextBox.Text.Length)
+                if (14 == umaFromTextBox.Text.Length)
                 {
                     string s = string.Format("{0}/{1}/{2} {3}:{4}:{5}",
-                        fromTextBox.Text.Substring(0, 4),
-                        fromTextBox.Text.Substring(4, 2),
-                        fromTextBox.Text.Substring(6, 2),
-                        fromTextBox.Text.Substring(8, 2),
-                        fromTextBox.Text.Substring(10, 2),
-                        fromTextBox.Text.Substring(12, 2));
+                        umaFromTextBox.Text.Substring(0, 4),
+                        umaFromTextBox.Text.Substring(4, 2),
+                        umaFromTextBox.Text.Substring(6, 2),
+                        umaFromTextBox.Text.Substring(8, 2),
+                        umaFromTextBox.Text.Substring(10, 2),
+                        umaFromTextBox.Text.Substring(12, 2));
                     if (!DateTime.TryParse(s, out fromDate))
                     {
                         MessageBox.Show("有効な日時を入力してください。",
@@ -744,7 +744,7 @@ namespace JVRelay
 
             if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eUMA)
             {
-                fromTextBox.Text = JVRelayClass.DbTimeStamp;
+                umaFromTextBox.Text = JVRelayClass.DbTimeStamp;
                 isSetupCheckBox.Checked = false;
             }
 
@@ -765,6 +765,7 @@ namespace JVRelay
             raceAutoPostFromTextBox.Text = DateTime.Now.AddMinutes(1).ToString("yyyy/MM/dd HH:mm");
             quickAutoPostToTextBox.Text = DateTime.Today.AddHours(17).ToString("yyyy/MM/dd HH:mm");
             quickAutoPostIntervalTextBox.Text = "5";
+            quickDaysTextBox.Text = "5";
             umaAutoPostFromTextBox.Text = DateTime.Now.AddMinutes(1).ToString("yyyy/MM/dd HH:mm");
             if (JVRelayClass.DbTimeStamp == "")
             {
@@ -772,7 +773,7 @@ namespace JVRelay
             }
             else
             {
-                fromTextBox.Text = JVRelayClass.DbTimeStamp;
+                umaFromTextBox.Text = JVRelayClass.DbTimeStamp;
             }
         }
 
@@ -848,28 +849,30 @@ namespace JVRelay
         public void JVQuickRelay()
         {
             int nRet;
-            const int nPrev = -5;
+            int prevDays;
             List<string> sRTRelay = new List<string>();
 
             JVRelayClass.ProgressUserState.Value = 0;
             JVRelayClass.ProgressUserState.Text = "";
             mainBackgroundWorker.ReportProgress(0, JVRelayClass.ProgressUserState);
 
+            prevDays = int.Parse(quickDaysTextBox.Text);
+
             JVRelayClass.ReadCount = 0;
             JVRelayClass.DownloadCount = 0;
             JVRelayClass.Output = new StringBuilder();
-            JVRelayClass.ProgressUserState.Maxinum = nPrev * -1;
+            JVRelayClass.ProgressUserState.Maxinum = prevDays;
 
             // 指定日数分遡ってデータを取得
-            for (int i = 0; i >= nPrev; i--)
+            for (int i = 0; i < prevDays; i++)
             {
-                string targetDate = DateTime.Today.AddDays(i).ToString("yyyyMMdd");
+                string targetDate = DateTime.Today.AddDays(-i).ToString("yyyyMMdd");
                 nRet = axJVLink.JVRTOpen(JVRelayClass.JVDataSpec, targetDate);
                 JVRelayClass.ReadCount += 1;
                 JVRelayClass.DownloadCount += 1;
                 JVRelayClass.LastFileTimestamp = "";
 
-                JVRelayClass.ProgressUserState.Value = i * -1;
+                JVRelayClass.ProgressUserState.Value = i + 1;
                 JVRelayClass.ProgressUserState.Text = "データ読み込み中...";
                 mainBackgroundWorker.ReportProgress(0, JVRelayClass.ProgressUserState);
 

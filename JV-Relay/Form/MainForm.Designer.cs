@@ -40,10 +40,13 @@
             this.umaFileSaveButton = new System.Windows.Forms.Button();
             this.fromLabel = new System.Windows.Forms.Label();
             this.raceFileSaveButton = new System.Windows.Forms.Button();
-            this.fromTextBox = new System.Windows.Forms.TextBox();
+            this.umaFromTextBox = new System.Windows.Forms.TextBox();
             this.quickFileSaveButton = new System.Windows.Forms.Button();
             this.isSetupCheckBox = new System.Windows.Forms.CheckBox();
             this.umaGroupBox = new System.Windows.Forms.GroupBox();
+            this.umaPostPreset2Button = new System.Windows.Forms.Button();
+            this.umaPostPreset1Button = new System.Windows.Forms.Button();
+            this.umaAutoPost3Label = new System.Windows.Forms.Label();
             this.umaAutoPost2Label = new System.Windows.Forms.Label();
             this.umaAutoPost1Label = new System.Windows.Forms.Label();
             this.umaPostButton = new System.Windows.Forms.Button();
@@ -59,6 +62,10 @@
             this.quickAutoPostIntervalTextBox = new System.Windows.Forms.TextBox();
             this.quickAutoPost3Label = new System.Windows.Forms.Label();
             this.raceGroupBox = new System.Windows.Forms.GroupBox();
+            this.raceAutoPost3Label = new System.Windows.Forms.Label();
+            this.racePostPreset3Button = new System.Windows.Forms.Button();
+            this.racePostPreset2Button = new System.Windows.Forms.Button();
+            this.racePostPreset1Button = new System.Windows.Forms.Button();
             this.raceAutoPost2Label = new System.Windows.Forms.Label();
             this.raceAutoPost1Label = new System.Windows.Forms.Label();
             this.raceAutoPostFromTextBox = new System.Windows.Forms.TextBox();
@@ -75,13 +82,8 @@
             this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.aboutBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.racePostPreset1Button = new System.Windows.Forms.Button();
-            this.racePostPreset2Button = new System.Windows.Forms.Button();
-            this.racePostPreset3Button = new System.Windows.Forms.Button();
-            this.raceAutoPost3Label = new System.Windows.Forms.Label();
-            this.umaAutoPost3Label = new System.Windows.Forms.Label();
-            this.umaPostPreset1Button = new System.Windows.Forms.Button();
-            this.umaPostPreset2Button = new System.Windows.Forms.Button();
+            this.quickDaysTextBox = new System.Windows.Forms.TextBox();
+            this.quickDaysLabel = new System.Windows.Forms.Label();
             this.mainToolStripContainer.BottomToolStripPanel.SuspendLayout();
             this.mainToolStripContainer.ContentPanel.SuspendLayout();
             this.mainToolStripContainer.TopToolStripPanel.SuspendLayout();
@@ -109,11 +111,11 @@
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.quickGroupBox);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.raceGroupBox);
             this.mainToolStripContainer.ContentPanel.Controls.Add(this.axJVLink);
-            this.mainToolStripContainer.ContentPanel.Size = new System.Drawing.Size(484, 394);
+            this.mainToolStripContainer.ContentPanel.Size = new System.Drawing.Size(484, 259);
             this.mainToolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainToolStripContainer.Location = new System.Drawing.Point(0, 0);
             this.mainToolStripContainer.Name = "mainToolStripContainer";
-            this.mainToolStripContainer.Size = new System.Drawing.Size(484, 443);
+            this.mainToolStripContainer.Size = new System.Drawing.Size(484, 308);
             this.mainToolStripContainer.TabIndex = 5;
             this.mainToolStripContainer.Text = "toolStripContainer1";
             // 
@@ -146,22 +148,24 @@
             // 
             // debugGroupBox
             // 
+            this.debugGroupBox.Controls.Add(this.quickDaysLabel);
+            this.debugGroupBox.Controls.Add(this.quickDaysTextBox);
             this.debugGroupBox.Controls.Add(this.umaFileSaveButton);
             this.debugGroupBox.Controls.Add(this.fromLabel);
             this.debugGroupBox.Controls.Add(this.raceFileSaveButton);
-            this.debugGroupBox.Controls.Add(this.fromTextBox);
+            this.debugGroupBox.Controls.Add(this.umaFromTextBox);
             this.debugGroupBox.Controls.Add(this.quickFileSaveButton);
             this.debugGroupBox.Controls.Add(this.isSetupCheckBox);
             this.debugGroupBox.Location = new System.Drawing.Point(12, 261);
             this.debugGroupBox.Name = "debugGroupBox";
-            this.debugGroupBox.Size = new System.Drawing.Size(469, 127);
+            this.debugGroupBox.Size = new System.Drawing.Size(469, 186);
             this.debugGroupBox.TabIndex = 4;
             this.debugGroupBox.TabStop = false;
             this.debugGroupBox.Text = "デバッグ用";
             // 
             // umaFileSaveButton
             // 
-            this.umaFileSaveButton.Location = new System.Drawing.Point(148, 43);
+            this.umaFileSaveButton.Location = new System.Drawing.Point(6, 126);
             this.umaFileSaveButton.Name = "umaFileSaveButton";
             this.umaFileSaveButton.Size = new System.Drawing.Size(114, 48);
             this.umaFileSaveButton.TabIndex = 3;
@@ -172,7 +176,7 @@
             // fromLabel
             // 
             this.fromLabel.AutoSize = true;
-            this.fromLabel.Location = new System.Drawing.Point(148, 21);
+            this.fromLabel.Location = new System.Drawing.Point(124, 129);
             this.fromLabel.Name = "fromLabel";
             this.fromLabel.Size = new System.Drawing.Size(99, 12);
             this.fromLabel.TabIndex = 31;
@@ -188,13 +192,13 @@
             this.raceFileSaveButton.UseVisualStyleBackColor = true;
             this.raceFileSaveButton.Click += new System.EventHandler(this.raceFileSaveButton_Click);
             // 
-            // fromTextBox
+            // umaFromTextBox
             // 
-            this.fromTextBox.Location = new System.Drawing.Point(253, 18);
-            this.fromTextBox.MaxLength = 14;
-            this.fromTextBox.Name = "fromTextBox";
-            this.fromTextBox.Size = new System.Drawing.Size(94, 19);
-            this.fromTextBox.TabIndex = 1;
+            this.umaFromTextBox.Location = new System.Drawing.Point(229, 126);
+            this.umaFromTextBox.MaxLength = 14;
+            this.umaFromTextBox.Name = "umaFromTextBox";
+            this.umaFromTextBox.Size = new System.Drawing.Size(94, 19);
+            this.umaFromTextBox.TabIndex = 1;
             // 
             // quickFileSaveButton
             // 
@@ -209,7 +213,7 @@
             // isSetupCheckBox
             // 
             this.isSetupCheckBox.AutoSize = true;
-            this.isSetupCheckBox.Location = new System.Drawing.Point(268, 54);
+            this.isSetupCheckBox.Location = new System.Drawing.Point(126, 151);
             this.isSetupCheckBox.Name = "isSetupCheckBox";
             this.isSetupCheckBox.Size = new System.Drawing.Size(188, 28);
             this.isSetupCheckBox.TabIndex = 3;
@@ -232,6 +236,35 @@
             this.umaGroupBox.TabIndex = 3;
             this.umaGroupBox.TabStop = false;
             this.umaGroupBox.Text = "馬情報";
+            // 
+            // umaPostPreset2Button
+            // 
+            this.umaPostPreset2Button.Location = new System.Drawing.Point(407, 31);
+            this.umaPostPreset2Button.Name = "umaPostPreset2Button";
+            this.umaPostPreset2Button.Size = new System.Drawing.Size(56, 22);
+            this.umaPostPreset2Button.TabIndex = 38;
+            this.umaPostPreset2Button.Text = "月 15:00";
+            this.umaPostPreset2Button.UseVisualStyleBackColor = true;
+            this.umaPostPreset2Button.Click += new System.EventHandler(this.umaPostPreset2Button_Click);
+            // 
+            // umaPostPreset1Button
+            // 
+            this.umaPostPreset1Button.Location = new System.Drawing.Point(407, 10);
+            this.umaPostPreset1Button.Name = "umaPostPreset1Button";
+            this.umaPostPreset1Button.Size = new System.Drawing.Size(56, 22);
+            this.umaPostPreset1Button.TabIndex = 37;
+            this.umaPostPreset1Button.Text = "木 21:00";
+            this.umaPostPreset1Button.UseVisualStyleBackColor = true;
+            this.umaPostPreset1Button.Click += new System.EventHandler(this.umaPostPreset1Button_Click);
+            // 
+            // umaAutoPost3Label
+            // 
+            this.umaAutoPost3Label.AutoSize = true;
+            this.umaAutoPost3Label.Location = new System.Drawing.Point(349, 15);
+            this.umaAutoPost3Label.Name = "umaAutoPost3Label";
+            this.umaAutoPost3Label.Size = new System.Drawing.Size(52, 12);
+            this.umaAutoPost3Label.TabIndex = 36;
+            this.umaAutoPost3Label.Text = "プリセット：";
             // 
             // umaAutoPost2Label
             // 
@@ -388,6 +421,45 @@
             this.raceGroupBox.TabStop = false;
             this.raceGroupBox.Text = "出走馬情報";
             // 
+            // raceAutoPost3Label
+            // 
+            this.raceAutoPost3Label.AutoSize = true;
+            this.raceAutoPost3Label.Location = new System.Drawing.Point(349, 15);
+            this.raceAutoPost3Label.Name = "raceAutoPost3Label";
+            this.raceAutoPost3Label.Size = new System.Drawing.Size(52, 12);
+            this.raceAutoPost3Label.TabIndex = 35;
+            this.raceAutoPost3Label.Text = "プリセット：";
+            // 
+            // racePostPreset3Button
+            // 
+            this.racePostPreset3Button.Location = new System.Drawing.Point(407, 52);
+            this.racePostPreset3Button.Name = "racePostPreset3Button";
+            this.racePostPreset3Button.Size = new System.Drawing.Size(56, 22);
+            this.racePostPreset3Button.TabIndex = 34;
+            this.racePostPreset3Button.Text = "土 13:00";
+            this.racePostPreset3Button.UseVisualStyleBackColor = true;
+            this.racePostPreset3Button.Click += new System.EventHandler(this.racePostPreset3Button_Click);
+            // 
+            // racePostPreset2Button
+            // 
+            this.racePostPreset2Button.Location = new System.Drawing.Point(407, 31);
+            this.racePostPreset2Button.Name = "racePostPreset2Button";
+            this.racePostPreset2Button.Size = new System.Drawing.Size(56, 22);
+            this.racePostPreset2Button.TabIndex = 33;
+            this.racePostPreset2Button.Text = "金 13:00";
+            this.racePostPreset2Button.UseVisualStyleBackColor = true;
+            this.racePostPreset2Button.Click += new System.EventHandler(this.racePostPreset2Button_Click);
+            // 
+            // racePostPreset1Button
+            // 
+            this.racePostPreset1Button.Location = new System.Drawing.Point(407, 10);
+            this.racePostPreset1Button.Name = "racePostPreset1Button";
+            this.racePostPreset1Button.Size = new System.Drawing.Size(56, 22);
+            this.racePostPreset1Button.TabIndex = 32;
+            this.racePostPreset1Button.Text = "木 18:00";
+            this.racePostPreset1Button.UseVisualStyleBackColor = true;
+            this.racePostPreset1Button.Click += new System.EventHandler(this.racePostPreset1Button_Click);
+            // 
             // raceAutoPost2Label
             // 
             this.raceAutoPost2Label.AutoSize = true;
@@ -523,79 +595,28 @@
             this.mainBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.mainBackgroundWorker_ProgressChanged);
             this.mainBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.mainBackgroundWorker_RunWorkerCompleted);
             // 
-            // racePostPreset1Button
+            // quickDaysTextBox
             // 
-            this.racePostPreset1Button.Location = new System.Drawing.Point(407, 10);
-            this.racePostPreset1Button.Name = "racePostPreset1Button";
-            this.racePostPreset1Button.Size = new System.Drawing.Size(56, 22);
-            this.racePostPreset1Button.TabIndex = 32;
-            this.racePostPreset1Button.Text = "木 18:00";
-            this.racePostPreset1Button.UseVisualStyleBackColor = true;
-            this.racePostPreset1Button.Click += new System.EventHandler(this.racePostPreset1Button_Click);
+            this.quickDaysTextBox.Location = new System.Drawing.Point(128, 87);
+            this.quickDaysTextBox.MaxLength = 2;
+            this.quickDaysTextBox.Name = "quickDaysTextBox";
+            this.quickDaysTextBox.Size = new System.Drawing.Size(28, 19);
+            this.quickDaysTextBox.TabIndex = 32;
             // 
-            // racePostPreset2Button
+            // quickDaysLabel
             // 
-            this.racePostPreset2Button.Location = new System.Drawing.Point(407, 31);
-            this.racePostPreset2Button.Name = "racePostPreset2Button";
-            this.racePostPreset2Button.Size = new System.Drawing.Size(56, 22);
-            this.racePostPreset2Button.TabIndex = 33;
-            this.racePostPreset2Button.Text = "金 13:00";
-            this.racePostPreset2Button.UseVisualStyleBackColor = true;
-            this.racePostPreset2Button.Click += new System.EventHandler(this.racePostPreset2Button_Click);
-            // 
-            // racePostPreset3Button
-            // 
-            this.racePostPreset3Button.Location = new System.Drawing.Point(407, 52);
-            this.racePostPreset3Button.Name = "racePostPreset3Button";
-            this.racePostPreset3Button.Size = new System.Drawing.Size(56, 22);
-            this.racePostPreset3Button.TabIndex = 34;
-            this.racePostPreset3Button.Text = "土 13:00";
-            this.racePostPreset3Button.UseVisualStyleBackColor = true;
-            this.racePostPreset3Button.Click += new System.EventHandler(this.racePostPreset3Button_Click);
-            // 
-            // raceAutoPost3Label
-            // 
-            this.raceAutoPost3Label.AutoSize = true;
-            this.raceAutoPost3Label.Location = new System.Drawing.Point(349, 15);
-            this.raceAutoPost3Label.Name = "raceAutoPost3Label";
-            this.raceAutoPost3Label.Size = new System.Drawing.Size(52, 12);
-            this.raceAutoPost3Label.TabIndex = 35;
-            this.raceAutoPost3Label.Text = "プリセット：";
-            // 
-            // umaAutoPost3Label
-            // 
-            this.umaAutoPost3Label.AutoSize = true;
-            this.umaAutoPost3Label.Location = new System.Drawing.Point(349, 15);
-            this.umaAutoPost3Label.Name = "umaAutoPost3Label";
-            this.umaAutoPost3Label.Size = new System.Drawing.Size(52, 12);
-            this.umaAutoPost3Label.TabIndex = 36;
-            this.umaAutoPost3Label.Text = "プリセット：";
-            // 
-            // umaPostPreset1Button
-            // 
-            this.umaPostPreset1Button.Location = new System.Drawing.Point(407, 10);
-            this.umaPostPreset1Button.Name = "umaPostPreset1Button";
-            this.umaPostPreset1Button.Size = new System.Drawing.Size(56, 22);
-            this.umaPostPreset1Button.TabIndex = 37;
-            this.umaPostPreset1Button.Text = "木 21:00";
-            this.umaPostPreset1Button.UseVisualStyleBackColor = true;
-            this.umaPostPreset1Button.Click += new System.EventHandler(this.umaPostPreset1Button_Click);
-            // 
-            // umaPostPreset2Button
-            // 
-            this.umaPostPreset2Button.Location = new System.Drawing.Point(407, 31);
-            this.umaPostPreset2Button.Name = "umaPostPreset2Button";
-            this.umaPostPreset2Button.Size = new System.Drawing.Size(56, 22);
-            this.umaPostPreset2Button.TabIndex = 38;
-            this.umaPostPreset2Button.Text = "月 15:00";
-            this.umaPostPreset2Button.UseVisualStyleBackColor = true;
-            this.umaPostPreset2Button.Click += new System.EventHandler(this.umaPostPreset2Button_Click);
+            this.quickDaysLabel.AutoSize = true;
+            this.quickDaysLabel.Location = new System.Drawing.Point(162, 90);
+            this.quickDaysLabel.Name = "quickDaysLabel";
+            this.quickDaysLabel.Size = new System.Drawing.Size(29, 12);
+            this.quickDaysLabel.TabIndex = 31;
+            this.quickDaysLabel.Text = "日分";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(484, 443);
+            this.ClientSize = new System.Drawing.Size(484, 308);
             this.Controls.Add(this.mainToolStripContainer);
             this.Name = "MainForm";
             this.Text = "JV-Relay";
@@ -643,7 +664,7 @@
         private System.Windows.Forms.ToolStripMenuItem aboutBoxToolStripMenuItem;
         private System.Windows.Forms.Button quickPostButton;
         private System.Windows.Forms.Button racePostButton;
-        private System.Windows.Forms.TextBox fromTextBox;
+        private System.Windows.Forms.TextBox umaFromTextBox;
         private System.Windows.Forms.Button umaFileSaveButton;
         private System.ComponentModel.BackgroundWorker mainBackgroundWorker;
         private System.Windows.Forms.CheckBox isSetupCheckBox;
@@ -675,6 +696,8 @@
         private System.Windows.Forms.Button umaPostPreset2Button;
         private System.Windows.Forms.Button umaPostPreset1Button;
         private System.Windows.Forms.Label umaAutoPost3Label;
+        private System.Windows.Forms.Label quickDaysLabel;
+        private System.Windows.Forms.TextBox quickDaysTextBox;
     }
 }
 
