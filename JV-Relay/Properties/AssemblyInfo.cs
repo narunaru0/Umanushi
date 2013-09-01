@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Naruo")]
 [assembly: AssemblyProduct("JV-Relay")]
-[assembly: AssemblyCopyright("Copyright © naruo 2013")]
+[assembly: AssemblyCopyright("Copyright © 鳴尾牧場 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

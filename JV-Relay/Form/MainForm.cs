@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+using System.Diagnostics;
 
 namespace JVRelay
 {
@@ -79,7 +80,11 @@ namespace JVRelay
         /// <param name="e"></param>
         private void readMeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("未実装");
+            string readMeFile = Path.Combine(Application.StartupPath, "ReadMe.txt");
+            if (FileSystem.FileExists(readMeFile) == true)
+            {
+                Process.Start(readMeFile);
+            }
         }
 
         /// <summary>

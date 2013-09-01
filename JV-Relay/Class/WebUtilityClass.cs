@@ -64,7 +64,7 @@ namespace JVRelay
         }
 
         /// <summary>
-        /// レース結果をHTTPでPOSTする
+        /// レース結果情報をHTTPでPOSTする
         /// </summary>
         /// <param name="isError">エラーか</param>
         /// <param name="errorMessage">エラーメッセージ</param>
@@ -102,7 +102,7 @@ namespace JVRelay
                 }
                 querystring.Clear();
 
-                // レース結果データ送信
+                // レース結果情報データ送信
                 url = "http://www.umanushi.com/race/admin/";
                 fileFormName = "NEWRESULTFILE";
                 querystring["Fnc"] = "Update";

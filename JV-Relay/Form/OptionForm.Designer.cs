@@ -111,9 +111,9 @@
             this.isPostCheckBox.AutoSize = true;
             this.isPostCheckBox.Location = new System.Drawing.Point(8, 18);
             this.isPostCheckBox.Name = "isPostCheckBox";
-            this.isPostCheckBox.Size = new System.Drawing.Size(249, 16);
+            this.isPostCheckBox.Size = new System.Drawing.Size(175, 16);
             this.isPostCheckBox.TabIndex = 30;
-            this.isPostCheckBox.Text = "うまぬしくん 出走馬・レース結果をWEB登録する";
+            this.isPostCheckBox.Text = "うまぬしくん情報をWEB登録する";
             this.isPostCheckBox.UseVisualStyleBackColor = true;
             // 
             // OptionForm

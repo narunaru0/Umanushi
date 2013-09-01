@@ -37,6 +37,8 @@
             this.mainToolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.mainToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.debugGroupBox = new System.Windows.Forms.GroupBox();
+            this.quickDaysLabel = new System.Windows.Forms.Label();
+            this.quickDaysTextBox = new System.Windows.Forms.TextBox();
             this.umaFileSaveButton = new System.Windows.Forms.Button();
             this.fromLabel = new System.Windows.Forms.Label();
             this.raceFileSaveButton = new System.Windows.Forms.Button();
@@ -78,12 +80,10 @@
             this.toolToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.readMeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.aboutBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.quickDaysTextBox = new System.Windows.Forms.TextBox();
-            this.quickDaysLabel = new System.Windows.Forms.Label();
+            this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.readMeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainToolStripContainer.BottomToolStripPanel.SuspendLayout();
             this.mainToolStripContainer.ContentPanel.SuspendLayout();
             this.mainToolStripContainer.TopToolStripPanel.SuspendLayout();
@@ -163,6 +163,23 @@
             this.debugGroupBox.TabStop = false;
             this.debugGroupBox.Text = "デバッグ用";
             // 
+            // quickDaysLabel
+            // 
+            this.quickDaysLabel.AutoSize = true;
+            this.quickDaysLabel.Location = new System.Drawing.Point(162, 90);
+            this.quickDaysLabel.Name = "quickDaysLabel";
+            this.quickDaysLabel.Size = new System.Drawing.Size(29, 12);
+            this.quickDaysLabel.TabIndex = 31;
+            this.quickDaysLabel.Text = "日分";
+            // 
+            // quickDaysTextBox
+            // 
+            this.quickDaysTextBox.Location = new System.Drawing.Point(128, 87);
+            this.quickDaysTextBox.MaxLength = 2;
+            this.quickDaysTextBox.Name = "quickDaysTextBox";
+            this.quickDaysTextBox.Size = new System.Drawing.Size(28, 19);
+            this.quickDaysTextBox.TabIndex = 32;
+            // 
             // umaFileSaveButton
             // 
             this.umaFileSaveButton.Location = new System.Drawing.Point(6, 126);
@@ -206,7 +223,7 @@
             this.quickFileSaveButton.Name = "quickFileSaveButton";
             this.quickFileSaveButton.Size = new System.Drawing.Size(114, 48);
             this.quickFileSaveButton.TabIndex = 2;
-            this.quickFileSaveButton.Text = "レース結果\r\n（ファイル保存のみ）";
+            this.quickFileSaveButton.Text = "レース結果情報\r\n（ファイル保存のみ）";
             this.quickFileSaveButton.UseVisualStyleBackColor = true;
             this.quickFileSaveButton.Click += new System.EventHandler(this.quickFileSaveButton_Click);
             // 
@@ -325,10 +342,10 @@
             this.quickGroupBox.Controls.Add(this.quickAutoPost3Label);
             this.quickGroupBox.Location = new System.Drawing.Point(12, 89);
             this.quickGroupBox.Name = "quickGroupBox";
-            this.quickGroupBox.Size = new System.Drawing.Size(400, 80);
+            this.quickGroupBox.Size = new System.Drawing.Size(469, 80);
             this.quickGroupBox.TabIndex = 2;
             this.quickGroupBox.TabStop = false;
-            this.quickGroupBox.Text = "レース結果";
+            this.quickGroupBox.Text = "レース結果情報";
             // 
             // quickPostButton
             // 
@@ -336,7 +353,7 @@
             this.quickPostButton.Name = "quickPostButton";
             this.quickPostButton.Size = new System.Drawing.Size(114, 48);
             this.quickPostButton.TabIndex = 1;
-            this.quickPostButton.Text = "レース結果\r\n（WEB登録）";
+            this.quickPostButton.Text = "レース結果情報\r\n（WEB登録）";
             this.quickPostButton.UseVisualStyleBackColor = true;
             this.quickPostButton.Click += new System.EventHandler(this.quickPostButton_Click);
             // 
@@ -345,9 +362,9 @@
             this.isQuickAutoPostCheckBox.AutoSize = true;
             this.isQuickAutoPostCheckBox.Location = new System.Drawing.Point(126, 18);
             this.isQuickAutoPostCheckBox.Name = "isQuickAutoPostCheckBox";
-            this.isQuickAutoPostCheckBox.Size = new System.Drawing.Size(255, 16);
+            this.isQuickAutoPostCheckBox.Size = new System.Drawing.Size(279, 16);
             this.isQuickAutoPostCheckBox.TabIndex = 2;
-            this.isQuickAutoPostCheckBox.Text = "指定間隔で自動的にレース結果をWEB登録する";
+            this.isQuickAutoPostCheckBox.Text = "指定間隔で自動的にレース結果情報をWEB登録する";
             this.isQuickAutoPostCheckBox.UseVisualStyleBackColor = true;
             this.isQuickAutoPostCheckBox.CheckedChanged += new System.EventHandler(this.isQuickAutoPostCheckBox_CheckedChanged);
             // 
@@ -510,7 +527,7 @@
             // axJVLink
             // 
             this.axJVLink.Enabled = true;
-            this.axJVLink.Location = new System.Drawing.Point(280, 287);
+            this.axJVLink.Location = new System.Drawing.Point(457, -14);
             this.axJVLink.Name = "axJVLink";
             this.axJVLink.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axJVLink.OcxState")));
             this.axJVLink.Size = new System.Drawing.Size(192, 192);
@@ -569,18 +586,6 @@
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(56, 22);
             this.helpToolStripMenuItem.Text = "ヘルプ";
             // 
-            // readMeToolStripMenuItem
-            // 
-            this.readMeToolStripMenuItem.Name = "readMeToolStripMenuItem";
-            this.readMeToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.readMeToolStripMenuItem.Text = "内容";
-            this.readMeToolStripMenuItem.Click += new System.EventHandler(this.readMeToolStripMenuItem_Click);
-            // 
-            // helpToolStripSeparator
-            // 
-            this.helpToolStripSeparator.Name = "helpToolStripSeparator";
-            this.helpToolStripSeparator.Size = new System.Drawing.Size(169, 6);
-            // 
             // aboutBoxToolStripMenuItem
             // 
             this.aboutBoxToolStripMenuItem.Name = "aboutBoxToolStripMenuItem";
@@ -595,22 +600,17 @@
             this.mainBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.mainBackgroundWorker_ProgressChanged);
             this.mainBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.mainBackgroundWorker_RunWorkerCompleted);
             // 
-            // quickDaysTextBox
+            // helpToolStripSeparator
             // 
-            this.quickDaysTextBox.Location = new System.Drawing.Point(128, 87);
-            this.quickDaysTextBox.MaxLength = 2;
-            this.quickDaysTextBox.Name = "quickDaysTextBox";
-            this.quickDaysTextBox.Size = new System.Drawing.Size(28, 19);
-            this.quickDaysTextBox.TabIndex = 32;
+            this.helpToolStripSeparator.Name = "helpToolStripSeparator";
+            this.helpToolStripSeparator.Size = new System.Drawing.Size(169, 6);
             // 
-            // quickDaysLabel
+            // readMeToolStripMenuItem
             // 
-            this.quickDaysLabel.AutoSize = true;
-            this.quickDaysLabel.Location = new System.Drawing.Point(162, 90);
-            this.quickDaysLabel.Name = "quickDaysLabel";
-            this.quickDaysLabel.Size = new System.Drawing.Size(29, 12);
-            this.quickDaysLabel.TabIndex = 31;
-            this.quickDaysLabel.Text = "日分";
+            this.readMeToolStripMenuItem.Name = "readMeToolStripMenuItem";
+            this.readMeToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.readMeToolStripMenuItem.Text = "リリース内容";
+            this.readMeToolStripMenuItem.Click += new System.EventHandler(this.readMeToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -659,8 +659,6 @@
         private System.Windows.Forms.ToolStripMenuItem toolToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem optionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem readMeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator helpToolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem aboutBoxToolStripMenuItem;
         private System.Windows.Forms.Button quickPostButton;
         private System.Windows.Forms.Button racePostButton;
@@ -698,6 +696,8 @@
         private System.Windows.Forms.Label umaAutoPost3Label;
         private System.Windows.Forms.Label quickDaysLabel;
         private System.Windows.Forms.TextBox quickDaysTextBox;
+        private System.Windows.Forms.ToolStripMenuItem readMeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator helpToolStripSeparator;
     }
 }
 
