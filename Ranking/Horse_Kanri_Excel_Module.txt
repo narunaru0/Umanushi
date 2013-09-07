@@ -6,6 +6,7 @@ Option Explicit
 '// 2007/01/02  : (naruo)   手放し判定・トレードうまぬし判定の不具合を修正
 '// 2013/07/04  : (naruo)   落札結果シートの拡張等
 '// 2013/07/28  : (naruo)   手放し日付チェックを追加
+'// 2013/09/07  : (naruo)   馬記号の廃止
 '//-----------------------------------------------------------------------------
 
 '// 参照シート
@@ -79,7 +80,6 @@ Sub ProcessTempSheet()
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 10).Value = "収得賞金" & vbLf & "(平地)"
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 11).Value = "厩舎"
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 12).Value = "性齢"
-    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 13).Value = "馬記号"
     nTempRowCount = nTempRowCount + 1
 
     nBid = 0
@@ -136,7 +136,6 @@ Sub UpdateTempSheet()
     Dim sHorse As String            '// 馬名
     Dim sBlood As String            '// 血統登録番号
     Dim sSerchHorse As String       '// 検索馬名
-    Dim sHorseMark As String        '// 馬記号
     Dim sSexAge As String           '// 性齢
     Dim sAge As String              '// 齢
     Dim sSex As String              '// 性
@@ -145,7 +144,6 @@ Sub UpdateTempSheet()
     Dim sComment As String          '// コメント
 
     Dim sBidHorse As String         '// 落札馬名
-    Dim sBidHorseMark As String     '// 落札馬記号
     Dim sBidSexAge As String        '// 落札性齢
     Dim sBidAge As String           '// 落札齢
     Dim sBidSex As String           '// 落札性
@@ -153,7 +151,6 @@ Sub UpdateTempSheet()
 
     Dim nHorseCol As Long           '// 馬名列番号
     Dim nBloodCol As Long           '// 血統登録番号列番号
-    Dim nHorseMarkCol As Long       '// 馬記号列番号
     Dim nStableCol As Long          '// 厩舎列番号
     Dim nAgeCol As Long             '// 性齢列番号
     Dim nStatusCol As Long          '// 状態列番号
@@ -196,16 +193,6 @@ Sub UpdateTempSheet()
         Exit Sub
     Else
         nBloodCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 馬記号
-    Set rHeader = rHeaderList.Find(What:="馬記号", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[馬記号]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nHorseMarkCol = rHeader.Column
     End If
     Set rHeader = Nothing
 
@@ -266,11 +253,6 @@ Sub UpdateTempSheet()
 
         '// 落札馬名の取得
         sBidHorse = Worksheets(G_BID_SHEET).Cells(nTempRowCount, 1).Value
-        sBidHorseMark = ""
-        If InStr(sBidHorse, "(外)") > 0 Then
-            sBidHorseMark = "(外)"
-            sBidHorse = Replace(sBidHorse, "(外)", "")
-        End If
 
         Set rHorseList = Worksheets(G_BID_HORSE_SHEET).Columns(nHorseCol)
         '// 落札馬名の検索
@@ -281,9 +263,6 @@ Sub UpdateTempSheet()
         '// 馬処理
         sComment = ""
         If Not rHorse Is Nothing Then
-
-            '// 馬記号
-            sHorseMark = Worksheets(G_BID_HORSE_SHEET).Cells(rHorse.Row, nHorseMarkCol).Value
 
             '// 性齢
             sBidSexAge = Worksheets(G_BID_SHEET).Cells(nTempRowCount, 3).Value
@@ -322,9 +301,6 @@ Sub UpdateTempSheet()
             '// 性齢
             Worksheets(G_BID_SHEET).Cells(nTempRowCount, 12).Value = sAge & "･" & sSex
 
-            '// 馬記号
-            Worksheets(G_BID_SHEET).Cells(nTempRowCount, 13).Value = sHorseMark
-
 
             '// 既所有馬チェック
             Set rOwnHorseList = Worksheets(G_OWN_SHEET).Columns("G:G")
@@ -339,10 +315,6 @@ Sub UpdateTempSheet()
             Set rOwnHorse = Nothing
             Set rOwnHorseList = Nothing
 
-            '// ○外チェック
-            If InStr(sHorseMark, "(外)") > 0 And sBidHorseMark <> "(外)" Then
-                sComment = sComment & "○外"
-            End If
             '// 性チェック
             If sBidSex <> sSex Then
                 sComment = sComment & "性"
@@ -430,7 +402,6 @@ Sub UpdateOwnSheet()
     Dim sHorse As String            '// 馬名
     Dim sBlood As String            '// 血統登録番号
     Dim sSerchHorse As String       '// 検索馬名
-    Dim sHorseMark As String        '// 馬記号
     Dim sSexAge As String           '// 性齢
     Dim sAge As String              '// 齢
     Dim sSex As String              '// 性
@@ -440,7 +411,6 @@ Sub UpdateOwnSheet()
 
     Dim sOwnBlood As String         '// 血統登録番号
     Dim sOwnHorse As String         '// 所有馬馬名
-    Dim sOwnHorseMark As String     '// 所有馬記号
     Dim sOwnSexAge As String        '// 所有馬性齢
     Dim sOwnAge As String           '// 所有馬齢
     Dim sOwnSex As String           '// 所有馬性
@@ -452,7 +422,6 @@ Sub UpdateOwnSheet()
     Dim nAgeCol As Long             '// 性齢列番号
     Dim nStatusCol As Long          '// 状態列番号
     Dim nRankBaseCol As Long        '// 収得賞金列番号
-    Dim nHorseMarkCol As Long       '// 馬記号列番号
 
     Dim rHorseList As Range         '// 馬名リストRange
     Dim rHorse As Range             '// 馬名Range
@@ -528,16 +497,6 @@ Sub UpdateOwnSheet()
         nRankBaseCol = rHeader.Column
     End If
     Set rHeader = Nothing
-
-    '// 馬記号
-    Set rHeader = rHeaderList.Find(What:="馬記号", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[馬記号]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nHorseMarkCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
     Set rHeaderList = Nothing
 
     '// 列幅調整
@@ -570,15 +529,9 @@ Sub UpdateOwnSheet()
         sComment = ""
         If Not rHorse Is Nothing Then
 
-            '// 馬名・馬記号
+            '// 馬名
             sOwnHorse = Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 1).Value
-            sOwnHorseMark = ""
-            If InStr(sOwnHorse, "(外)") > 0 Then
-                sOwnHorseMark = "(外)"
-                sOwnHorse = Replace(sOwnHorse, "(外)", "")
-            End If
             sHorse = Worksheets(G_OWN_HORSE_SHEET).Cells(rHorse.Row, nHorseCol).Value
-            sHorseMark = Worksheets(G_OWN_HORSE_SHEET).Cells(rHorse.Row, nHorseMarkCol).Value
 
             '// 性齢
             sOwnSexAge = Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 3).Value
@@ -598,6 +551,7 @@ Sub UpdateOwnSheet()
             sWorkStable = Replace(sWorkStable, "　", "")
             sWorkStable = Replace(sWorkStable, "(栗)", "栗･")
             sWorkStable = Replace(sWorkStable, "(美)", "美･")
+            sWorkStable = Replace(sWorkStable, "[地]", "地･")
 
             '// 状態
             Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 9).Value = _
@@ -616,10 +570,6 @@ Sub UpdateOwnSheet()
             '// 馬名チェック
             If sOwnHorse <> sHorse Then
                 sComment = sComment & "馬名"
-            End If
-            '// ○外チェック
-            If InStr(sHorseMark, "(外)") > 0 And sOwnHorseMark <> "(外)" Then
-                sComment = sComment & "○外"
             End If
             '// 性チェック
             If sOwnSex <> sSex Then
