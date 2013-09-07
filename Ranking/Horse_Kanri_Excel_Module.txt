@@ -6,7 +6,7 @@ Option Explicit
 '// 2007/01/02  : (naruo)   手放し判定・トレードうまぬし判定の不具合を修正
 '// 2013/07/04  : (naruo)   落札結果シートの拡張等
 '// 2013/07/28  : (naruo)   手放し日付チェックを追加
-'// 2013/09/07  : (naruo)   馬記号の廃止
+'// 2013/09/07  : (naruo)   馬記号の廃止、障害収得賞金の追加
 '//-----------------------------------------------------------------------------
 
 '// 参照シート
@@ -78,8 +78,9 @@ Sub ProcessTempSheet()
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 8).Value = "備考"
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 9).Value = "状態"
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 10).Value = "収得賞金" & vbLf & "(平地)"
-    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 11).Value = "厩舎"
-    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 12).Value = "性齢"
+    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 11).Value = "収得賞金" & vbLf & "(障害)"
+    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 12).Value = "厩舎"
+    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 13).Value = "性齢"
     nTempRowCount = nTempRowCount + 1
 
     nBid = 0
@@ -112,8 +113,8 @@ Sub ProcessTempSheet()
     '// 並び替え
     Worksheets(G_BID_SHEET).Range("A2:O2").Select
     Range(Selection, Selection.End(xlDown)).Select
-    Selection.Sort Key1:=Range("D3"), Order1:=xlAscending, Key2:=Range("A3") _
-        , Order2:=xlAscending, Header:=xlYes, OrderCustom:=1, MatchCase:=False _
+    Selection.Sort Key1:=Range("A3"), Order1:=xlAscending _
+        , Header:=xlYes, OrderCustom:=1, MatchCase:=False _
         , Orientation:=xlTopToBottom, SortMethod:=xlPinYin
 
     Application.ScreenUpdating = True
@@ -130,12 +131,11 @@ End Sub
 Sub UpdateTempSheet()
 
     '// 出力補助項目
+    Dim sSearchColName As String    '// 検索列名
     Dim nTempRowCount As Long       '// 一次加工シート行カウント
     Dim nHorseRowCount As Long      '// シート行カウント
 
-    Dim sHorse As String            '// 馬名
     Dim sBlood As String            '// 血統登録番号
-    Dim sSerchHorse As String       '// 検索馬名
     Dim sSexAge As String           '// 性齢
     Dim sAge As String              '// 齢
     Dim sSex As String              '// 性
@@ -154,7 +154,8 @@ Sub UpdateTempSheet()
     Dim nStableCol As Long          '// 厩舎列番号
     Dim nAgeCol As Long             '// 性齢列番号
     Dim nStatusCol As Long          '// 状態列番号
-    Dim nRankBaseCol As Long        '// 収得賞金列番号
+    Dim nPrizeHeichiCol As Long     '// 平地収得賞金列番号
+    Dim nPrizeSyogaiCol As Long     '// 障害収得賞金列番号
 
     Dim rHorseList As Range         '// 馬名リストRange
     Dim rHorse As Range             '// 馬名Range
@@ -177,7 +178,8 @@ Sub UpdateTempSheet()
 
     Set rHeaderList = Worksheets(G_BID_HORSE_SHEET).Rows("1:1")
     '// 馬名
-    Set rHeader = rHeaderList.Find(What:=" 馬名", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = " 馬名"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
         Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[馬名]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
@@ -187,9 +189,10 @@ Sub UpdateTempSheet()
     Set rHeader = Nothing
 
     '// 血統登録番号
-    Set rHeader = rHeaderList.Find(What:="血統登録番号", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "血統登録番号"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[血統登録番号]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nBloodCol = rHeader.Column
@@ -197,9 +200,10 @@ Sub UpdateTempSheet()
     Set rHeader = Nothing
 
     '// 厩舎
-    Set rHeader = rHeaderList.Find(What:="厩舎", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "厩舎"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[厩舎]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nStableCol = rHeader.Column
@@ -207,9 +211,10 @@ Sub UpdateTempSheet()
     Set rHeader = Nothing
 
     '// 性齢
-    Set rHeader = rHeaderList.Find(What:="性齢", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "性齢"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[性齢]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nAgeCol = rHeader.Column
@@ -217,22 +222,35 @@ Sub UpdateTempSheet()
     Set rHeader = Nothing
 
     '// 状態
-    Set rHeader = rHeaderList.Find(What:="状態", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "状態"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[状態]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nStatusCol = rHeader.Column
     End If
     Set rHeader = Nothing
 
-    '// 収得賞金
-    Set rHeader = rHeaderList.Find(What:="収得賞金", LookIn:=xlValues, LookAt:=xlWhole)
+    '// 平地収得賞金
+    sSearchColName = "収得賞金"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[収得賞金]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
-        nRankBaseCol = rHeader.Column
+        nPrizeHeichiCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+
+    '// 障害収得賞金
+    sSearchColName = "障害収得賞金"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_BID_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nPrizeSyogaiCol = rHeader.Column
     End If
     Set rHeader = Nothing
     Set rHeaderList = Nothing
@@ -254,11 +272,9 @@ Sub UpdateTempSheet()
         '// 落札馬名の取得
         sBidHorse = Worksheets(G_BID_SHEET).Cells(nTempRowCount, 1).Value
 
-        Set rHorseList = Worksheets(G_BID_HORSE_SHEET).Columns(nHorseCol)
         '// 落札馬名の検索
-        sSerchHorse = sBidHorse
-        sHorse = ""
-        Set rHorse = rHorseList.Find(What:=sSerchHorse, LookIn:=xlValues, LookAt:=xlWhole)
+        Set rHorseList = Worksheets(G_BID_HORSE_SHEET).Columns(nHorseCol)
+        Set rHorse = rHorseList.Find(What:=sBidHorse, LookIn:=xlValues, LookAt:=xlWhole)
 
         '// 馬処理
         sComment = ""
@@ -291,15 +307,19 @@ Sub UpdateTempSheet()
             Worksheets(G_BID_SHEET).Cells(nTempRowCount, 9).Value = _
                 Worksheets(G_BID_HORSE_SHEET).Cells(rHorse.Row, nStatusCol).Value
 
-            '// 収得賞金
+            '// 平地収得賞金
             Worksheets(G_BID_SHEET).Cells(nTempRowCount, 10).Value = _
-                Worksheets(G_BID_HORSE_SHEET).Cells(rHorse.Row, nRankBaseCol).Value
+                Worksheets(G_BID_HORSE_SHEET).Cells(rHorse.Row, nPrizeHeichiCol).Value
+
+            '// 障害収得賞金
+            Worksheets(G_BID_SHEET).Cells(nTempRowCount, 11).Value = _
+                Worksheets(G_BID_HORSE_SHEET).Cells(rHorse.Row, nPrizeSyogaiCol).Value
 
             '// 厩舎
-            Worksheets(G_BID_SHEET).Cells(nTempRowCount, 11).Value = sWorkStable
+            Worksheets(G_BID_SHEET).Cells(nTempRowCount, 12).Value = sWorkStable
 
             '// 性齢
-            Worksheets(G_BID_SHEET).Cells(nTempRowCount, 12).Value = sAge & "･" & sSex
+            Worksheets(G_BID_SHEET).Cells(nTempRowCount, 13).Value = sAge & "･" & sSex
 
 
             '// 既所有馬チェック
@@ -396,12 +416,12 @@ End Sub
 Sub UpdateOwnSheet()
 
     '// 出力補助項目
+    Dim sSearchColName As String    '// 検索列名
     Dim nOwnRowCount As Long        '// 所有馬シート行カウント
     Dim nHorseRowCount As Long      '// シート行カウント
 
     Dim sHorse As String            '// 馬名
     Dim sBlood As String            '// 血統登録番号
-    Dim sSerchHorse As String       '// 検索馬名
     Dim sSexAge As String           '// 性齢
     Dim sAge As String              '// 齢
     Dim sSex As String              '// 性
@@ -421,7 +441,8 @@ Sub UpdateOwnSheet()
     Dim nStableCol As Long          '// 厩舎列番号
     Dim nAgeCol As Long             '// 性齢列番号
     Dim nStatusCol As Long          '// 状態列番号
-    Dim nRankBaseCol As Long        '// 収得賞金列番号
+    Dim nPrizeHeichiCol As Long     '// 平地収得賞金列番号
+    Dim nPrizeSyogaiCol As Long     '// 障害収得賞金列番号
 
     Dim rHorseList As Range         '// 馬名リストRange
     Dim rHorse As Range             '// 馬名Range
@@ -439,9 +460,10 @@ Sub UpdateOwnSheet()
 
     Set rHeaderList = Worksheets(G_OWN_HORSE_SHEET).Rows("1:1")
     '// 馬名
-    Set rHeader = rHeaderList.Find(What:=" 馬名", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = " 馬名"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[馬名]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nHorseCol = rHeader.Column
@@ -449,9 +471,10 @@ Sub UpdateOwnSheet()
     Set rHeader = Nothing
 
     '// 血統登録番号
-    Set rHeader = rHeaderList.Find(What:="血統登録番号", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "血統登録番号"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[血統登録番号]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nBloodCol = rHeader.Column
@@ -459,9 +482,10 @@ Sub UpdateOwnSheet()
     Set rHeader = Nothing
 
     '// 厩舎
-    Set rHeader = rHeaderList.Find(What:="厩舎", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "厩舎"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[厩舎]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nStableCol = rHeader.Column
@@ -469,9 +493,10 @@ Sub UpdateOwnSheet()
     Set rHeader = Nothing
 
     '// 性齢
-    Set rHeader = rHeaderList.Find(What:="性齢", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "性齢"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[性齢]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nAgeCol = rHeader.Column
@@ -479,22 +504,35 @@ Sub UpdateOwnSheet()
     Set rHeader = Nothing
 
     '// 状態
-    Set rHeader = rHeaderList.Find(What:="状態", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "状態"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[状態]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nStatusCol = rHeader.Column
     End If
     Set rHeader = Nothing
 
-    '// 収得賞金
-    Set rHeader = rHeaderList.Find(What:="収得賞金", LookIn:=xlValues, LookAt:=xlWhole)
+    '// 平地収得賞金
+    sSearchColName = "収得賞金"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[収得賞金]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
-        nRankBaseCol = rHeader.Column
+        nPrizeHeichiCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+
+    '// 障害収得賞金
+    sSearchColName = "障害収得賞金"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_OWN_HORSE_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nPrizeSyogaiCol = rHeader.Column
     End If
     Set rHeader = Nothing
     Set rHeaderList = Nothing
@@ -557,15 +595,19 @@ Sub UpdateOwnSheet()
             Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 9).Value = _
                 Worksheets(G_OWN_HORSE_SHEET).Cells(rHorse.Row, nStatusCol).Value
 
-            '// 収得賞金
+            '// 平地収得賞金
             Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 10).Value = _
-                Worksheets(G_OWN_HORSE_SHEET).Cells(rHorse.Row, nRankBaseCol).Value
+                Worksheets(G_OWN_HORSE_SHEET).Cells(rHorse.Row, nPrizeHeichiCol).Value
+
+            '// 障害収得賞金
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 11).Value = _
+                Worksheets(G_OWN_HORSE_SHEET).Cells(rHorse.Row, nPrizeSyogaiCol).Value
 
             '// 厩舎
-            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 11).Value = sWorkStable
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 12).Value = sWorkStable
 
             '// 性齢
-            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 12).Value = sAge & "･" & sSex
+            Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 13).Value = sAge & "･" & sSex
 
             '// 馬名チェック
             If sOwnHorse <> sHorse Then
@@ -622,17 +664,13 @@ End Sub
 Sub UpdateRelease()
 
     '// 出力補助項目
-    Dim sHorse As String            '// 馬名
-    Dim sSerchHorse As String       '// 検索馬名
-
+    Dim sSearchColName As String    '// 検索列名
     Dim sReleaseHorse As String     '// 手放し馬名
+    Dim sReleaseOwner As String     '// 手放しうまぬし
+    Dim sOwner As String            '// 所有うまぬし
 
     Dim nHorseCol As Long           '// 馬名列番号
-    Dim nBloodCol As Long           '// 血統登録番号列番号
-    Dim nStableCol As Long          '// 厩舎列番号
-    Dim nAgeCol As Long             '// 性齢列番号
-    Dim nStatusCol As Long          '// 状態列番号
-    Dim nRankBaseCol As Long        '// 収得賞金列番号
+    Dim nOwnerCol As Long           '// 所有うまぬし列番号
 
     Dim rOwnHorseList As Range      '// 所有馬リストRange
     Dim rOwnHorse As Range          '// 所有馬Range
@@ -653,62 +691,24 @@ Sub UpdateRelease()
 
     Set rHeaderList = Worksheets(G_OWN_SHEET).Rows("1:1")
     '// 馬名
-    Set rHeader = rHeaderList.Find(What:="馬名", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "馬名"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[馬名]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nHorseCol = rHeader.Column
     End If
     Set rHeader = Nothing
 
-    '// 血統登録番号
-    Set rHeader = rHeaderList.Find(What:="血統登録番号", LookIn:=xlValues, LookAt:=xlWhole)
+    '// 所有うまぬし
+    sSearchColName = "所有うまぬし"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[血統登録番号]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
-        nBloodCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 厩舎
-    Set rHeader = rHeaderList.Find(What:="厩舎", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[厩舎]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nStableCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 性齢
-    Set rHeader = rHeaderList.Find(What:="性齢", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[性齢]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nAgeCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 状態
-    Set rHeader = rHeaderList.Find(What:="状態", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[状態]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nStatusCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 収得賞金
-    Set rHeader = rHeaderList.Find(What:="収得賞金", LookIn:=xlValues, LookAt:=xlPart)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[収得賞金]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nRankBaseCol = rHeader.Column
+        nOwnerCol = rHeader.Column
     End If
     Set rHeader = Nothing
     Set rHeaderList = Nothing
@@ -716,33 +716,35 @@ Sub UpdateRelease()
 
     '// 手放し更新
     Do Until Worksheets(G_RELEASE_SHEET).Cells(3, 1).Value = ""
-        
+
         '// 手放し馬名の取得
         sReleaseHorse = Worksheets(G_RELEASE_SHEET).Cells(3, 3).Value
 
+        '// 手放しうまぬしの取得
+        sReleaseOwner = Worksheets(G_RELEASE_SHEET).Cells(3, 6).Value
+
         '// 所有馬の検索
         Set rOwnHorseList = Worksheets(G_OWN_SHEET).Columns(nHorseCol)
-        sSerchHorse = sReleaseHorse
-        Set rOwnHorse = rOwnHorseList.Find(What:=sSerchHorse, LookIn:=xlValues, LookAt:=xlWhole)
-        If rOwnHorse Is Nothing Then
-            If InStr(sReleaseHorse, "(外)") > 0 Then
-                sSerchHorse = Replace(sReleaseHorse, "(外)", "")
-            Else
-                sSerchHorse = sReleaseHorse & "(外)"
-            End If
-            Set rOwnHorse = rOwnHorseList.Find(What:=sSerchHorse, LookIn:=xlValues, LookAt:=xlWhole)
-        End If
+        Set rOwnHorse = rOwnHorseList.Find(What:=sReleaseHorse, LookIn:=xlValues, LookAt:=xlWhole)
 
         '// 馬処理
         If Not rOwnHorse Is Nothing Then
+
+            sOwner = Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nOwnerCol).Value
+
+            '// 所有うまぬしチェック
+            If sReleaseOwner <> sOwner Then
+                Call MsgBox("[" & sReleaseHorse & "]は[" & sReleaseOwner & "]の所有馬ではありません。" & vbCrLf & "中断します。")
+                Exit Sub
+            End If
 
             Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").Copy
             Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").Insert Shift:=xlDown
             Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").ClearContents
             
             Worksheets(G_RELEASE_SHEET).Range("A" & 3 & ":H" & 3).Copy
-            Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 11).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
-            Worksheets(G_OWN_SHEET).Range("A" & rOwnHorse.Row & ":J" & rOwnHorse.Row).Copy
+            Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 12).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            Worksheets(G_OWN_SHEET).Range("A" & rOwnHorse.Row & ":K" & rOwnHorse.Row).Copy
             Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 1).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
 
             '// 手放しシートのレコードをクリア
@@ -753,21 +755,20 @@ Sub UpdateRelease()
 
         Else
             '// 馬名不明
-            If MsgBox("[" & sSerchHorse & "]の馬名が見つかりません。" & vbCrLf & "中断しますか？", vbYesNo) = vbYes Then
+            If MsgBox("[" & sReleaseHorse & "]の馬名が見つかりません。" & vbCrLf & "中断しますか？", vbYesNo) = vbYes Then
                 Exit Sub
             End If
         End If
         Set rOwnHorse = Nothing
         Set rOwnHorseList = Nothing
-    
-    
+
     Loop
     
     Worksheets(G_RELEASE_RESULT_SHEET).Select
     
     '// 並び替え(日付)
     Worksheets(G_RELEASE_RESULT_SHEET).Range("A1:A1").Select
-    Selection.Sort Key1:=Range("K2"), Order1:=xlDescending _
+    Selection.Sort Key1:=Range("L2"), Order1:=xlDescending _
         , Header:=xlYes, OrderCustom:=1, MatchCase:=False _
         , Orientation:=xlTopToBottom, SortMethod:=xlPinYin
     
@@ -786,8 +787,7 @@ End Sub
 Sub UpdateTrade()
 
     '// 出力補助項目
-    Dim sHorse As String            '// 馬名
-    Dim sSerchHorse As String       '// 検索馬名
+    Dim sSearchColName As String    '// 検索列名
     Dim sOwner As String            '// 所有うまぬし
     Dim sComment As String          '// コメント
 
@@ -799,11 +799,6 @@ Sub UpdateTrade()
     Dim sTradeComent As String      '// トレードコメント
 
     Dim nHorseCol As Long           '// 馬名列番号
-    Dim nBloodCol As Long           '// 血統登録番号列番号
-    Dim nStableCol As Long          '// 厩舎列番号
-    Dim nAgeCol As Long             '// 性齢列番号
-    Dim nStatusCol As Long          '// 状態列番号
-    Dim nRankBaseCol As Long        '// 収得賞金列番号
     Dim nOwnerCol As Long           '// 所有うまぬし列番号
     Dim nPriceCol As Long           '// 購入金額列番号
     Dim nDateCol As Long            '// 手放し解禁日列番号
@@ -828,69 +823,21 @@ Sub UpdateTrade()
 
     Set rHeaderList = Worksheets(G_OWN_SHEET).Rows("1:1")
     '// 馬名
-    Set rHeader = rHeaderList.Find(What:="馬名", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "馬名"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[馬名]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nHorseCol = rHeader.Column
     End If
     Set rHeader = Nothing
 
-    '// 血統登録番号
-    Set rHeader = rHeaderList.Find(What:="血統登録番号", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[血統登録番号]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nBloodCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 厩舎
-    Set rHeader = rHeaderList.Find(What:="厩舎", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[厩舎]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nStableCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 性齢
-    Set rHeader = rHeaderList.Find(What:="性齢", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[性齢]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nAgeCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 状態
-    Set rHeader = rHeaderList.Find(What:="状態", LookIn:=xlValues, LookAt:=xlWhole)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[状態]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nStatusCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
-    '// 収得賞金
-    Set rHeader = rHeaderList.Find(What:="収得賞金", LookIn:=xlValues, LookAt:=xlPart)
-    If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[収得賞金]が見つかりません。" & vbCrLf & "中断します。")
-        Exit Sub
-    Else
-        nRankBaseCol = rHeader.Column
-    End If
-    Set rHeader = Nothing
-
     '// 所有うまぬし
-    Set rHeader = rHeaderList.Find(What:="所有うまぬし", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "所有うまぬし"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[所有うまぬし]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nOwnerCol = rHeader.Column
@@ -898,9 +845,10 @@ Sub UpdateTrade()
     Set rHeader = Nothing
 
     '// 購入金額
-    Set rHeader = rHeaderList.Find(What:="購入金額", LookIn:=xlValues, LookAt:=xlWhole)
+    sSearchColName = "購入金額"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[購入金額]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nPriceCol = rHeader.Column
@@ -908,9 +856,10 @@ Sub UpdateTrade()
     Set rHeader = Nothing
 
     '// 手放し解禁日
-    Set rHeader = rHeaderList.Find(What:="手放し", LookIn:=xlValues, LookAt:=xlPart)
+    sSearchColName = "手放し" & vbLf & "解禁日"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
     If rHeader Is Nothing Then
-        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[手放し解禁日]が見つかりません。" & vbCrLf & "中断します。")
+        Call MsgBox("[" & Worksheets(G_OWN_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
         Exit Sub
     Else
         nDateCol = rHeader.Column
@@ -937,16 +886,7 @@ Sub UpdateTrade()
 
         '// 所有馬の検索
         Set rOwnHorseList = Worksheets(G_OWN_SHEET).Columns(nHorseCol)
-        sSerchHorse = sTradeHorse
-        Set rOwnHorse = rOwnHorseList.Find(What:=sSerchHorse, LookIn:=xlValues, LookAt:=xlWhole)
-        If rOwnHorse Is Nothing Then
-            If InStr(sTradeHorse, "(外)") > 0 Then
-                sSerchHorse = Replace(sTradeHorse, "(外)", "")
-            Else
-                sSerchHorse = sTradeHorse & "(外)"
-            End If
-            Set rOwnHorse = rOwnHorseList.Find(What:=sSerchHorse, LookIn:=xlValues, LookAt:=xlWhole)
-        End If
+        Set rOwnHorse = rOwnHorseList.Find(What:=sTradeHorse, LookIn:=xlValues, LookAt:=xlWhole)
 
         '// 馬処理
         If Not rOwnHorse Is Nothing Then
@@ -955,13 +895,12 @@ Sub UpdateTrade()
             sTradeBuyer = Worksheets(G_TRADE_SHEET).Cells(3, 4).Value
             sTradePrice = Worksheets(G_TRADE_SHEET).Cells(3, 5).Value
             sTradeComent = Format(DateAdd("m", 6, sTradeDate), "yy/m/d") & sTradeOwner
-            'Call MsgBox(sTradeComent)
 
             sOwner = Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nOwnerCol).Value
 
             '// 所有うまぬしチェック
             If sTradeOwner <> sOwner Then
-                Call MsgBox("[" & sSerchHorse & "]は[" & sTradeOwner & "]の所有馬ではありません。" & vbCrLf & "中断します。")
+                Call MsgBox("[" & sTradeHorse & "]は[" & sTradeOwner & "]の所有馬ではありません。" & vbCrLf & "中断します。")
                 Exit Sub
             End If
 
@@ -993,7 +932,7 @@ Sub UpdateTrade()
 
         Else
             '// 馬名不明
-            If MsgBox("[" & sSerchHorse & "]の馬名が見つかりません。" & vbCrLf & "中断しますか？", vbYesNo) = vbYes Then
+            If MsgBox("[" & sTradeHorse & "]の馬名が見つかりません。" & vbCrLf & "中断しますか？", vbYesNo) = vbYes Then
                 Exit Sub
             End If
         End If
