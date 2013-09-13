@@ -4,6 +4,7 @@ Option Explicit
 '//-----------------------------------------------------------------------------
 '// 2013/06/23  : (naruo)   Initial revision.
 '// 2013/07/13  : (naruo)   退避シートに集計範囲・落札日付を追加
+'// 2013/09/14  : (naruo)   うまぬし名チェックを名称完全一致に修正
 '//-----------------------------------------------------------------------------
 
 '// JRAレース結果入力シート
@@ -50,7 +51,7 @@ End Type
 Sub MakeRankingSheet()
 
     Dim sheet As Worksheet
-    Dim sNames() As String
+    Dim dicName As Object
     Dim sName As Variant
     Dim dicSummary As Object
     Dim dicKey As String
@@ -100,6 +101,9 @@ Sub MakeRankingSheet()
         Exit Sub
     End If
 
+    '// うまぬし名Dictionary
+    Set dicName = CreateObject("Scripting.Dictionary")
+    
     '// 集計Dictionary
     Set dicSummary = CreateObject("Scripting.Dictionary")
 
@@ -117,8 +121,8 @@ Sub MakeRankingSheet()
             Exit For
         End If
 
-        ReDim Preserve sNames(nRowCount - 1)
-        sNames(nRowCount - 1) = Worksheets(G_NAME_SHEET).Range("A" & nRowCount).Value
+        sName = Worksheets(G_NAME_SHEET).Range("A" & nRowCount).Value
+        Call dicName.Add(sName, sName)
     Next
 
     '//---------------------------------------------------------
@@ -393,7 +397,7 @@ Sub MakeRankingSheet()
         typSummary = ConvStringToType(CStr(dicItem))
 
         '// うまぬし名のチェック
-        If UBound(Filter(sNames, typSummary.sName, , vbTextCompare)) < 0 Then
+        If dicName.Exists(typSummary.sName) = False Then
             Call MsgBox("うまぬし名が正しく設定されていません。[" & typSummary.sName & "]" & _
                 "[" & typSummary.sDate & "]" & "[" & typSummary.sGroup & "]" & vbCrLf & "中断します。", vbCritical)
 
@@ -618,7 +622,7 @@ Sub MakeRankingSheet()
     '//---------------------------------------------------------
     Application.DisplayAlerts = False
     For Each sheet In ActiveWorkbook.Sheets
-        If UBound(Filter(sNames, sheet.Name, , vbTextCompare)) >= 0 Then
+        If dicName.Exists(sheet.Name) = True Then
             '// シート削除
             Sheets(sheet.Name).Delete
         End If
@@ -628,7 +632,7 @@ Sub MakeRankingSheet()
     '//---------------------------------------------------------
     '// うまぬし毎シートの作成
     '//---------------------------------------------------------
-    For Each sName In sNames
+    For Each sName In dicName.Items
         Set sheet = Worksheets.Add(After:=Worksheets(G_NAME_SHEET))
         sheet.Name = sName
 
@@ -741,5 +745,3 @@ Public Function ConvStringToType(strSummary As String) As defTypSummary
     typSummary.sComment = sSummary(6)
     ConvStringToType = typSummary
 End Function
-
-

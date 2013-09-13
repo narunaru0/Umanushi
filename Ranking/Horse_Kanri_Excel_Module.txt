@@ -97,6 +97,7 @@ Sub ProcessTempSheet()
                 If InStr(Worksheets(G_REF_SHEET).Cells(nRefRowCount, 3).Value, "取消") = 0 Then
                     Worksheets(G_REF_SHEET).Range("C" & nRefRowCount & ":G" & nRefRowCount).Copy
                     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 1).PasteSpecial Paste:=xlAll, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+                    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 1).Value = Replace(Worksheets(G_BID_SHEET).Cells(nTempRowCount, 1).Value, "(外)", "")
                     nTempRowCount = nTempRowCount + 1
                     nBid = 1
                 End If
