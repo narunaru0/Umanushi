@@ -11,6 +11,7 @@ using Microsoft.VisualBasic.FileIO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 using System.Diagnostics;
+using System.Data;
 
 namespace JVRelay
 {
@@ -111,7 +112,7 @@ namespace JVRelay
                 return;
             }
 
-            int fromInterval = DayOfWeek.Tuesday - DateTime.Today.DayOfWeek;
+            int fromInterval = (int)raceWeekComboBox.SelectedValue - (int)DateTime.Today.DayOfWeek;
             if (fromInterval > 0)
             {
                 fromInterval -= 7;
@@ -154,7 +155,7 @@ namespace JVRelay
                 isRaceAutoPostCheckBox.Checked = false;
             }
 
-            int fromInterval = DayOfWeek.Tuesday - DateTime.Today.DayOfWeek;
+            int fromInterval = (int)raceWeekComboBox.SelectedValue - (int)DateTime.Today.DayOfWeek;
             if (fromInterval > 0)
             {
                 fromInterval -= 7;
@@ -651,13 +652,13 @@ namespace JVRelay
         /// <param name="e"></param>
         private void mainBackgroundWorker_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
-            if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eQUICK)
-            {
-                JVQuickRelay();
-            }
-            else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eRACE)
+            if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eRACE)
             {
                 JVRaceRelay();
+            }
+            else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eQUICK)
+            {
+                JVQuickRelay();
             }
             else if (JVRelayClass.JVDataAccessType == JVRelayClass.eJVDataAccessType.eUMA)
             {
@@ -780,6 +781,54 @@ namespace JVRelay
             {
                 umaFromTextBox.Text = JVRelayClass.DbTimeStamp;
             }
+
+            #region raceWeekComboBox
+            DataTable dt = new DataTable();
+            DataRow dr;
+            dt.Columns.Add("text", typeof(String));
+            dt.Columns.Add("value", typeof(Int32));
+            dr = dt.NewRow();
+            dr["text"] = "月";
+            dr["value"] = (int)DayOfWeek.Monday;
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr["text"] = "火";
+            dr["value"] = (int)DayOfWeek.Tuesday;
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr["text"] = "水";
+            dr["value"] = (int)DayOfWeek.Wednesday;
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr["text"] = "木";
+            dr["value"] = (int)DayOfWeek.Thursday;
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr["text"] = "金";
+            dr["value"] = (int)DayOfWeek.Friday;
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr["text"] = "土";
+            dr["value"] = (int)DayOfWeek.Saturday;
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr["text"] = "日";
+            dr["value"] = (int)DayOfWeek.Sunday;
+            dt.Rows.Add(dr);
+
+            dt.AcceptChanges();
+            raceWeekComboBox.DataSource = dt;
+            raceWeekComboBox.DisplayMember = "text";
+            raceWeekComboBox.ValueMember = "value";
+
+            raceWeekComboBox.SelectedValue = (int)DayOfWeek.Wednesday;
+            #endregion
         }
 
         /// <summary>

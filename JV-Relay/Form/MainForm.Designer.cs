@@ -37,6 +37,8 @@
             this.mainToolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.mainToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.debugGroupBox = new System.Windows.Forms.GroupBox();
+            this.raceWeekLabel = new System.Windows.Forms.Label();
+            this.raceWeekComboBox = new System.Windows.Forms.ComboBox();
             this.quickDaysLabel = new System.Windows.Forms.Label();
             this.quickDaysTextBox = new System.Windows.Forms.TextBox();
             this.umaFileSaveButton = new System.Windows.Forms.Button();
@@ -80,10 +82,10 @@
             this.toolToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.readMeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.aboutBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.helpToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.readMeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainToolStripContainer.BottomToolStripPanel.SuspendLayout();
             this.mainToolStripContainer.ContentPanel.SuspendLayout();
             this.mainToolStripContainer.TopToolStripPanel.SuspendLayout();
@@ -148,6 +150,8 @@
             // 
             // debugGroupBox
             // 
+            this.debugGroupBox.Controls.Add(this.raceWeekLabel);
+            this.debugGroupBox.Controls.Add(this.raceWeekComboBox);
             this.debugGroupBox.Controls.Add(this.quickDaysLabel);
             this.debugGroupBox.Controls.Add(this.quickDaysTextBox);
             this.debugGroupBox.Controls.Add(this.umaFileSaveButton);
@@ -162,6 +166,23 @@
             this.debugGroupBox.TabIndex = 4;
             this.debugGroupBox.TabStop = false;
             this.debugGroupBox.Text = "デバッグ用";
+            // 
+            // raceWeekLabel
+            // 
+            this.raceWeekLabel.AutoSize = true;
+            this.raceWeekLabel.Location = new System.Drawing.Point(170, 36);
+            this.raceWeekLabel.Name = "raceWeekLabel";
+            this.raceWeekLabel.Size = new System.Drawing.Size(23, 12);
+            this.raceWeekLabel.TabIndex = 34;
+            this.raceWeekLabel.Text = "から";
+            // 
+            // raceWeekComboBox
+            // 
+            this.raceWeekComboBox.FormattingEnabled = true;
+            this.raceWeekComboBox.Location = new System.Drawing.Point(128, 33);
+            this.raceWeekComboBox.Name = "raceWeekComboBox";
+            this.raceWeekComboBox.Size = new System.Drawing.Size(36, 20);
+            this.raceWeekComboBox.TabIndex = 33;
             // 
             // quickDaysLabel
             // 
@@ -586,6 +607,18 @@
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(56, 22);
             this.helpToolStripMenuItem.Text = "ヘルプ";
             // 
+            // readMeToolStripMenuItem
+            // 
+            this.readMeToolStripMenuItem.Name = "readMeToolStripMenuItem";
+            this.readMeToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.readMeToolStripMenuItem.Text = "リリース内容";
+            this.readMeToolStripMenuItem.Click += new System.EventHandler(this.readMeToolStripMenuItem_Click);
+            // 
+            // helpToolStripSeparator
+            // 
+            this.helpToolStripSeparator.Name = "helpToolStripSeparator";
+            this.helpToolStripSeparator.Size = new System.Drawing.Size(169, 6);
+            // 
             // aboutBoxToolStripMenuItem
             // 
             this.aboutBoxToolStripMenuItem.Name = "aboutBoxToolStripMenuItem";
@@ -599,18 +632,6 @@
             this.mainBackgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.mainBackgroundWorker_DoWork);
             this.mainBackgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.mainBackgroundWorker_ProgressChanged);
             this.mainBackgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.mainBackgroundWorker_RunWorkerCompleted);
-            // 
-            // helpToolStripSeparator
-            // 
-            this.helpToolStripSeparator.Name = "helpToolStripSeparator";
-            this.helpToolStripSeparator.Size = new System.Drawing.Size(169, 6);
-            // 
-            // readMeToolStripMenuItem
-            // 
-            this.readMeToolStripMenuItem.Name = "readMeToolStripMenuItem";
-            this.readMeToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.readMeToolStripMenuItem.Text = "リリース内容";
-            this.readMeToolStripMenuItem.Click += new System.EventHandler(this.readMeToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -698,6 +719,8 @@
         private System.Windows.Forms.TextBox quickDaysTextBox;
         private System.Windows.Forms.ToolStripMenuItem readMeToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator helpToolStripSeparator;
+        private System.Windows.Forms.Label raceWeekLabel;
+        private System.Windows.Forms.ComboBox raceWeekComboBox;
     }
 }
 
