@@ -7,6 +7,7 @@ Option Explicit
 '// 2013/07/04  : (naruo)   落札結果シートの拡張等
 '// 2013/07/28  : (naruo)   手放し日付チェックを追加
 '// 2013/09/07  : (naruo)   馬記号の廃止、障害収得賞金の追加
+'// 2013/09/21  : (naruo)   馬クラス対応
 '//-----------------------------------------------------------------------------
 
 '// 参照シート
@@ -35,6 +36,9 @@ Global Const G_TRADE_SHEET As String = "⑥トレード"
 
 '// トレード結果シート
 Global Const G_TRADE_RESULT_SHEET As String = "☆トレード済"
+
+'// トレードシート
+Global Const G_CLASS_SHEET As String = "⑦馬クラス"
 
 '//-----------------------------------------------------------------------------
 '// 一次加工
@@ -81,6 +85,10 @@ Sub ProcessTempSheet()
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 11).Value = "収得賞金" & vbLf & "(障害)"
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 12).Value = "厩舎"
     Worksheets(G_BID_SHEET).Cells(nTempRowCount, 13).Value = "性齢"
+    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 14).Value = "クラス"
+    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 15).Value = "出走日"
+    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 16).Value = "クラス" & vbLf & "確定" & vbLf & "フラグ"
+    Worksheets(G_BID_SHEET).Cells(nTempRowCount, 17).Value = "最低" & vbLf & "落札" & vbLf & "価格"
     nTempRowCount = nTempRowCount + 1
 
     nBid = 0
@@ -112,7 +120,7 @@ Sub ProcessTempSheet()
     Cells.EntireColumn.AutoFit
 
     '// 並び替え
-    Worksheets(G_BID_SHEET).Range("A2:O2").Select
+    Worksheets(G_BID_SHEET).Range("A2:P2").Select
     Range(Selection, Selection.End(xlDown)).Select
     Selection.Sort Key1:=Range("A3"), Order1:=xlAscending _
         , Header:=xlYes, OrderCustom:=1, MatchCase:=False _
@@ -158,17 +166,19 @@ Sub UpdateTempSheet()
     Dim nPrizeHeichiCol As Long     '// 平地収得賞金列番号
     Dim nPrizeSyogaiCol As Long     '// 障害収得賞金列番号
 
+    Dim nClassBloodCol As Long      '// クラス血統登録番号列番号
+    Dim nClassCol As Long           '// クラス列番号
+    Dim nClassDateCol As Long       '// クラス日付列番号
+    Dim nClassFlgCol As Long        '// クラスフラグ列番号
+
     Dim rHorseList As Range         '// 馬名リストRange
     Dim rHorse As Range             '// 馬名Range
     Dim rOwnHorseList As Range      '// 所有馬リストRange
     Dim rOwnHorse As Range          '// 所有馬Range
+    Dim rClassList As Range         '// クラスリストRange
+    Dim rClass As Range             '// クラスRange
     Dim rHeaderList As Range        '// 馬名リストRange
     Dim rHeader As Range            '// 馬名Range
-    Dim rReleaseResultList As Range '// 馬名リストRange
-    Dim rReleaseResult As Range     '// 馬名Range
-
-    Dim sBidDate As Date            '// 落札日付
-    Dim sReleaseDate As Date        '// 手放日付
 
     Application.ScreenUpdating = False
     Application.Calculation = xlCalculationManual
@@ -264,6 +274,61 @@ Sub UpdateTempSheet()
     Cells.EntireColumn.AutoFit
 
 
+    Set rHeaderList = Worksheets(G_CLASS_SHEET).Rows("1:1")
+    '// 血統登録番号
+    sSearchColName = "血統登録番号"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_CLASS_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nClassBloodCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+
+    '// クラス
+    sSearchColName = "クラス"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_CLASS_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nClassCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+
+    '// 出走日
+    sSearchColName = "出走日"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_CLASS_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nClassDateCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+
+    '// クラス確定フラグ
+    sSearchColName = "クラス確定フラグ"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_CLASS_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nClassFlgCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+    Set rHeaderList = Nothing
+
+    '// 列幅調整
+    Worksheets(G_CLASS_SHEET).Select
+    Worksheets(G_CLASS_SHEET).Cells.Select
+    Selection.ColumnWidth = 50
+    Cells.EntireRow.AutoFit
+    Cells.EntireColumn.AutoFit
+
+
+
     '// 一次加工シート更新
     For nTempRowCount = 3 To 10000
         If Worksheets(G_BID_SHEET).Cells(nTempRowCount, 1).Value = "" Then
@@ -348,38 +413,35 @@ Sub UpdateTempSheet()
             If InStr(sBidStable, sWorkStable) = 0 Then
                 sComment = sComment & "厩舎"
             End If
-            
-            Set rReleaseResultList = Worksheets(G_RELEASE_RESULT_SHEET).Columns("G:G")
-            Set rReleaseResult = rReleaseResultList.Find(What:=sBlood, LookIn:=xlValues, LookAt:=xlWhole)
-            If Not rReleaseResult Is Nothing Then
-                '// 手放日付
-                sReleaseDate = Worksheets(G_RELEASE_RESULT_SHEET).Cells(rReleaseResult.Row, 11).Value
-                If (Hour(sReleaseDate) = 22 And Minute(sReleaseDate) >= 1) Or _
-                    Hour(sReleaseDate) > 22 Then
-                    '// 22:01を過ぎているため翌日扱いとする
-                    sReleaseDate = DateAdd("d", 1, DateValue(sReleaseDate))
-                Else
-                    sReleaseDate = DateValue(sReleaseDate)
-                End If
-                
-                '// 落札日付
-                sBidDate = Now
-                If (Hour(sBidDate) = 22 And Minute(sBidDate) >= 1) Or _
-                    Hour(sBidDate) > 22 Then
-                    '// 22:01を過ぎているため翌日扱いとする
-                    sBidDate = DateAdd("d", 1, DateValue(sBidDate))
-                Else
-                    sBidDate = DateValue(sBidDate)
-                End If
-                Do Until Weekday(sBidDate) = 4
-                    sBidDate = DateAdd("d", -1, sBidDate)
-                Loop
-                
-                '// 手放し７日未満チェック
-                If DateDiff("d", sReleaseDate, sBidDate) < 7 Then
-                    sComment = sComment & "手放し７日未満"
-                End If
+
+            Set rClassList = Worksheets(G_CLASS_SHEET).Columns(nClassBloodCol)
+            Set rClass = rClassList.Find(What:=sBlood, LookIn:=xlValues, LookAt:=xlWhole)
+
+            If Not rClass Is Nothing Then
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 14).Value = _
+                    Worksheets(G_CLASS_SHEET).Cells(rClass.Row, nClassCol).Value
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 15).Value = _
+                    Worksheets(G_CLASS_SHEET).Cells(rClass.Row, nClassDateCol).Value
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 16).Value = _
+                    Worksheets(G_CLASS_SHEET).Cells(rClass.Row, nClassFlgCol).Value
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 17).Value = _
+                    GetBidPrice(Worksheets(G_CLASS_SHEET).Cells(rClass.Row, nClassCol).Value)
+            Else
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 14).Value = "不明"
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 15).Value = ""
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 16).Value = ""
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 17).Value = -1
             End If
+
+            Set rClass = Nothing
+            Set rClassList = Nothing
+
+            '// 最低落札価格チェック
+            If Worksheets(G_BID_SHEET).Cells(nTempRowCount, 5).Value < _
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 17).Value Then
+                sComment = sComment & "最低落札価格"
+            End If
+
         Else
             '// 馬名不明
             sComment = "不明"
@@ -445,10 +507,17 @@ Sub UpdateOwnSheet()
     Dim nPrizeHeichiCol As Long     '// 平地収得賞金列番号
     Dim nPrizeSyogaiCol As Long     '// 障害収得賞金列番号
 
+    Dim nClassBloodCol As Long      '// クラス血統登録番号列番号
+    Dim nClassCol As Long           '// クラス列番号
+    Dim nClassDateCol As Long       '// クラス日付列番号
+    Dim nClassFlgCol As Long        '// クラスフラグ列番号
+
     Dim rHorseList As Range         '// 馬名リストRange
     Dim rHorse As Range             '// 馬名Range
     Dim rOwnHorseList As Range      '// 所有馬リストRange
     Dim rOwnHorse As Range          '// 所有馬Range
+    Dim rClassList As Range         '// クラスリストRange
+    Dim rClass As Range             '// クラスRange
     Dim rHeaderList As Range        '// 馬名リストRange
     Dim rHeader As Range            '// 馬名Range
 
@@ -457,7 +526,6 @@ Sub UpdateOwnSheet()
 
     '// 見出し行
     nOwnRowCount = 1
-
 
     Set rHeaderList = Worksheets(G_OWN_HORSE_SHEET).Rows("1:1")
     '// 馬名
@@ -546,7 +614,62 @@ Sub UpdateOwnSheet()
     Cells.EntireColumn.AutoFit
 
 
-    '// 一次加工シート更新
+    Set rHeaderList = Worksheets(G_CLASS_SHEET).Rows("1:1")
+    '// 血統登録番号
+    sSearchColName = "血統登録番号"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_CLASS_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nClassBloodCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+
+    '// クラス
+    sSearchColName = "クラス"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_CLASS_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nClassCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+
+    '// 出走日
+    sSearchColName = "出走日"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_CLASS_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nClassDateCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+
+    '// クラス確定フラグ
+    sSearchColName = "クラス確定フラグ"
+    Set rHeader = rHeaderList.Find(What:=sSearchColName, LookIn:=xlValues, LookAt:=xlWhole)
+    If rHeader Is Nothing Then
+        Call MsgBox("[" & Worksheets(G_CLASS_SHEET).Name & "]シートに[" & sSearchColName & "]が見つかりません。" & vbCrLf & "中断します。")
+        Exit Sub
+    Else
+        nClassFlgCol = rHeader.Column
+    End If
+    Set rHeader = Nothing
+    Set rHeaderList = Nothing
+
+    '// 列幅調整
+    Worksheets(G_CLASS_SHEET).Select
+    Worksheets(G_CLASS_SHEET).Cells.Select
+    Selection.ColumnWidth = 50
+    Cells.EntireRow.AutoFit
+    Cells.EntireColumn.AutoFit
+
+
+
+    '// 所有馬シート更新
     For nOwnRowCount = 2 To 10000
         If Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 1).Value = "" Then
             Exit For
@@ -562,6 +685,9 @@ Sub UpdateOwnSheet()
                 Exit Sub
             End If
         End If
+
+        Set rClassList = Worksheets(G_CLASS_SHEET).Columns(nClassBloodCol)
+        Set rClass = rClassList.Find(What:=sOwnBlood, LookIn:=xlValues, LookAt:=xlWhole)
 
 
         '// 馬処理
@@ -627,12 +753,30 @@ Sub UpdateOwnSheet()
                 sComment = sComment & "厩舎"
             End If
 
+            If Not rClass Is Nothing Then
+                Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 14).Value = _
+                    Worksheets(G_CLASS_SHEET).Cells(rClass.Row, nClassCol).Value
+                Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 15).Value = _
+                    Worksheets(G_CLASS_SHEET).Cells(rClass.Row, nClassDateCol).Value
+                Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 16).Value = _
+                    Worksheets(G_CLASS_SHEET).Cells(rClass.Row, nClassFlgCol).Value
+                Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 17).Value = _
+                    GetReleasePrice(Worksheets(G_CLASS_SHEET).Cells(rClass.Row, nClassCol).Value)
+            Else
+                Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 14).Value = "不明"
+                Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 15).Value = ""
+                Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 16).Value = ""
+                Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 17).Value = -1
+            End If
+
         Else
             '// 馬名不明
             sComment = "不明"
         End If
         Set rHorse = Nothing
         Set rHorseList = Nothing
+        Set rClass = Nothing
+        Set rClassList = Nothing
 
         '// 備考
         Worksheets(G_OWN_SHEET).Cells(nOwnRowCount, 8).Value = sComment
@@ -744,9 +888,16 @@ Sub UpdateRelease()
             Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").ClearContents
             
             Worksheets(G_RELEASE_SHEET).Range("A" & 3 & ":H" & 3).Copy
-            Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 12).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
-            Worksheets(G_OWN_SHEET).Range("A" & rOwnHorse.Row & ":K" & rOwnHorse.Row).Copy
             Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 1).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+            Worksheets(G_OWN_SHEET).Range("A" & rOwnHorse.Row & ":Q" & rOwnHorse.Row).Copy
+            Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 9).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+
+            '// 手放し価格チェック
+            If Replace(Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 8).Value, "万円", "") <> _
+                Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 25).Value Then
+                Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 8).Font.ColorIndex = 3
+            End If
+
 
             '// 手放しシートのレコードをクリア
             Worksheets(G_RELEASE_SHEET).Rows(3).Delete Shift:=xlUp
@@ -769,7 +920,7 @@ Sub UpdateRelease()
     
     '// 並び替え(日付)
     Worksheets(G_RELEASE_RESULT_SHEET).Range("A1:A1").Select
-    Selection.Sort Key1:=Range("L2"), Order1:=xlDescending _
+    Selection.Sort Key1:=Range("A2"), Order1:=xlDescending _
         , Header:=xlYes, OrderCustom:=1, MatchCase:=False _
         , Orientation:=xlTopToBottom, SortMethod:=xlPinYin
     
@@ -955,3 +1106,67 @@ Sub UpdateTrade()
     Call MsgBox("トレード情報を更新しました。", vbInformation)
 
 End Sub
+
+'//-----------------------------------------------------------------------------
+'// 最低落札価格の取得
+'//-----------------------------------------------------------------------------
+Public Function GetBidPrice(strClass As String) As Integer
+    Dim price As Integer
+    Select Case strClass
+        Case "2_0"
+            price = 500
+        Case "2_500"
+            price = 1000
+        Case "2_501"
+            price = 2500
+        Case "3_0"
+            price = 500
+        Case "3_500"
+            price = 500
+        Case "3_1000"
+            price = 1000
+        Case "3_1600"
+            price = 1600
+        Case "3_1601"
+            price = 2500
+        Case "S_0"
+            price = 500
+        Case "S_OP"
+            price = 1600
+        Case Else
+            price = -1
+    End Select
+    GetBidPrice = price
+End Function
+
+'//-----------------------------------------------------------------------------
+'// 手放し価格の取得
+'//-----------------------------------------------------------------------------
+Public Function GetReleasePrice(strClass As String) As Integer
+    Dim price As Integer
+    Select Case strClass
+        Case "2_0"
+            price = 250
+        Case "2_500"
+            price = 500
+        Case "2_501"
+            price = 1250
+        Case "3_0"
+            price = 250
+        Case "3_500"
+            price = 250
+        Case "3_1000"
+            price = 500
+        Case "3_1600"
+            price = 800
+        Case "3_1601"
+            price = 1250
+        Case "S_0"
+            price = 250
+        Case "S_OP"
+            price = 800
+        Case Else
+            price = -1
+    End Select
+    GetReleasePrice = price
+End Function
