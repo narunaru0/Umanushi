@@ -372,6 +372,9 @@ Sub UpdateTempSheet()
             '// 状態
             Worksheets(G_BID_SHEET).Cells(nTempRowCount, 9).Value = _
                 Worksheets(G_BID_HORSE_SHEET).Cells(rHorse.Row, nStatusCol).Value
+            If Worksheets(G_BID_SHEET).Cells(nTempRowCount, 9).Value = "抹消" Then
+                Worksheets(G_BID_SHEET).Cells(nTempRowCount, 9).Interior.ColorIndex = 38
+            End If
 
             '// 平地収得賞金
             Worksheets(G_BID_SHEET).Cells(nTempRowCount, 10).Value = _
