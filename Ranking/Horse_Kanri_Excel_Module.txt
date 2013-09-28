@@ -889,18 +889,24 @@ Sub UpdateRelease()
             Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").Copy
             Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").Insert Shift:=xlDown
             Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").ClearContents
-            
+            Worksheets(G_RELEASE_RESULT_SHEET).Rows("2:2").Font.ColorIndex = xlAutomatic
+
             Worksheets(G_RELEASE_SHEET).Range("A" & 3 & ":H" & 3).Copy
             Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 1).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
             Worksheets(G_OWN_SHEET).Range("A" & rOwnHorse.Row & ":Q" & rOwnHorse.Row).Copy
             Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 9).PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+
+            '// クラスチェック
+            If Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 7).Value <> _
+                GetClassName(Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 22).Value) Then
+                Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 7).Font.ColorIndex = 5
+            End If
 
             '// 手放し価格チェック
             If Replace(Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 8).Value, "万円", "") <> _
                 Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 25).Value Then
                 Worksheets(G_RELEASE_RESULT_SHEET).Cells(2, 8).Font.ColorIndex = 3
             End If
-
 
             '// 手放しシートのレコードをクリア
             Worksheets(G_RELEASE_SHEET).Rows(3).Delete Shift:=xlUp
@@ -1172,4 +1178,36 @@ Public Function GetReleasePrice(strClass As String) As Integer
             price = -1
     End Select
     GetReleasePrice = price
+End Function
+
+'//-----------------------------------------------------------------------------
+'// クラス名の取得
+'//-----------------------------------------------------------------------------
+Public Function GetClassName(strClass As String) As String
+    Dim className As String
+    Select Case strClass
+        Case "2_0"
+            className = "２歳収得賞金０万円"
+        Case "2_500"
+            className = "２歳収得賞金１～５００万円"
+        Case "2_501"
+            className = "２歳収得賞金５０１万円以上"
+        Case "3_0"
+            className = "３歳以上収得賞金０万円"
+        Case "3_500"
+            className = "３歳以上収得賞金１～５００万円"
+        Case "3_1000"
+            className = "３歳以上収得賞金５０１～１０００万円"
+        Case "3_1600"
+            className = "３歳以上収得賞金１００１～１６００万円"
+        Case "3_1601"
+            className = "３歳以上収得賞金１６０１万円以上"
+        Case "S_0"
+            className = "障害未勝利"
+        Case "S_OP"
+            className = "障害ＯＰクラス"
+        Case Else
+            className = "不明"
+    End Select
+    GetClassName = className
 End Function
