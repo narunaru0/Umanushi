@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
+using System.Web;
 
 namespace NushiPost
 {
@@ -18,30 +19,36 @@ namespace NushiPost
         {
             string result = "";
             string url;
+            string body;
             string errorMessage = string.Empty;
+            string logFilePath =  System.Windows.Forms.Application.StartupPath + @"\log.txt";
+
+            if (File.Exists(logFilePath))
+            {
+                File.Delete(logFilePath);
+            }
 
             NameValueCollection querystring = new NameValueCollection();
             CookieContainer cookies = new CookieContainer();
 
-            // 認証
-            url = "http://www.umanushi.com/old2/mail_form/";
-            querystring["usr"] = nameTextBox.Text;
-            querystring["pwd"] = passwordTextBox.Text;
-            result = HttpPost(url, querystring, cookies);
-            if (cookies.Count == 0)
-            {
-                // 認証に失敗
-                errorMessage = string.Format("ログインに失敗しました。うまぬし名=[{1}]、パスワード=[{2}]",
-                    querystring["usr"],
-                    querystring["pwd"]);
-                return;
-            }
-            querystring.Clear();
-
             // 送信
+            url = "http://www.umanushi.com/old2/mail_form/";
+            body = "";
+            foreach (var s in bodyTextBox.Text.Replace("\r\n", "\n").Split('\n'))
+            {
+                if (s.StartsWith("http://"))
+                {
+                    body += HttpUtility.UrlEncode(s) + "<br>";
+                }
+                else
+                {
+                    body += s + "<br>";
+                }
+            }
+            
             foreach (var to in toTextBox.Text.Replace("\r\n", "\n").Split('\n'))
             {
-                url = "http://www.umanushi.com/old2/mail_form/";
+                querystring.Clear();
                 querystring["mode"] = "mail_go";
                 querystring["speed"] = "mid";
                 querystring["usr"] = nameTextBox.Text;
@@ -49,11 +56,16 @@ namespace NushiPost
                 querystring["subject"] = subjectTextBox.Text;
                 querystring["from"] = nameTextBox.Text;
                 querystring["to"] = to;
-                querystring["body"] = bodyTextBox.Text;
-                result = HttpPost(url, querystring, cookies);
+                querystring["body"] = body;
+
+                result = HttpPost(url, querystring);
+
+                File.AppendAllText(logFilePath, result);
 
                 System.Threading.Thread.Sleep(5000);
             }
+
+            MessageBox.Show("終了しました。");
         }
 
         /// <summary>
@@ -61,9 +73,8 @@ namespace NushiPost
         /// </summary>
         /// <param name="url">対象URL</param>
         /// <param name="querystring">POSTパラメータ</param>
-        /// <param name="cookies">POST時に使用するCookie</param>
         /// <returns>HTTPのPOST結果</returns>
-        public string HttpPost(string url, NameValueCollection querystring, CookieContainer cookies)
+        public string HttpPost(string url, NameValueCollection querystring)
         {
             string param = "";
             if (querystring != null)
@@ -80,7 +91,6 @@ namespace NushiPost
             req.Method = "POST";
             req.ContentType = "application/x-www-form-urlencoded";
             req.ContentLength = data.Length;
-            req.CookieContainer = cookies;
 
             // ポスト・データの書き込み
             Stream reqStream = req.GetRequestStream();
