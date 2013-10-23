@@ -1086,7 +1086,12 @@ Sub UpdateTrade()
 
             Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nOwnerCol).Value = sTradeBuyer
             Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nPriceCol).Value = sTradePrice
-            Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nDateCol).Value = sTradeComent
+            If Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nDateCol).Value <> "" Then
+                Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nDateCol).Value = _
+                    Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nDateCol).Value & " " & sTradeComent
+            Else
+                Worksheets(G_OWN_SHEET).Cells(rOwnHorse.Row, nDateCol).Value = sTradeComent
+            End If
             
             '// トレードシートのレコードをクリア
             Worksheets(G_TRADE_SHEET).Rows(3).Delete Shift:=xlUp
@@ -1211,3 +1216,5 @@ Public Function GetClassName(strClass As String) As String
     End Select
     GetClassName = className
 End Function
+
+
