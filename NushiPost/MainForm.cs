@@ -13,6 +13,8 @@ namespace NushiPost
         public MainForm()
         {
             InitializeComponent();
+
+            waitComboBox.SelectedItem = "5"; 
         }
 
         private void postButton_Click(object sender, EventArgs e)
@@ -45,8 +47,9 @@ namespace NushiPost
                     body += s + "<br>";
                 }
             }
-            
-            foreach (var to in toTextBox.Text.Replace("\r\n", "\n").Split('\n'))
+
+            var toList = toTextBox.Text.Replace("\r\n", "\n").Split('\n');
+            for (int i = 0; i < toList.Length; i++)
             {
                 querystring.Clear();
                 querystring["mode"] = "mail_go";
@@ -55,17 +58,18 @@ namespace NushiPost
                 querystring["pwd"] = passwordTextBox.Text;
                 querystring["subject"] = subjectTextBox.Text;
                 querystring["from"] = nameTextBox.Text;
-                querystring["to"] = to;
+                querystring["to"] = toList[i];
                 querystring["body"] = body;
 
                 result = HttpPost(url, querystring);
 
                 File.AppendAllText(logFilePath, result);
 
-                System.Threading.Thread.Sleep(5000);
-            }
+                if (i == toList.Length - 1) break;
 
-            MessageBox.Show("終了しました。");
+                System.Threading.Thread.Sleep(int.Parse(waitComboBox.Text) * 1000);
+            }
+            MessageBox.Show("送信しました。", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
