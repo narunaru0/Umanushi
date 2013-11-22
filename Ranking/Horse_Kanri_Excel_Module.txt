@@ -8,6 +8,7 @@ Option Explicit
 '// 2013/07/28  : (naruo)   手放し日付チェックを追加
 '// 2013/09/07  : (naruo)   馬記号の廃止、障害収得賞金の追加
 '// 2013/09/21  : (naruo)   馬クラス対応
+'// 2013/11/23  : (naruo)   入札単位チェック追加
 '//-----------------------------------------------------------------------------
 
 '// 参照シート
@@ -443,6 +444,11 @@ Sub UpdateTempSheet()
             If Worksheets(G_BID_SHEET).Cells(nTempRowCount, 5).Value < _
                 Worksheets(G_BID_SHEET).Cells(nTempRowCount, 17).Value Then
                 sComment = sComment & "最低落札価格"
+            End If
+
+            '// 入札単位チェック
+            If (Worksheets(G_BID_SHEET).Cells(nTempRowCount, 5).Value Mod 50) <> 0 Then
+                sComment = sComment & "入札単位"
             End If
 
         Else
