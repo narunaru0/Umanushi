@@ -129,6 +129,9 @@ Sub MakeRankingSheet()
     '// JRAレース結果の取得
     '//---------------------------------------------------------
     Worksheets(G_RACE_INPUT_SHEET).Select
+    If Worksheets(G_RACE_INPUT_SHEET).FilterMode = True Then
+      Worksheets(G_RACE_INPUT_SHEET).ShowAllData
+    End If
 
     '// 並び替え(うまぬし名、日付、レースKey)
     Worksheets(G_RACE_INPUT_SHEET).Range("A1:W1").Select
@@ -210,7 +213,10 @@ Sub MakeRankingSheet()
     '// 落札結果の取得
     '//---------------------------------------------------------
     Worksheets(G_SUCESS_BID_INPUT_SHEET).Select
-
+    If Worksheets(G_SUCESS_BID_INPUT_SHEET).FilterMode = True Then
+      Worksheets(G_SUCESS_BID_INPUT_SHEET).ShowAllData
+    End If
+    
     '// 読込
     For nRowCount = 2 To 30000
         If Worksheets(G_SUCESS_BID_INPUT_SHEET).Range("A" & nRowCount).Value = "" Then
@@ -259,6 +265,9 @@ Sub MakeRankingSheet()
     '// 手放結果の取得
     '//---------------------------------------------------------
     Worksheets(G_RELEASE_INPUT_SHEET).Select
+    If Worksheets(G_RELEASE_INPUT_SHEET).FilterMode = True Then
+      Worksheets(G_RELEASE_INPUT_SHEET).ShowAllData
+    End If
 
     '// 読込
     For nRowCount = 2 To 30000
@@ -316,6 +325,9 @@ Sub MakeRankingSheet()
     '// その他の取得
     '//---------------------------------------------------------
     Worksheets(G_OTHER_INPUT_SHEET).Select
+    If Worksheets(G_OTHER_INPUT_SHEET).FilterMode = True Then
+      Worksheets(G_OTHER_INPUT_SHEET).ShowAllData
+    End If
 
     '// 読込
     For nRowCount = 2 To 30000
@@ -387,6 +399,9 @@ Sub MakeRankingSheet()
     '// 明細シートの作成
     '//---------------------------------------------------------
     Worksheets(G_THIS_WEEK_SHEET).Select
+    If Worksheets(G_THIS_WEEK_SHEET).FilterMode = True Then
+      Worksheets(G_THIS_WEEK_SHEET).ShowAllData
+    End If
     Worksheets(G_THIS_WEEK_SHEET).Rows("2").Select
     Range(Selection, Selection.End(xlDown)).Select
     Selection.Delete Shift:=xlUp
@@ -563,6 +578,9 @@ Sub MakeRankingSheet()
     '// 累積明細シートの準備
     '//---------------------------------------------------------
     Worksheets(G_TOTAL_SHEET).Select
+    If Worksheets(G_TOTAL_SHEET).FilterMode = True Then
+      Worksheets(G_TOTAL_SHEET).ShowAllData
+    End If
 
     '// 並び替え(日付)
     Worksheets(G_TOTAL_SHEET).Range("A1:G1").Select
@@ -572,7 +590,7 @@ Sub MakeRankingSheet()
         , Orientation:=xlTopToBottom, SortMethod:=xlPinYin
 
     '// 読込
-    For nTotalRowCount = 2 To 10000
+    For nTotalRowCount = 2 To 30000
         If Worksheets(G_TOTAL_SHEET).Range("A" & nTotalRowCount).Value = "" Then
             '// データなしレコードに到達した場合、読込終了
             Exit For
@@ -654,7 +672,7 @@ Sub MakeRankingSheet()
         Worksheets(G_TOTAL_SHEET).Select
         Worksheets(G_TOTAL_SHEET).Columns("B:B").Select
         Set objRange = Selection.Find(What:=sName, After:=ActiveCell, LookIn:=xlFormulas, _
-            LookAt:=xlWhole, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+            SearchOrder:=xlByRows, SearchDirection:=xlNext, _
             MatchCase:=False, MatchByte:=False, SearchFormat:=False)
 
         If (objRange Is Nothing) = False Then
