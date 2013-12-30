@@ -30,22 +30,21 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.bodyTextBox = new NushiPost.MyTextBox();
             this.panel4 = new System.Windows.Forms.Panel();
             this.waitLabel = new System.Windows.Forms.Label();
             this.waitComboBox = new System.Windows.Forms.ComboBox();
             this.postButton = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.subjectTextBox = new NushiPost.MyTextBox();
             this.subjectLabel = new System.Windows.Forms.Label();
+            this.passwordTextBox = new NushiPost.MyTextBox();
             this.passwordLabel = new System.Windows.Forms.Label();
+            this.nameTextBox = new NushiPost.MyTextBox();
             this.nameLabel = new System.Windows.Forms.Label();
+            this.toTextBox = new NushiPost.MyTextBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.toLabel = new System.Windows.Forms.Label();
-            this.bodyTextBox = new NushiPost.MyTextBox();
-            this.subjectTextBox = new NushiPost.MyTextBox();
-            this.passwordTextBox = new NushiPost.MyTextBox();
-            this.nameTextBox = new NushiPost.MyTextBox();
-            this.toTextBox = new NushiPost.MyTextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -83,6 +82,16 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(453, 316);
             this.panel2.TabIndex = 1;
+            // 
+            // bodyTextBox
+            // 
+            this.bodyTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bodyTextBox.Location = new System.Drawing.Point(0, 0);
+            this.bodyTextBox.Multiline = true;
+            this.bodyTextBox.Name = "bodyTextBox";
+            this.bodyTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.bodyTextBox.Size = new System.Drawing.Size(453, 316);
+            this.bodyTextBox.TabIndex = 0;
             // 
             // panel4
             // 
@@ -148,6 +157,13 @@
             this.panel1.Size = new System.Drawing.Size(453, 52);
             this.panel1.TabIndex = 0;
             // 
+            // subjectTextBox
+            // 
+            this.subjectTextBox.Location = new System.Drawing.Point(69, 29);
+            this.subjectTextBox.Name = "subjectTextBox";
+            this.subjectTextBox.Size = new System.Drawing.Size(367, 19);
+            this.subjectTextBox.TabIndex = 5;
+            // 
             // subjectLabel
             // 
             this.subjectLabel.AutoSize = true;
@@ -156,6 +172,13 @@
             this.subjectLabel.Size = new System.Drawing.Size(35, 12);
             this.subjectLabel.TabIndex = 4;
             this.subjectLabel.Text = "題名：";
+            // 
+            // passwordTextBox
+            // 
+            this.passwordTextBox.Location = new System.Drawing.Point(252, 4);
+            this.passwordTextBox.Name = "passwordTextBox";
+            this.passwordTextBox.Size = new System.Drawing.Size(100, 19);
+            this.passwordTextBox.TabIndex = 3;
             // 
             // passwordLabel
             // 
@@ -166,6 +189,13 @@
             this.passwordLabel.TabIndex = 2;
             this.passwordLabel.Text = "パスワード：";
             // 
+            // nameTextBox
+            // 
+            this.nameTextBox.Location = new System.Drawing.Point(69, 4);
+            this.nameTextBox.Name = "nameTextBox";
+            this.nameTextBox.Size = new System.Drawing.Size(100, 19);
+            this.nameTextBox.TabIndex = 1;
+            // 
             // nameLabel
             // 
             this.nameLabel.AutoSize = true;
@@ -174,6 +204,16 @@
             this.nameLabel.Size = new System.Drawing.Size(58, 12);
             this.nameLabel.TabIndex = 0;
             this.nameLabel.Text = "うまぬし名：";
+            // 
+            // toTextBox
+            // 
+            this.toTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toTextBox.Location = new System.Drawing.Point(0, 33);
+            this.toTextBox.Multiline = true;
+            this.toTextBox.Name = "toTextBox";
+            this.toTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.toTextBox.Size = new System.Drawing.Size(173, 378);
+            this.toTextBox.TabIndex = 0;
             // 
             // panel3
             // 
@@ -193,47 +233,6 @@
             this.toLabel.TabIndex = 3;
             this.toLabel.Text = "宛先リスト";
             // 
-            // bodyTextBox
-            // 
-            this.bodyTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bodyTextBox.Location = new System.Drawing.Point(0, 0);
-            this.bodyTextBox.Multiline = true;
-            this.bodyTextBox.Name = "bodyTextBox";
-            this.bodyTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.bodyTextBox.Size = new System.Drawing.Size(453, 316);
-            this.bodyTextBox.TabIndex = 0;
-            // 
-            // subjectTextBox
-            // 
-            this.subjectTextBox.Location = new System.Drawing.Point(69, 29);
-            this.subjectTextBox.Name = "subjectTextBox";
-            this.subjectTextBox.Size = new System.Drawing.Size(367, 19);
-            this.subjectTextBox.TabIndex = 5;
-            // 
-            // passwordTextBox
-            // 
-            this.passwordTextBox.Location = new System.Drawing.Point(252, 4);
-            this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.Size = new System.Drawing.Size(100, 19);
-            this.passwordTextBox.TabIndex = 3;
-            // 
-            // nameTextBox
-            // 
-            this.nameTextBox.Location = new System.Drawing.Point(69, 4);
-            this.nameTextBox.Name = "nameTextBox";
-            this.nameTextBox.Size = new System.Drawing.Size(100, 19);
-            this.nameTextBox.TabIndex = 1;
-            // 
-            // toTextBox
-            // 
-            this.toTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toTextBox.Location = new System.Drawing.Point(0, 33);
-            this.toTextBox.Multiline = true;
-            this.toTextBox.Name = "toTextBox";
-            this.toTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.toTextBox.Size = new System.Drawing.Size(173, 378);
-            this.toTextBox.TabIndex = 0;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -245,7 +244,6 @@
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();

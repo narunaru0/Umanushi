@@ -19,57 +19,60 @@ namespace NushiPost
 
         private void postButton_Click(object sender, EventArgs e)
         {
+            Cursor preCursor = Cursor.Current;
             string result = "";
             string url;
             string body;
             string errorMessage = string.Empty;
             string logFilePath =  System.Windows.Forms.Application.StartupPath + @"\log.txt";
 
-            if (File.Exists(logFilePath))
+            try
             {
-                File.Delete(logFilePath);
-            }
+                Cursor.Current = Cursors.WaitCursor;
 
-            NameValueCollection querystring = new NameValueCollection();
-            CookieContainer cookies = new CookieContainer();
-
-            // 送信
-            url = "http://www.umanushi.com/old2/mail_form/";
-            body = "";
-            foreach (var s in bodyTextBox.Text.Replace("\r\n", "\n").Split('\n'))
-            {
-                if (s.StartsWith("http://"))
+                if (File.Exists(logFilePath))
                 {
-                    body += HttpUtility.UrlEncode(s) + "<br>";
+                    File.Delete(logFilePath);
                 }
-                else
+
+                NameValueCollection querystring = new NameValueCollection();
+                CookieContainer cookies = new CookieContainer();
+
+                // 送信
+                url = "http://www.umanushi.com/old2/mail_form/";
+                body = "";
+                foreach (var s in bodyTextBox.Text.Replace("\r\n", "\n").Split('\n'))
                 {
-                    body += s + "<br>";
+                    body += s.Replace("&", "%26").Replace("=","%3d") + "<br>";
                 }
-            }
 
-            var toList = toTextBox.Text.Replace("\r\n", "\n").Split('\n');
-            for (int i = 0; i < toList.Length; i++)
+                var toList = toTextBox.Text.Replace("\r\n", "\n").Split('\n');
+                for (int i = 0; i < toList.Length; i++)
+                {
+                    querystring.Clear();
+                    querystring["mode"] = "mail_go";
+                    querystring["speed"] = "mid";
+                    querystring["usr"] = nameTextBox.Text.Replace("&", "%26").Replace("=", "%3d");
+                    querystring["pwd"] = passwordTextBox.Text.Replace("&", "%26").Replace("=", "%3d");
+                    querystring["subject"] = subjectTextBox.Text.Replace("&", "%26").Replace("=", "%3d");
+                    querystring["from"] = nameTextBox.Text.Replace("&", "%26").Replace("=", "%3d");
+                    querystring["to"] = toList[i].Replace("&", "%26").Replace("=", "%3d");
+                    querystring["body"] = body;
+
+                    result = HttpPost(url, querystring);
+
+                    File.AppendAllText(logFilePath, result);
+
+                    if (i == toList.Length - 1) break;
+
+                    System.Threading.Thread.Sleep(int.Parse(waitComboBox.Text) * 1000);
+                }
+                MessageBox.Show("送信しました。", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            finally
             {
-                querystring.Clear();
-                querystring["mode"] = "mail_go";
-                querystring["speed"] = "mid";
-                querystring["usr"] = nameTextBox.Text;
-                querystring["pwd"] = passwordTextBox.Text;
-                querystring["subject"] = subjectTextBox.Text;
-                querystring["from"] = nameTextBox.Text;
-                querystring["to"] = toList[i];
-                querystring["body"] = body;
-
-                result = HttpPost(url, querystring);
-
-                File.AppendAllText(logFilePath, result);
-
-                if (i == toList.Length - 1) break;
-
-                System.Threading.Thread.Sleep(int.Parse(waitComboBox.Text) * 1000);
+                Cursor.Current = preCursor;
             }
-            MessageBox.Show("送信しました。", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
