@@ -76,6 +76,30 @@ namespace NushiPost
         }
 
         /// <summary>
+        /// HTTPでのGET処理
+        /// </summary>
+        /// <param name="url">対象URL</param>
+        /// <param name="cookies">GET時に使用するCookie</param>
+        /// <returns>HTTPのGET結果</returns>
+        public static string HttpGet(string url, CookieContainer cookies)
+        {
+            // リクエストの作成
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+            req.CookieContainer = cookies;
+
+            WebResponse res = req.GetResponse();
+
+            // レスポンスの読み取り
+            Stream resStream = res.GetResponseStream();
+            StreamReader sr = new StreamReader(resStream, Encoding.GetEncoding("Shift-JIS"));
+            string result = sr.ReadToEnd();
+            sr.Close();
+            resStream.Close();
+
+            return result;
+        }
+
+        /// <summary>
         /// HTTPでのPOST処理
         /// </summary>
         /// <param name="url">対象URL</param>
