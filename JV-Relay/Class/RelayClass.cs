@@ -189,6 +189,11 @@ namespace JVRelay
         public static bool IsPostFile { get; set; }
 
         /// <summary>
+        /// 年替わりか
+        /// </summary>
+        public static bool IsNextYear { get; set; }
+
+        /// <summary>
         /// データ破棄する馬の生年
         /// </summary>
         public static int DiscardBirthYear
@@ -691,13 +696,14 @@ namespace JVRelay
         }
 
         /// <summary>
-        /// JVUmaReading処理
+        /// JVUmaOutput処理
         /// </summary>
-        public static void JVUmaReading()
+        public static void JVUmaOutput()
         {
             DataTable umaDataTable = new DataTable();
-            string delDate = DateTime.Today.AddMonths(-3).ToString("yyyyMMdd");
+            string delDate = DateTime.Today.AddMonths(-6).ToString("yyyyMMdd");
 
+            // 出力データ取得
             using (SQLiteCommand command = DbConn.CreateCommand())
             {
                 command.CommandText = "SELECT * FROM uma WHERE DelKubun='0' OR (DelKubun='1' AND DelDate>='" + delDate + "')";
@@ -705,10 +711,44 @@ namespace JVRelay
                 {
                     da.Fill(umaDataTable);
                 }
-                foreach (DataRow dr in umaDataTable.Rows)
+            }
+
+            // 年替わり更新
+            if (JVRelayClass.IsNextYear == true)
+            {
+                foreach (DataRow umaDataRow in umaDataTable.Rows)
                 {
-                    OutputUmaData(eOutput.Umanushi, dr);
+                    if (umaDataRow["UmaClass"].ToString() != GetUmaClass(umaDataRow))
+                    {
+                        umaDataRow["UmaClass"] = GetUmaClass(umaDataRow);
+                    }
                 }
+                // データ更新
+                using (SQLiteTransaction tran = DbConn.BeginTransaction())
+                {
+                    using (SQLiteCommand command = DbConn.CreateCommand())
+                    {
+                        command.Transaction = tran;
+                        command.CommandText = "SELECT * FROM uma";
+                        using (SQLiteDataAdapter da = new SQLiteDataAdapter(command))
+                        using (SQLiteCommandBuilder cb = new SQLiteCommandBuilder(da))
+                        {
+                            cb.SetAllValues = false;
+                            cb.ConflictOption = ConflictOption.OverwriteChanges;
+                            da.UpdateCommand = cb.GetUpdateCommand();
+                            da.InsertCommand = cb.GetInsertCommand();
+                            da.DeleteCommand = cb.GetDeleteCommand();
+                            da.Update(umaDataTable);
+                        }
+                    }
+                    tran.Commit();
+                }
+            }
+
+            // 出力
+            foreach (DataRow dr in umaDataTable.Rows)
+            {
+                OutputUmaData(eOutput.Umanushi, dr);
             }
         }
 

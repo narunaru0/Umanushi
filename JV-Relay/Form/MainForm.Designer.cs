@@ -37,6 +37,7 @@
             this.mainToolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.mainToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.debugGroupBox = new System.Windows.Forms.GroupBox();
+            this.isNextYearCheckBox = new System.Windows.Forms.CheckBox();
             this.raceWeekLabel = new System.Windows.Forms.Label();
             this.raceWeekComboBox = new System.Windows.Forms.ComboBox();
             this.quickDaysLabel = new System.Windows.Forms.Label();
@@ -150,6 +151,7 @@
             // 
             // debugGroupBox
             // 
+            this.debugGroupBox.Controls.Add(this.isNextYearCheckBox);
             this.debugGroupBox.Controls.Add(this.raceWeekLabel);
             this.debugGroupBox.Controls.Add(this.raceWeekComboBox);
             this.debugGroupBox.Controls.Add(this.quickDaysLabel);
@@ -166,6 +168,16 @@
             this.debugGroupBox.TabIndex = 4;
             this.debugGroupBox.TabStop = false;
             this.debugGroupBox.Text = "デバッグ用";
+            // 
+            // isNextYearCheckBox
+            // 
+            this.isNextYearCheckBox.AutoSize = true;
+            this.isNextYearCheckBox.Location = new System.Drawing.Point(351, 128);
+            this.isNextYearCheckBox.Name = "isNextYearCheckBox";
+            this.isNextYearCheckBox.Size = new System.Drawing.Size(90, 16);
+            this.isNextYearCheckBox.TabIndex = 35;
+            this.isNextYearCheckBox.Text = "年替わり処理";
+            this.isNextYearCheckBox.UseVisualStyleBackColor = true;
             // 
             // raceWeekLabel
             // 
@@ -721,6 +733,7 @@
         private System.Windows.Forms.ToolStripSeparator helpToolStripSeparator;
         private System.Windows.Forms.Label raceWeekLabel;
         private System.Windows.Forms.ComboBox raceWeekComboBox;
+        private System.Windows.Forms.CheckBox isNextYearCheckBox;
     }
 }
 

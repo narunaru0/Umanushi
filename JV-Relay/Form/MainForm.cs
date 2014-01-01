@@ -476,6 +476,7 @@ namespace JVRelay
             JVRelayClass.ToDate = "";
             JVRelayClass.IsSaveFile = true;
             JVRelayClass.IsPostFile = false;
+            JVRelayClass.IsNextYear = isNextYearCheckBox.Checked;
             mainBackgroundWorker.RunWorkerAsync();
         }
 
@@ -555,6 +556,7 @@ namespace JVRelay
             JVRelayClass.ToDate = "";
             JVRelayClass.IsSaveFile = false;
             JVRelayClass.IsPostFile = true;
+            JVRelayClass.IsNextYear = isNextYearCheckBox.Checked;
             mainBackgroundWorker.RunWorkerAsync();
         }
 
@@ -1039,8 +1041,8 @@ namespace JVRelay
                 JVRelayClass.JVClosing();
             }
 
-            // JVUmaReading処理
-            JVRelayClass.JVUmaReading();
+            // JVUmaOutput処理
+            JVRelayClass.JVUmaOutput();
 
             // JVRelayファイル名の設定
             JVRelayFileName = "JVUma_" + JVRelayClass.LastFileTimestamp;
